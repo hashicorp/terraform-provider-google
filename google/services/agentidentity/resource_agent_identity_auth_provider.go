@@ -920,7 +920,12 @@ func resourceAgentIdentityAuthProviderUpdate(d *schema.ResourceData, meta interf
 		updateMask = append(updateMask, "authProviderTypeParams.apiKey",
 			"authProviderTypeParams.connectorReferenceAuthProvider.authorizationDetails",
 			"authProviderTypeParams.connectorReferenceAuthProvider.connector",
-			"authProviderTypeParams.threeLeggedOauth",
+			"authProviderTypeParams.threeLeggedOauth.authorizationUrl",
+			"authProviderTypeParams.threeLeggedOauth.clientId",
+			"authProviderTypeParams.threeLeggedOauth.clientSecret",
+			"authProviderTypeParams.threeLeggedOauth.defaultContinueUri",
+			"authProviderTypeParams.threeLeggedOauth.enablePkce",
+			"authProviderTypeParams.threeLeggedOauth.tokenUrl",
 			"authProviderTypeParams.twoLeggedOauth",
 			"authProviderTypeParams.xaaAuthProvider")
 	}
@@ -1135,7 +1140,31 @@ func flattenAgentIdentityAuthProviderAuthProviderTypeParamsGeAuthProvider(v inte
 }
 
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("auth_provider_type_params.0.three_legged_oauth")
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["authorization_url"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthAuthorizationUrl(original["authorizationUrl"], d, config)
+	transformed["client_id"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthClientId(original["clientId"], d, config)
+	transformed["client_secret"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthClientSecret(original["clientSecret"], d, config)
+	transformed["default_continue_uri"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthDefaultContinueUri(original["defaultContinueUri"], d, config)
+	transformed["enable_pkce"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthEnablePkce(original["enablePkce"], d, config)
+	transformed["redirect_url"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthRedirectUrl(original["redirectUrl"], d, config)
+	transformed["token_url"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthTokenUrl(original["tokenUrl"], d, config)
+	transformed["client_secret_wo_version"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthClientSecretWoVersion(original["clientSecretWoVersion"], d, config)
+	return []interface{}{transformed}
 }
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthAuthorizationUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
@@ -1146,7 +1175,7 @@ func flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthClien
 }
 
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("auth_provider_type_params.0.three_legged_oauth.0.client_secret")
 }
 
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthDefaultContinueUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1170,14 +1199,30 @@ func flattenAgentIdentityAuthProviderAuthProviderTypeParamsThreeLeggedOauthClien
 }
 
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return d.Get("auth_provider_type_params.0.two_legged_oauth")
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["client_id"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthClientId(original["clientId"], d, config)
+	transformed["client_secret"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthClientSecret(original["clientSecret"], d, config)
+	transformed["token_url"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthTokenUrl(original["tokenUrl"], d, config)
+	transformed["client_secret_wo_version"] =
+		flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthClientSecretWoVersion(original["clientSecretWoVersion"], d, config)
+	return []interface{}{transformed}
 }
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthClientId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthClientSecret(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
-	return v
+	return d.Get("auth_provider_type_params.0.two_legged_oauth.0.client_secret")
 }
 
 func flattenAgentIdentityAuthProviderAuthProviderTypeParamsTwoLeggedOauthTokenUrl(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {

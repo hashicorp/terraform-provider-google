@@ -77,7 +77,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderBasicExample(t *t
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -131,7 +131,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenc
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -151,7 +151,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderConnectorReferenc
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -237,7 +237,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaExample(t *tes
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -257,7 +257,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaExample(t *tes
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -364,7 +364,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtExample(t *
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",
@@ -384,7 +384,7 @@ func TestAccAgentIdentityAuthProvider_agentIdentityAuthProviderXaaJwtExample(t *
 				ResourceName:            "google_agent_identity_auth_provider.default",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth", "auth_provider_type_params.0.two_legged_oauth", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
+				ImportStateVerifyIgnore: []string{"auth_provider_id", "auth_provider_type_params.0.api_key", "auth_provider_type_params.0.three_legged_oauth.0.client_secret", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.three_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.two_legged_oauth.0.client_secret", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo", "auth_provider_type_params.0.two_legged_oauth.0.client_secret_wo_version", "auth_provider_type_params.0.xaa_auth_provider.0.client_secret_auth.0.client_secret", "labels", "location", "terraform_labels", "workload_ids"},
 			},
 			{
 				ResourceName:       "google_agent_identity_auth_provider.default",

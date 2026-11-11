@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 )
 
@@ -44,12 +45,18 @@ func TestAccAgentIdentityAuthProvider_update(t *testing.T) {
 			},
 			{
 				Config: testAccAgentIdentityAuthProvider_updateStep2(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agent_identity_auth_provider.default", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
-				ResourceName:            "google_agent_identity_auth_provider.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_type_params", "location", "auth_provider_id", "workload_ids", "labels", "terraform_labels", "effective_labels"},
+				ResourceName:      "google_agent_identity_auth_provider.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// client_secret is input-only in the API; location and auth_provider_id are url_param_only.
+				ImportStateVerifyIgnore: []string{"auth_provider_type_params.0.three_legged_oauth.0.client_secret", "location", "auth_provider_id", "workload_ids", "labels", "terraform_labels", "effective_labels"},
 			},
 		},
 	})
@@ -75,10 +82,26 @@ func TestAccAgentIdentityAuthProvider_twoLeggedOauth(t *testing.T) {
 				Config: testAccAgentIdentityAuthProvider_twoLeggedOauth(context),
 			},
 			{
-				ResourceName:            "google_agent_identity_auth_provider.default",
-				ImportState:             true,
-				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auth_provider_type_params", "location", "auth_provider_id", "workload_ids"},
+				ResourceName:      "google_agent_identity_auth_provider.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// client_secret and workload_ids are input-only in the API; location and auth_provider_id are url_param_only.
+				ImportStateVerifyIgnore: []string{"auth_provider_type_params.0.two_legged_oauth.0.client_secret", "location", "auth_provider_id", "workload_ids"},
+			},
+			{
+				Config: testAccAgentIdentityAuthProvider_twoLeggedOauthUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agent_identity_auth_provider.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_agent_identity_auth_provider.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// client_secret and workload_ids are input-only in the API; location and auth_provider_id are url_param_only.
+				ImportStateVerifyIgnore: []string{"auth_provider_type_params.0.two_legged_oauth.0.client_secret", "location", "auth_provider_id", "workload_ids"},
 			},
 		},
 	})
@@ -102,13 +125,42 @@ func TestAccAgentIdentityAuthProvider_threeLeggedOauth(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccAgentIdentityAuthProvider_threeLeggedOauth(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_agent_identity_auth_provider.default",
+						"auth_provider_type_params.0.three_legged_oauth.0.redirect_url",
+					),
+				),
 			},
 			{
 				ResourceName:      "google_agent_identity_auth_provider.default",
 				ImportState:       true,
 				ImportStateVerify: true,
+				// client_secret is input-only in the API; location and auth_provider_id are url_param_only.
 				// Include "labels" only if GET /authProviders/{id} does not return labels identically yet:
-				ImportStateVerifyIgnore: []string{"auth_provider_type_params", "location", "auth_provider_id", "workload_ids", "labels", "terraform_labels", "effective_labels"},
+				ImportStateVerifyIgnore: []string{"auth_provider_type_params.0.three_legged_oauth.0.client_secret", "location", "auth_provider_id", "workload_ids", "labels", "terraform_labels", "effective_labels"},
+			},
+			{
+				Config: testAccAgentIdentityAuthProvider_threeLeggedOauthUpdate(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_agent_identity_auth_provider.default", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(
+						"google_agent_identity_auth_provider.default",
+						"auth_provider_type_params.0.three_legged_oauth.0.redirect_url",
+					),
+				),
+			},
+			{
+				ResourceName:      "google_agent_identity_auth_provider.default",
+				ImportState:       true,
+				ImportStateVerify: true,
+				// client_secret is input-only in the API; location and auth_provider_id are url_param_only.
+				// Include "labels" only if GET /authProviders/{id} does not return labels identically yet:
+				ImportStateVerifyIgnore: []string{"auth_provider_type_params.0.three_legged_oauth.0.client_secret", "location", "auth_provider_id", "workload_ids", "labels", "terraform_labels", "effective_labels"},
 			},
 		},
 	})
@@ -292,6 +344,26 @@ func testAccAgentIdentityAuthProvider_twoLeggedOauth(context map[string]interfac
   `, context)
 }
 
+func testAccAgentIdentityAuthProvider_twoLeggedOauthUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_agent_identity_auth_provider" "default" {
+    location         = "us-central1"
+    auth_provider_id = "tf-test-2lo-%{random_suffix}"
+    description      = "Updated two-legged OAuth configuration"
+    allowed_scopes   = ["https://www.googleapis.com/auth/cloud-platform"]
+    workload_ids     = ["principal://agents.global.org-123456.system.id.goog/resources/aiplatform/projects/12345/locations/us-central1/reasoningEngines/123"]
+
+    auth_provider_type_params {
+      two_legged_oauth {
+        client_id     = "test-client-id-updated"
+        client_secret = "test-client-secret-updated"
+        token_url     = "https://auth.example.com/token/v2"
+      }
+    }
+  }
+  `, context)
+}
+
 func testAccAgentIdentityAuthProvider_threeLeggedOauth(context map[string]interface{}) string {
 	return acctest.Nprintf(`
   resource "google_agent_identity_auth_provider" "default" {
@@ -319,6 +391,38 @@ func testAccAgentIdentityAuthProvider_threeLeggedOauth(context map[string]interf
         default_continue_uri = "https://example.com/callback"
         enable_pkce          = true
         token_url            = "https://auth.example.com/token"
+      }
+    }
+  }
+  `, context)
+}
+
+func testAccAgentIdentityAuthProvider_threeLeggedOauthUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+  resource "google_agent_identity_auth_provider" "default" {
+    location         = "us-central1"
+    auth_provider_id = "tf-test-3lo-%{random_suffix}"
+    description      = "Updated three-legged OAuth configuration"
+
+    blocked_scopes   = ["https://www.googleapis.com/auth/userinfo.email"]
+
+    labels = {
+      env  = "test"
+      team = "agentidentity"
+    }
+
+    // Prevents plan diffs if the API does not return labels identically during testing
+    lifecycle {
+      ignore_changes = [labels, effective_labels, terraform_labels]
+    }
+
+    auth_provider_type_params {
+      three_legged_oauth {
+        authorization_url = "https://auth.example.com/authorize/v2"
+        client_id         = "test-client-id-updated"
+        client_secret     = "test-client-secret-updated"
+        enable_pkce       = false
+        token_url         = "https://auth.example.com/token/v2"
       }
     }
   }
