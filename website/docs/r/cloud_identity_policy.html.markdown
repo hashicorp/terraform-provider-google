@@ -23,36 +23,43 @@ description: |-
 
 A Cloud Identity Policy binds a Setting to a PolicyQuery for a Google Workspace / Cloud Identity customer.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about Policy, see:
 
-* [API documentation](https://cloud.google.com/identity/docs/reference/rest/v1beta1/policies)
+* [API documentation](https://cloud.google.com/identity/docs/reference/rest/v1/policies)
 * How-to Guides
     * [Policy API overview](https://docs.cloud.google.com/identity/docs/concepts/overview-policies)
 
-~> **Note:** This is available only in beta
 
 ## Example Usage - Cloudidentity Policy Basic
 
 
 ```hcl
+provider "google" {
+  scopes = [
+    "https://www.googleapis.com/auth/cloud-identity.policies",
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/userinfo.email",
+  ]
+}
+
 resource "google_cloud_identity_policy" "primary" {
-    provider = google-beta
+  customer = "customers/A01b123xz"
 
-    customer = "customers/C01234567"
+  policy_query {
+    org_unit = "orgUnits/03abcxyz"
+  }
 
-    policy_query {
-        org_unit = "orgUnits/03abcxyz"
-        group = "groups/0123456789"
-        query = "true"
-    }
-
-    setting {
-        type = "something.googleapis.com/SettingType"
-	value_json = jsonencode({enabled = true})
-    }
+  setting {
+    type = "settings/detector.word_list"
+    value_json = jsonencode({
+      displayName = "Project Sensitive Terms"
+      description = "Detector for project-specific confidential keywords."
+      wordList = {
+        words = ["confidential", "top-secret"]
+      }
+    })
+  }
 }
 ```
 
@@ -92,7 +99,13 @@ The following arguments are supported:
 
 * `org_unit` -
   (Required)
-  The OrgUnit the query applies to.
+  The OrgUnit the query applies to, in the format `orgUnits/{org_unit_id}`.
+  `{org_unit_id}` is the obfuscated org unit ID, the same value the Admin SDK
+  Directory API returns as `orgUnitId` without its `id:` prefix. Org unit paths
+  and display names are not resolved and are rejected for most settings.
+  For detector settings (`settings/detector.*`), the API ignores this value and
+  always applies the policy to, and returns, the customer's root org unit, so any
+  other value produces a diff; set it to the root org unit's ID.
 
 * `group` -
   (Optional)

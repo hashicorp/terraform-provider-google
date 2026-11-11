@@ -1,0 +1,20 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_cloud_identity_policy
+generation_type: mmv1
+source_file: products/cloudidentity/Policy.yaml
+api_service_name: cloudidentity.googleapis.com
+api_version: v1
+api_resource_type_kind: Policy
+fields:
+    - api_field: customer
+    - api_field: name
+    - api_field: policyQuery.group
+    - api_field: policyQuery.orgUnit
+    - api_field: policyQuery.query
+    - api_field: policyQuery.sortOrder
+    - api_field: setting.type
+    - api_field: setting.value
+      field: setting.value_json
+    - field: deletion_policy
+      provider_only: true
