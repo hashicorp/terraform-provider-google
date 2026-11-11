@@ -26,6 +26,8 @@ A feature configuration manages a Cloud Storage Smart Storage feature, such as A
 for a project. It defines the buckets that the feature applies to and the feature-specific
 settings, such as the AI models used to generate annotations for objects.
 
+~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
+See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -39,6 +41,7 @@ settings, such as the AI models used to generate annotations for objects.
 
 ```hcl
 resource "google_storage_control_project_feature_config" "example" {
+  provider          = google-beta
   feature_config_id = "feature-config"
 
   auto_annotate_config {
@@ -60,6 +63,7 @@ resource "google_storage_control_project_feature_config" "example" {
 
 ```hcl
 resource "google_storage_bucket" "bucket" {
+  provider                    = google-beta
   name                        = "bucket"
   location                    = "US"
   uniform_bucket_level_access = true
@@ -67,6 +71,7 @@ resource "google_storage_bucket" "bucket" {
 }
 
 resource "google_storage_control_project_feature_config" "example" {
+  provider          = google-beta
   feature_config_id = "feature-config"
   description       = "Annotates images in a single bucket"
 
