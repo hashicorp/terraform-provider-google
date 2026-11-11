@@ -61,12 +61,16 @@ resource "google_vertex_ai_agent_anomaly_detection_scope" "scope" {
   region                           = "us"
   agent_anomaly_detection_scope_id = "agent-anomaly-detection-scope"
   display_name                     = "Basic AAD scope"
+  auto_enroll                      = true
   log_buckets = [
     google_logging_project_bucket_config.aad-log-bucket.id,
   ]
   observability_buckets = [
     "projects/${data.google_project.project.project_id}/locations/us/buckets/_Trace/datasets/Spans",
   ]
+  encryption_spec {
+    kms_key_name = "projects/keys-project/locations/us/keyRings/key-ring/cryptoKeys/crypto-key"
+  }
 }
 
 data "google_project" "project" {
@@ -105,6 +109,22 @@ The following arguments are supported:
   (Optional)
   User provided display name of the AgentAnomalyDetectionScope.
 
+* `auto_enroll` -
+  (Optional)
+  When true, newly discovered agents that share log and observability
+  buckets with this scope are automatically enrolled as ACTIVE monitored
+  agents, up to the project's monitored agent quota. When false, newly
+  discovered agents are added as DISABLED monitored agents and must be
+  enabled explicitly.
+
+* `encryption_spec` -
+  (Optional)
+  Customer-managed encryption key spec for the scope. If set, this scope
+  and all sub-resources are secured by this key. The key must be a Cloud
+  KMS key co-located with the scope location (for example, `us` for a `us`
+  scope, `europe` for an `eu` scope, or matching single region).
+  Structure is [documented below](#nested_encryption_spec).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -115,6 +135,13 @@ The following arguments are supported:
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
 
+
+<a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
+
+* `kms_key_name` -
+  (Required)
+  Resource name of the Cloud KMS key used to protect the resource.
+  Format: projects/{{project}}/locations/{{location}}/keyRings/{{key_ring}}/cryptoKeys/{{crypto_key}}.
 
 ## Attributes Reference
 
