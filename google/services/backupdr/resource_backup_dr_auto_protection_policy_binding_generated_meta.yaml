@@ -1,0 +1,28 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_backup_dr_auto_protection_policy_binding
+generation_type: mmv1
+source_file: products/backupdr/AutoProtectionPolicyBinding.yaml
+api_service_name: backupdr.googleapis.com
+api_version: v1
+api_resource_type_kind: AutoProtectionPolicyBinding
+fields:
+    - field: auto_protection_policy_binding_id
+      provider_only: true
+    - field: auto_protection_policy_id
+      provider_only: true
+    - api_field: bindingEvaluationSummary.failedResourceCount
+    - api_field: bindingEvaluationSummary.matchingResourceCount
+    - api_field: bindingEvaluationSummary.protectedResourceCount
+    - api_field: createTime
+    - api_field: etag
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: scope
+    - api_field: state
+    - api_field: updateTime
+    - field: wait_for_delete
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
