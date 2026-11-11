@@ -205,7 +205,7 @@ resource "google_cloudfunctions2_function" "my-function" {
   location    = "us-central1"
   description = "a new function"
   build_config {
-    runtime     = "nodejs20"
+    runtime     = "nodejs24"
     entry_point = "helloHttp"
     source {
       storage_source {
