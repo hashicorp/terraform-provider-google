@@ -26,12 +26,10 @@ An AutoProtectionPolicyBinding applies an AutoProtectionPolicy to a scope, such 
 project. Once bound, the policy automatically protects the eligible resources in that
 scope that match its criteria.
 
-~> **Warning:** This resource is in beta, and should be used with the terraform-provider-google-beta provider.
-See [Provider Versions](../guides/provider_versions.html.markdown) for more details on beta resources.
 
 To get more information about AutoProtectionPolicyBinding, see:
 
-* [API documentation](https://cloud.google.com/backup-disaster-recovery/docs/reference/rest/v1beta/projects.locations.autoProtectionPolicies.bindings)
+* [API documentation](https://cloud.google.com/backup-disaster-recovery/docs/reference/rest/v1/projects.locations.autoProtectionPolicies.bindings)
 * How-to Guides
     * [Official Documentation](https://cloud.google.com/backup-disaster-recovery/docs)
 
@@ -54,18 +52,15 @@ is completely removed.
 
 ```hcl
 data "google_project" "project" {
-  provider = google-beta
 }
 
 resource "google_backup_dr_backup_vault" "my_backup_vault" {
-  provider                                   = google-beta
   location                                   = "us-central1"
   backup_vault_id                            = "bv-app-binding"
   backup_minimum_enforced_retention_duration = "100000s"
 }
 
 resource "google_backup_dr_backup_plan" "my_backup_plan" {
-  provider       = google-beta
   location       = "us-central1"
   backup_plan_id = "bp-app-binding"
   resource_type  = "compute.googleapis.com/Instance"
@@ -89,7 +84,6 @@ resource "google_backup_dr_backup_plan" "my_backup_plan" {
 }
 
 resource "google_backup_dr_auto_protection_policy" "my_policy" {
-  provider                  = google-beta
   location                  = "us-central1"
   auto_protection_policy_id = "app-binding"
 
@@ -109,7 +103,6 @@ resource "google_backup_dr_auto_protection_policy" "my_policy" {
 }
 
 resource "google_backup_dr_auto_protection_policy_binding" "my-binding" {
-  provider                          = google-beta
   location                          = "us-central1"
   auto_protection_policy_id         = google_backup_dr_auto_protection_policy.my_policy.auto_protection_policy_id
   auto_protection_policy_binding_id = "my-project-binding"
