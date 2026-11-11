@@ -15,6 +15,11 @@ fields:
     - api_field: audioProcessingConfig.ambientSoundConfig.prebuiltAmbientSound
     - api_field: audioProcessingConfig.ambientSoundConfig.volumeGainDb
     - api_field: audioProcessingConfig.bargeInConfig.bargeInAwareness
+    - api_field: audioProcessingConfig.customVoiceSamples.consentAudioGcsUri
+    - api_field: audioProcessingConfig.customVoiceSamples.name
+    - api_field: audioProcessingConfig.customVoiceSamples.previewText
+    - api_field: audioProcessingConfig.customVoiceSamples.voiceInstruction
+    - api_field: audioProcessingConfig.customVoiceSamples.voiceSampleGcsUri
     - api_field: audioProcessingConfig.inactivityTimeout
     - api_field: audioProcessingConfig.synthesizeSpeechConfigs.key
       field: audio_processing_config.synthesize_speech_configs.language_code

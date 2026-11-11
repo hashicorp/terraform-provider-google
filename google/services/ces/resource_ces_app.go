@@ -225,6 +225,42 @@ visually.`,
 								},
 							},
 						},
+						"custom_voice_samples": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Configures custom voice samples for voice cloning.`,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"consent_audio_gcs_uri": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Consent audio for voice cloning.`,
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `The user-defined name for the custom voice sample.`,
+									},
+									"preview_text": {
+										Type:        schema.TypeString,
+										Optional:    true,
+										Description: `Text for synthesizing preview audio for custom voice.`,
+									},
+									"voice_instruction": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Natural language instructions for voice style, tone, pacing, or
+pronunciation.`,
+									},
+									"voice_sample_gcs_uri": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `The Cloud Storage URI to the audio sample for voice cloning. The
+audio sample should be a mono-channel, 24kHz WAV file.`,
+									},
+								},
+							},
+						},
 						"inactivity_timeout": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -1953,6 +1989,8 @@ func flattenCESAppAudioProcessingConfig(v interface{}, d *schema.ResourceData, c
 		flattenCESAppAudioProcessingConfigAmbientSoundConfig(original["ambientSoundConfig"], d, config)
 	transformed["barge_in_config"] =
 		flattenCESAppAudioProcessingConfigBargeInConfig(original["bargeInConfig"], d, config)
+	transformed["custom_voice_samples"] =
+		flattenCESAppAudioProcessingConfigCustomVoiceSamples(original["customVoiceSamples"], d, config)
 	transformed["inactivity_timeout"] =
 		flattenCESAppAudioProcessingConfigInactivityTimeout(original["inactivityTimeout"], d, config)
 	transformed["synthesize_speech_configs"] =
@@ -2002,6 +2040,49 @@ func flattenCESAppAudioProcessingConfigBargeInConfig(v interface{}, d *schema.Re
 	return []interface{}{transformed}
 }
 func flattenCESAppAudioProcessingConfigBargeInConfigBargeInAwareness(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppAudioProcessingConfigCustomVoiceSamples(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"consent_audio_gcs_uri": flattenCESAppAudioProcessingConfigCustomVoiceSamplesConsentAudioGcsUri(original["consentAudioGcsUri"], d, config),
+			"name":                  flattenCESAppAudioProcessingConfigCustomVoiceSamplesName(original["name"], d, config),
+			"preview_text":          flattenCESAppAudioProcessingConfigCustomVoiceSamplesPreviewText(original["previewText"], d, config),
+			"voice_instruction":     flattenCESAppAudioProcessingConfigCustomVoiceSamplesVoiceInstruction(original["voiceInstruction"], d, config),
+			"voice_sample_gcs_uri":  flattenCESAppAudioProcessingConfigCustomVoiceSamplesVoiceSampleGcsUri(original["voiceSampleGcsUri"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenCESAppAudioProcessingConfigCustomVoiceSamplesConsentAudioGcsUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppAudioProcessingConfigCustomVoiceSamplesName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppAudioProcessingConfigCustomVoiceSamplesPreviewText(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppAudioProcessingConfigCustomVoiceSamplesVoiceInstruction(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenCESAppAudioProcessingConfigCustomVoiceSamplesVoiceSampleGcsUri(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3019,6 +3100,13 @@ func expandCESAppAudioProcessingConfig(v interface{}, d tpgresource.TerraformRes
 		transformed["bargeInConfig"] = transformedBargeInConfig
 	}
 
+	transformedCustomVoiceSamples, err := expandCESAppAudioProcessingConfigCustomVoiceSamples(original["custom_voice_samples"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCustomVoiceSamples); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["customVoiceSamples"] = transformedCustomVoiceSamples
+	}
+
 	transformedInactivityTimeout, err := expandCESAppAudioProcessingConfigInactivityTimeout(original["inactivity_timeout"], d, config)
 	if err != nil {
 		return nil, err
@@ -3107,6 +3195,79 @@ func expandCESAppAudioProcessingConfigBargeInConfig(v interface{}, d tpgresource
 }
 
 func expandCESAppAudioProcessingConfigBargeInConfigBargeInAwareness(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppAudioProcessingConfigCustomVoiceSamples(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedConsentAudioGcsUri, err := expandCESAppAudioProcessingConfigCustomVoiceSamplesConsentAudioGcsUri(original["consent_audio_gcs_uri"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedConsentAudioGcsUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["consentAudioGcsUri"] = transformedConsentAudioGcsUri
+		}
+
+		transformedName, err := expandCESAppAudioProcessingConfigCustomVoiceSamplesName(original["name"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["name"] = transformedName
+		}
+
+		transformedPreviewText, err := expandCESAppAudioProcessingConfigCustomVoiceSamplesPreviewText(original["preview_text"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedPreviewText); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["previewText"] = transformedPreviewText
+		}
+
+		transformedVoiceInstruction, err := expandCESAppAudioProcessingConfigCustomVoiceSamplesVoiceInstruction(original["voice_instruction"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVoiceInstruction); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["voiceInstruction"] = transformedVoiceInstruction
+		}
+
+		transformedVoiceSampleGcsUri, err := expandCESAppAudioProcessingConfigCustomVoiceSamplesVoiceSampleGcsUri(original["voice_sample_gcs_uri"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedVoiceSampleGcsUri); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["voiceSampleGcsUri"] = transformedVoiceSampleGcsUri
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandCESAppAudioProcessingConfigCustomVoiceSamplesConsentAudioGcsUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppAudioProcessingConfigCustomVoiceSamplesName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppAudioProcessingConfigCustomVoiceSamplesPreviewText(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppAudioProcessingConfigCustomVoiceSamplesVoiceInstruction(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandCESAppAudioProcessingConfigCustomVoiceSamplesVoiceSampleGcsUri(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
