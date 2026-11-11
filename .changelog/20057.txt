@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `job_spec.experiment`, `job_spec.experiment_run`, `job_spec.models`, `job_spec.persistent_resource_id`, and `job_spec.protected_artifact_location_id` fields to `google_vertex_ai_custom_job` resource
+```
