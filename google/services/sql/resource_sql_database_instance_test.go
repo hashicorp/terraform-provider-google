@@ -5683,6 +5683,52 @@ func TestAccSqlDatabaseInstance_blueGreenDeployment_cluster_abort(t *testing.T) 
 	})
 }
 
+func TestAccSqlDatabaseInstance_blueGreenDeployment_description(t *testing.T) {
+	t.Parallel()
+
+	instanceName := "tf-test-bgd-" + acctest.RandString(t, 10)
+	deploymentName := "tf-test-dep-" + acctest.RandString(t, 10)
+	var instanceID string
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			// Step 1: Create instance + BGD with description
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_withDescription(instanceName, "MYSQL_8_0", deploymentName, "SOURCE", "Initial BGD description"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCaptureID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.deployment_name", deploymentName),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.description", "Initial BGD description"),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.0.active_environment", "SOURCE"),
+				),
+			},
+			// Verify ImportState preserves description
+			{
+				ResourceName:            "google_sql_database_instance.instance",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "blue_green_deployment.0.delete_old_source_on_destroy"},
+			},
+			// Step 2: Attempt to modify description (immutable)
+			{
+				Config:      testGoogleSqlDatabaseInstance_blueGreenDeployment_withDescription(instanceName, "MYSQL_8_0", deploymentName, "SOURCE", "Modified BGD description"),
+				ExpectError: regexp.MustCompile("description is immutable and cannot be changed from \"Initial BGD description\" to \"Modified BGD description\""),
+			},
+			// Step 3: Remove BGD block (abort deployment)
+			{
+				Config: testGoogleSqlDatabaseInstance_blueGreenDeployment_noBgd(instanceName, "MYSQL_8_0"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccSqlDatabaseInstanceCheckSameID(&instanceID),
+					resource.TestCheckResourceAttr("google_sql_database_instance.instance", "blue_green_deployment.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func testGoogleSqlDatabaseInstance_attachGCBDR(context map[string]interface{}) string {
 	return acctest.Nprintf(`
 data "google_project" "project" {}
@@ -11300,6 +11346,40 @@ resource "google_sql_database_instance" "instance" {
   }
 }
 `, instanceName, dbVersion)
+}
+
+func testGoogleSqlDatabaseInstance_blueGreenDeployment_withDescription(instanceName, dbVersion, deploymentName, activeEnv, description string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "%s"
+  deletion_protection = false
+
+  settings {
+    tier              = "db-custom-1-3840"
+    edition           = "ENTERPRISE"
+    availability_type = "ZONAL"
+    disk_size         = 10
+
+    backup_configuration {
+      enabled            = true
+      binary_log_enabled = true
+    }
+
+    database_flags {
+      name  = "cloudsql_iam_authentication"
+      value = "on"
+    }
+  }
+
+  blue_green_deployment {
+    deployment_name    = "%s"
+    active_environment = "%s"
+    description        = "%s"
+  }
+}
+`, instanceName, dbVersion, deploymentName, activeEnv, description)
 }
 
 func TestAccSqlDatabaseInstance_databaseCenterIntegration(t *testing.T) {

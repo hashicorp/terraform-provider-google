@@ -886,6 +886,8 @@ The optional `blue_green_deployment` block supports:
 
 * `deployment_name` - (Required) The user-defined name for the Blue-Green Deployment. Must be 1-63 characters, start with a lowercase letter, and contain only lowercase letters, numbers, and hyphens. Cannot be changed while the deployment is active.
 
+* `description` - (Optional) User-provided description for the Blue-Green Deployment. Cannot be changed while the deployment is active.
+
 * `target_database_version` - (Optional, Computed) The target database version for the green environment (for example, `MYSQL_8_0` or `POSTGRES_16`). If omitted, the green environment inherits the source instance's `database_version`. Cannot be changed while the deployment is active.
 
 * `active_environment` - (Optional) Controls which environment is currently serving primary traffic. Valid values are `SOURCE` and `TARGET`. Defaults to `SOURCE`. Must be `SOURCE` when first creating a Blue-Green Deployment; changing this field from `SOURCE` to `TARGET` triggers the Blue-Green Deployment switchover.

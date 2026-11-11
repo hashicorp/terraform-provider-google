@@ -8,6 +8,8 @@ api_resource_type_kind: 'BlueGreenDeployment'
 fields:
   - api_field: 'name'
     field: 'blue_green_deployment.deployment_name'
+  - api_field: 'description'
+    field: 'blue_green_deployment.description'
   - api_field: 'requestedConfig.databaseVersion'
     field: 'blue_green_deployment.target_database_version'
   - api_field: 'state'
