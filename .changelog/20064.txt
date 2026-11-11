@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: added `update_policy.allowed_actions` field to `google_compute_instance_group_manager` and `google_compute_region_instance_group_manager` resources (`update_policy.minimal_action` is now optional in `google-beta` and conflicts with `allowed_actions`) (beta)
+```
+
+```release-note:enhancement
+compute: added `allowed_actions` field to `google_compute_per_instance_config` and `google_compute_region_per_instance_config` resources (beta)
+```

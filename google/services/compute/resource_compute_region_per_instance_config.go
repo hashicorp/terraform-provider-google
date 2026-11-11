@@ -731,7 +731,6 @@ func resourceComputeRegionPerInstanceConfigUpdate(d *schema.ResourceData, meta i
 
 	obj = make(map[string]interface{})
 	obj["instances"] = []string{instanceName}
-
 	minAction := d.Get("minimal_action")
 	if minAction == "" {
 		minAction = "NONE"

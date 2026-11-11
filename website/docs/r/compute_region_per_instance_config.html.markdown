@@ -145,6 +145,16 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `allowed_actions` - (Optional) [Beta](../guides/provider_versions.html.markdown) The list of allowed actions to perform on the instance during an update.
+`allowed_actions` is the only way to request `RESTART_IN_PLACE`.
+Conflicts with `minimal_action` and `most_disruptive_allowed_action`.
+Possible values are:
+* REPLACE
+* RESTART
+* RESTART_IN_PLACE
+* REFRESH
+* NONE
+
 * `minimal_action` - (Optional) The minimal action to perform on the instance during an update.
 Default is `NONE`. Possible values are:
 * REPLACE

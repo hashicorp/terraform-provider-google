@@ -1586,7 +1586,6 @@ func expandRegionUpdatePolicy(configured []interface{}) map[string]interface{} {
 
 	for _, raw := range configured {
 		data := raw.(map[string]interface{})
-
 		updatePolicy["minimalAction"] = data["minimal_action"].(string)
 		mostDisruptiveAllowedAction := data["most_disruptive_allowed_action"].(string)
 		if mostDisruptiveAllowedAction != "" {
