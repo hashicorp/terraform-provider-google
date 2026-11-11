@@ -917,7 +917,6 @@ func flattenOrgPolicyPolicySpecRulesParameters(v interface{}, d *schema.Resource
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -1069,7 +1068,6 @@ func flattenOrgPolicyPolicyDryRunSpecRulesParameters(v interface{}, d *schema.Re
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -1322,11 +1320,11 @@ func expandOrgPolicyPolicySpecRulesParameters(v interface{}, d tpgresource.Terra
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandOrgPolicyPolicySpecRulesCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1592,11 +1590,11 @@ func expandOrgPolicyPolicyDryRunSpecRulesParameters(v interface{}, d tpgresource
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandOrgPolicyPolicyDryRunSpecRulesCondition(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

@@ -279,6 +279,7 @@ Supported image types includes:
 													Type:         schema.TypeString,
 													Optional:     true,
 													ValidateFunc: validation.StringIsJSON,
+													StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 													Description:  `The input parameters and values for the tool in JSON object format.`,
 												},
 												"id": {
@@ -335,6 +336,7 @@ Format:
 													Type:         schema.TypeString,
 													Required:     true,
 													ValidateFunc: validation.StringIsJSON,
+													StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 													Description: `The tool execution result in JSON object format.
 Use "output" key to specify tool response and "error" key to specify
 error details (if any). If "output" and "error" keys are not specified,
@@ -385,6 +387,7 @@ Format:
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: validation.StringIsJSON,
+										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 										Description: `A struct represents variables that were updated in the conversation,
 keyed by variable names.`,
 									},
@@ -1062,7 +1065,6 @@ func flattenCESExampleMessagesChunksToolCallArgs(v interface{}, d *schema.Resour
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -1138,7 +1140,6 @@ func flattenCESExampleMessagesChunksToolResponseResponse(v interface{}, d *schem
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -1177,7 +1178,6 @@ func flattenCESExampleMessagesChunksUpdatedVariables(v interface{}, d *schema.Re
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -1494,11 +1494,11 @@ func expandCESExampleMessagesChunksToolCallArgs(v interface{}, d tpgresource.Ter
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandCESExampleMessagesChunksToolCallDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1613,11 +1613,11 @@ func expandCESExampleMessagesChunksToolResponseResponse(v interface{}, d tpgreso
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandCESExampleMessagesChunksToolResponseTool(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -1666,11 +1666,11 @@ func expandCESExampleMessagesChunksUpdatedVariables(v interface{}, d tpgresource
 	if len(b) == 0 {
 		return nil, nil
 	}
-	m := make(map[string]interface{})
-	if err := json.Unmarshal(b, &m); err != nil {
+	var j interface{}
+	if err := json.Unmarshal(b, &j); err != nil {
 		return nil, err
 	}
-	return m, nil
+	return j, nil
 }
 
 func expandCESExampleMessagesRole(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

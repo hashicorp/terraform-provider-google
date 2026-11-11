@@ -2879,7 +2879,6 @@ func flattenCESAppVariableDeclarationsSchemaDefs(v interface{}, d *schema.Resour
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2891,7 +2890,6 @@ func flattenCESAppVariableDeclarationsSchemaDefault(v interface{}, d *schema.Res
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2903,7 +2901,6 @@ func flattenCESAppVariableDeclarationsSchemaAdditionalProperties(v interface{}, 
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2915,7 +2912,6 @@ func flattenCESAppVariableDeclarationsSchemaAnyOf(v interface{}, d *schema.Resou
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2927,7 +2923,6 @@ func flattenCESAppVariableDeclarationsSchemaPrefixItems(v interface{}, d *schema
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2939,7 +2934,6 @@ func flattenCESAppVariableDeclarationsSchemaProperties(v interface{}, d *schema.
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2951,7 +2945,6 @@ func flattenCESAppVariableDeclarationsSchemaItems(v interface{}, d *schema.Resou
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)

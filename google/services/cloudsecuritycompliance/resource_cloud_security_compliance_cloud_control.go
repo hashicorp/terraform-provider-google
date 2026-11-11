@@ -2325,7 +2325,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecDefaultValueOneofVal
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2622,7 +2621,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersDefault
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -2924,7 +2922,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersValidat
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3143,7 +3140,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3267,7 +3263,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3388,7 +3383,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecSubParametersSubPara
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
@@ -3647,7 +3641,6 @@ func flattenCloudSecurityComplianceCloudControlParameterSpecValidationAllowedVal
 	}
 	b, err := json.Marshal(v)
 	if err != nil {
-		// TODO: return error once https://github.com/GoogleCloudPlatform/magic-modules/issues/3257 is fixed.
 		log.Printf("[ERROR] failed to marshal schema to JSON: %v", err)
 	}
 	return string(b)
