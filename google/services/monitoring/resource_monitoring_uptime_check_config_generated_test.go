@@ -485,7 +485,7 @@ resource "google_cloudfunctions2_function" "function" {
   location = "us-central1"
  
   build_config {
-    runtime = "nodejs20"
+    runtime = "nodejs24"
     entry_point = "SyntheticFunction"  # Set the entry point 
     source {
       storage_source {

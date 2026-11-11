@@ -110,7 +110,7 @@ resource "google_compute_region_network_endpoint_group" "function_neg" {
 resource "google_cloudfunctions_function" "function_neg" {
   name        = "%{neg_name}"
   description = "My function"
-  runtime     = "nodejs20"
+  runtime     = "nodejs22"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name

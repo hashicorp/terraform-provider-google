@@ -783,7 +783,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
@@ -832,7 +832,7 @@ resource "google_cloudfunctions_function" "function" {
   source_archive_object        = google_storage_bucket_object.archive.name
   trigger_http                 = true
   https_trigger_security_level = "SECURE_ALWAYS"
-  runtime                      = "nodejs20"
+  runtime                      = "nodejs22"
   timeout                      = 91
   entry_point                  = "helloGET"
   ingress_settings             = "ALLOW_ALL"
@@ -888,7 +888,7 @@ resource "google_cloudbuild_worker_pool" "pool" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
@@ -922,7 +922,7 @@ resource "google_pubsub_topic" "sub" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -959,7 +959,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -993,7 +993,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -1024,7 +1024,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -1042,7 +1042,7 @@ func testAccCloudFunctionsFunction_sourceRepo(functionName, project string) stri
 	return fmt.Sprintf(`
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
-  runtime = "nodejs20"
+  runtime = "nodejs22"
 
   source_repository {
     // There isn't yet an API that'll allow us to create a source repository and
@@ -1077,7 +1077,7 @@ data "google_compute_default_service_account" "default" {
 
 resource "google_cloudfunctions_function" "function" {
   name    = "%s"
-  runtime = "nodejs20"
+  runtime = "nodejs22"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -1122,7 +1122,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name     = "%s"
-  runtime  = "nodejs20"
+  runtime  = "nodejs22"
 
   description           = "test function"
   available_memory_mb   = 128
@@ -1177,7 +1177,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name     = "%s"
-  runtime  = "nodejs20"
+  runtime  = "nodejs22"
 
   description           = "test function"
   available_memory_mb   = 128
@@ -1249,7 +1249,7 @@ resource "google_storage_bucket_object" "cloud_function_zip_object" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   service_account_email = google_service_account.cloud_function_runner.email
   entry_point           = "echoSecret"
   source_archive_bucket = google_storage_bucket.cloud_functions.id
@@ -1314,7 +1314,7 @@ resource "google_storage_bucket_object" "cloud_function_zip_object" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   service_account_email = google_service_account.cloud_function_runner.email
   entry_point           = "echoSecret"
   source_archive_bucket = google_storage_bucket.cloud_functions.id
@@ -1415,7 +1415,7 @@ resource "time_sleep" "wait_iam_roles" {
 resource "google_cloudfunctions_function" "function" {
   depends_on = [time_sleep.wait_iam_roles]
   name       = "%s"
-  runtime    = "nodejs20"
+  runtime    = "nodejs22"
 
   source_archive_bucket = google_storage_bucket.bucket.name
   source_archive_object = google_storage_bucket_object.archive.name
@@ -1444,7 +1444,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128
@@ -1486,7 +1486,7 @@ resource "google_storage_bucket_object" "archive" {
 
 resource "google_cloudfunctions_function" "function" {
   name                  = "%s"
-  runtime               = "nodejs20"
+  runtime               = "nodejs22"
   description           = "test function"
   docker_registry       = "ARTIFACT_REGISTRY"
   available_memory_mb   = 128

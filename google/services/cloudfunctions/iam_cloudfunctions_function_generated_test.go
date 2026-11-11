@@ -176,7 +176,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "%{function_name}"
   description = "My function"
-  runtime     = "nodejs20"
+  runtime     = "nodejs22"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
@@ -212,7 +212,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "%{function_name}"
   description = "My function"
-  runtime     = "nodejs20"
+  runtime     = "nodejs22"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
@@ -263,7 +263,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "%{function_name}"
   description = "My function"
-  runtime     = "nodejs20"
+  runtime     = "nodejs22"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
@@ -301,7 +301,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "%{function_name}"
   description = "My function"
-  runtime     = "nodejs20"
+  runtime     = "nodejs22"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
@@ -337,7 +337,7 @@ resource "google_storage_bucket_object" "archive" {
 resource "google_cloudfunctions_function" "function" {
   name        = "%{function_name}"
   description = "My function"
-  runtime     = "nodejs20"
+  runtime     = "nodejs22"
 
   available_memory_mb   = 128
   source_archive_bucket = google_storage_bucket.bucket.name
