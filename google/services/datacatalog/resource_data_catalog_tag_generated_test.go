@@ -55,6 +55,7 @@ var (
 )
 
 func TestAccDataCatalogTag_dataCatalogEntryTagBasicExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -161,6 +162,7 @@ resource "google_data_catalog_tag" "basic_tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryGroupTagExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
@@ -276,6 +278,7 @@ resource "google_data_catalog_tag" "entry_group_tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryTagFullExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	acctest.SkipIfVcr(t)
 	t.Parallel()
 
@@ -451,6 +454,7 @@ resource "google_data_catalog_tag" "second-tag" {
 }
 
 func TestAccDataCatalogTag_dataCatalogEntryTagFalseExample(t *testing.T) {
+	t.Skip("Data Catalog has been deprecated and shut down")
 	t.Parallel()
 
 	randomSuffix := acctest.RandString(t, 10)
