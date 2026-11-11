@@ -132,6 +132,21 @@ and this may change over time.`,
 'global', 'us', or 'eu'.`,
 				Default: "global",
 			},
+			"provision_intent": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"PROVISION_INTENT_SOBI", "PROVISION_INTENT_LEGACY", ""}),
+				Description: `The Gemini Enterprise experience that the project is provisioned for.
+'PROVISION_INTENT_SOBI' provisions the project for the new Gemini Enterprise
+experience, and 'PROVISION_INTENT_LEGACY' provisions it for the classic
+Gemini Enterprise experience. If unset, the API chooses the experience.
+
+Changing this field forces a new resource, which calls the provisioning API
+again with the new value. Provisioning doesn't remove an experience that the
+project was already provisioned for, and the API may reject provisioning a
+project that uses the classic experience for the new experience. Possible values: ["PROVISION_INTENT_SOBI", "PROVISION_INTENT_LEGACY"]`,
+			},
 			"saas_params": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -193,6 +208,12 @@ func resourceDiscoveryEngineProjectProvisionCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("saas_params"); !tpgresource.IsEmptyValue(reflect.ValueOf(saasParamsProp)) && (ok || !reflect.DeepEqual(v, saasParamsProp)) {
 		obj["saasParams"] = saasParamsProp
+	}
+	provisionIntentProp, err := expandDiscoveryEngineProjectProvisionProvisionIntent(d.Get("provision_intent"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("provision_intent"); !tpgresource.IsEmptyValue(reflect.ValueOf(provisionIntentProp)) && (ok || !reflect.DeepEqual(v, provisionIntentProp)) {
+		obj["provisionIntent"] = provisionIntentProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}:provision")
@@ -302,6 +323,10 @@ func flattenDiscoveryEngineProjectProvisionSaasParamsIsBiz(v interface{}, d *sch
 	return v
 }
 
+func flattenDiscoveryEngineProjectProvisionProvisionIntent(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandDiscoveryEngineProjectProvisionAcceptDataUseTerms(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -344,5 +369,9 @@ func expandDiscoveryEngineProjectProvisionSaasParamsAcceptBizQos(v interface{}, 
 }
 
 func expandDiscoveryEngineProjectProvisionSaasParamsIsBiz(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDiscoveryEngineProjectProvisionProvisionIntent(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
