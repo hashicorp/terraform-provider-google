@@ -1,0 +1,3 @@
+```release-note:enhancement
+dataproc: made `cluster_config.secondary_worker_flexible_config` updatable in place on `google_dataproc_cluster`; shape fields no longer force replacement and are rejected by the API if changed
+```
