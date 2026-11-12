@@ -112,6 +112,12 @@ resource "google_cloud_run_v2_job" "default" {
         image            = "us-docker.pkg.dev/cloudrun/container/job"
         sandbox_launcher = true
       }
+      sandboxes {
+        templates {
+          name  = "hello"
+          image = "us-docker.pkg.dev/cloudrun/container/hello"
+        }
+      }
     }
   }
 }
@@ -725,6 +731,11 @@ When the field is set to false, deleting the job is allowed.
   (Optional)
   A reference to a customer managed encryption key (CMEK) to use to encrypt this container image. For more information, go to https://cloud.google.com/run/docs/securing/using-cmek
 
+* `sandboxes` -
+  (Optional)
+  Configuration for sandboxes.
+  Structure is [documented below](#nested_template_template_sandboxes).
+
 * `vpc_access` -
   (Optional)
   VPC Access configuration to use for this Task. For more information, visit https://cloud.google.com/run/docs/configuring/connecting-vpc.
@@ -1080,6 +1091,71 @@ When the field is set to false, deleting the job is allowed.
 * `identity` -
   (Optional)
   The Task's SPIFFE workload identity. Enables provisioning of SPIFFE workload certificates.
+
+<a name="nested_template_template_sandboxes"></a>The `sandboxes` block supports:
+
+* `templates` -
+  (Optional)
+  Sandbox templates that can be launched through the `sandbox` CLI.
+  Structure is [documented below](#nested_template_template_sandboxes_templates).
+
+
+<a name="nested_template_template_sandboxes_templates"></a>The `templates` block supports:
+
+* `name` -
+  (Required)
+  Name of the sandbox specified as a DNS_LABEL (RFC 1123).
+
+* `image` -
+  (Required)
+  Name of the container image in Dockerhub or Artifact Registry. If the host is not provided, Dockerhub is assumed.
+
+* `command` -
+  (Optional)
+  Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided.
+
+* `args` -
+  (Optional)
+  Arguments to the entrypoint. The docker image's CMD is used if this is not provided.
+
+* `env` -
+  (Optional)
+  List of environment variables to set in the sandbox.
+  Structure is [documented below](#nested_template_template_sandboxes_templates_env).
+
+* `volume_mounts` -
+  (Optional)
+  Volume to mount into the container's filesystem.
+  Structure is [documented below](#nested_template_template_sandboxes_templates_volume_mounts).
+
+* `working_dir` -
+  (Optional)
+  Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
+
+
+<a name="nested_template_template_sandboxes_templates_env"></a>The `env` block supports:
+
+* `name` -
+  (Required)
+  Name of the environment variable. Must be a C_IDENTIFIER, and may not exceed 32768 characters.
+
+* `value` -
+  (Optional)
+  Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.
+
+<a name="nested_template_template_sandboxes_templates_volume_mounts"></a>The `volume_mounts` block supports:
+
+* `name` -
+  (Required)
+  This must match the Name of a Volume.
+
+* `mount_path` -
+  (Required)
+  Path within the container at which the volume should be mounted. Must not contain ':'. For Cloud SQL volumes, it can be left empty, or must otherwise be /cloudsql. All instances defined in the Volume will be available as /cloudsql/[instance]. For more information on Cloud SQL volumes, visit https://cloud.google.com/sql/docs/mysql/connect-run
+
+* `sub_path` -
+  (Optional)
+  Path within the volume from which the container's volume should be mounted.
 
 <a name="nested_template_template_vpc_access"></a>The `vpc_access` block supports:
 

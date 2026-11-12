@@ -87,6 +87,16 @@ fields:
     - api_field: template.template.gpuZonalRedundancyDisabled
     - api_field: template.template.maxRetries
     - api_field: template.template.nodeSelector.accelerator
+    - api_field: template.template.sandboxes.templates.args
+    - api_field: template.template.sandboxes.templates.command
+    - api_field: template.template.sandboxes.templates.env.name
+    - api_field: template.template.sandboxes.templates.env.value
+    - api_field: template.template.sandboxes.templates.image
+    - api_field: template.template.sandboxes.templates.name
+    - api_field: template.template.sandboxes.templates.volumeMounts.mountPath
+    - api_field: template.template.sandboxes.templates.volumeMounts.name
+    - api_field: template.template.sandboxes.templates.volumeMounts.subPath
+    - api_field: template.template.sandboxes.templates.workingDir
     - api_field: template.template.serviceAccount
     - api_field: template.template.timeout
     - api_field: template.template.volumes.cloudSqlInstance.instances

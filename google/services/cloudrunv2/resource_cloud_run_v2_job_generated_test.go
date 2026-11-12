@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -185,6 +186,11 @@ func TestAccCloudRunV2Job_cloudrunv2JobSandboxExample(t *testing.T) {
 		"random_suffix":      randomSuffix,
 	}
 
+	context_1 := map[string]interface{}{
+		"cloud_run_job_name": "tf-test-cloudrun-job" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
@@ -192,6 +198,26 @@ func TestAccCloudRunV2Job_cloudrunv2JobSandboxExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCloudRunV2Job_cloudrunv2JobSandboxExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_job.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "deletion_protection", "labels", "location", "name", "tags", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_job.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccCloudRunV2Job_cloudrunv2JobSandboxUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_cloud_run_v2_job.default", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_cloud_run_v2_job.default",
@@ -222,6 +248,61 @@ resource "google_cloud_run_v2_job" "default" {
       containers {
         image            = "us-docker.pkg.dev/cloudrun/container/job"
         sandbox_launcher = true
+      }
+      sandboxes {
+        templates {
+          name  = "hello"
+          image = "us-docker.pkg.dev/cloudrun/container/hello"
+        }
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Job_cloudrunv2JobSandboxUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_job" "default" {
+  name                = "%{cloud_run_job_name}"
+  location            = "us-central1"
+  deletion_protection = false
+  launch_stage        = "BETA"
+
+  template {
+    template {
+      containers {
+        image            = "us-docker.pkg.dev/cloudrun/container/job"
+        sandbox_launcher = true
+        volume_mounts {
+          name = "empty-dir-volume"
+          mount_path = "/mnt"
+        }
+      }
+      sandboxes {
+        templates {
+          name  = "hello"
+          image = "us-docker.pkg.dev/cloudrun/container/hello"
+          command = ["/bin/sh"]
+          args = ["foo"]
+          env {
+            name = "PORT"
+            value = "8080"
+          }
+          volume_mounts {
+            name = "empty-dir-volume"
+            mount_path = "/mnt"
+            sub_path = "/home/user"
+          }
+          working_dir = "/mnt/app"
+        }
+      }
+      volumes {
+        name = "empty-dir-volume"
+        empty_dir {
+          medium = "MEMORY"
+          size_limit = "256Mi"
+        }
       }
     }
   }

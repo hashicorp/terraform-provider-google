@@ -578,6 +578,36 @@ resource "google_cloud_run_v2_worker_pool" "default" {
   }
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_worker_pool_sandbox_templates&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Cloudrunv2 Worker Pool Sandbox Templates
+
+
+```hcl
+resource "google_cloud_run_v2_worker_pool" "default" {
+  name     = "cloudrun-example"
+  location = "us-west1"
+  deletion_protection = false
+  launch_stage = "BETA"
+
+  template {
+    containers {
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      sandbox_launcher = true
+    }
+    sandboxes {
+      templates {
+        name  = "hello"
+        image = "us-docker.pkg.dev/cloudrun/container/hello"
+      }
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -705,6 +735,11 @@ When the field is set to false, deleting the WorkerPool is allowed.
   (Optional)
   Email address of the IAM service account associated with the revision of the WorkerPool. The service account represents the identity of the running revision, and determines what permissions the revision has. If not provided, the revision will use the project's default service account.
 
+* `sandboxes` -
+  (Optional)
+  Configuration for sandboxes.
+  Structure is [documented below](#nested_template_sandboxes).
+
 * `containers` -
   (Optional)
   Holds the containers that define the unit of execution for this WorkerPool.
@@ -773,6 +808,71 @@ When the field is set to false, deleting the WorkerPool is allowed.
 * `tags` -
   (Optional)
   Network tags applied to this Cloud Run WorkerPool.
+
+<a name="nested_template_sandboxes"></a>The `sandboxes` block supports:
+
+* `templates` -
+  (Optional)
+  Sandbox templates that can be launched through the `sandbox` CLI.
+  Structure is [documented below](#nested_template_sandboxes_templates).
+
+
+<a name="nested_template_sandboxes_templates"></a>The `templates` block supports:
+
+* `name` -
+  (Required)
+  Name of the sandbox specified as a DNS_LABEL (RFC 1123).
+
+* `image` -
+  (Required)
+  Name of the container image in Dockerhub or Artifact Registry. If the host is not provided, Dockerhub is assumed.
+
+* `command` -
+  (Optional)
+  Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided.
+
+* `args` -
+  (Optional)
+  Arguments to the entrypoint. The docker image's CMD is used if this is not provided.
+
+* `env` -
+  (Optional)
+  List of environment variables to set in the sandbox.
+  Structure is [documented below](#nested_template_sandboxes_templates_env).
+
+* `volume_mounts` -
+  (Optional)
+  Volume to mount into the container's filesystem.
+  Structure is [documented below](#nested_template_sandboxes_templates_volume_mounts).
+
+* `working_dir` -
+  (Optional)
+  Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
+
+
+<a name="nested_template_sandboxes_templates_env"></a>The `env` block supports:
+
+* `name` -
+  (Required)
+  Name of the environment variable. Must be a C_IDENTIFIER, and may not exceed 32768 characters.
+
+* `value` -
+  (Optional)
+  Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.
+
+<a name="nested_template_sandboxes_templates_volume_mounts"></a>The `volume_mounts` block supports:
+
+* `name` -
+  (Required)
+  This must match the Name of a Volume.
+
+* `mount_path` -
+  (Required)
+  Path within the container at which the volume should be mounted. Must not contain ':'. For Cloud SQL volumes, it can be left empty, or must otherwise be /cloudsql. All instances defined in the Volume will be available as /cloudsql/[instance]. For more information on Cloud SQL volumes, visit https://cloud.google.com/sql/docs/mysql/connect-run
+
+* `sub_path` -
+  (Optional)
+  Path within the volume from which the container's volume should be mounted.
 
 <a name="nested_template_containers"></a>The `containers` block supports:
 
