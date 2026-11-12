@@ -53,6 +53,22 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+var regionalEndpointAddressURIRegex = regexp.MustCompile(`^projects/[^/]+/regions/[^/]+/addresses/[^/]+$`)
+
+// Legacy RegionalEndpoints created with an address URI have an empty subnetwork
+// server-side until backfilled. Suppress the diff when adding subnetwork to config
+// for those existing resources so Terraform does not force replacement.
+func regionalEndpointSubnetworkDiffSuppress(_, old, new string, d *schema.ResourceData) bool {
+	if d == nil || d.Id() == "" || old != "" || new == "" {
+		return false
+	}
+	addr, ok := d.Get("address").(string)
+	if !ok {
+		return false
+	}
+	return regionalEndpointAddressURIRegex.MatchString(addr)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -198,11 +214,12 @@ Please refer to the field 'effective_labels' for all of the labels present on th
 				Description: `The name of the VPC network for this private regional endpoint. Format: 'projects/{project}/global/networks/{network}'`,
 			},
 			"subnetwork": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Optional:    true,
-				ForceNew:    true,
-				Description: `The name of the subnetwork from which the IP address will be allocated. Format: 'projects/{project}/regions/{region}/subnetworks/{subnetwork}'`,
+				Type:             schema.TypeString,
+				Computed:         true,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: regionalEndpointSubnetworkDiffSuppress,
+				Description:      `The name of the subnetwork from which the IP address will be allocated. Format: 'projects/{project}/regions/{region}/subnetworks/{subnetwork}'`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,
