@@ -234,16 +234,16 @@ The following arguments are supported:
     `REMOVED`.
 
 *   `apt` - (Optional) A package managed by Apt. Structure is
-    [documented below](#nested_apt).
+    [documented below](#nested_pkg_apt).
 
 *   `deb` - (Optional) A deb package file. Structure is
     [documented below](#nested_deb).
 
 *   `yum` - (Optional) A package managed by YUM. Structure is
-    [documented below](#nested_yum).
+    [documented below](#nested_pkg_yum).
 
 *   `zypper` - (Optional) A package managed by Zypper. Structure is
-    [documented below](#nested_zypper).
+    [documented below](#nested_pkg_zypper).
 
 *   `rpm` - (Optional) An rpm package file. Structure is
     [documented below](#nested_rpm).
@@ -254,7 +254,7 @@ The following arguments are supported:
 *   `msi` - (Optional) An MSI package. Structure is
     [documented below](#nested_msi).
 
-<a name="nested_apt"></a>The `apt` block supports:
+<a name="nested_pkg_apt"></a>The `apt` block supports:
 
 *   `name` - (Required) Package name.
 
@@ -296,11 +296,11 @@ The following arguments are supported:
 
 *   `generation` - (Optional) Generation number of the Cloud Storage object.
 
-<a name="nested_yum"></a>The `yum` block supports:
+<a name="nested_pkg_yum"></a>The `yum` block supports:
 
 *   `name` - (Required) Package name.
 
-<a name="nested_zypper"></a>The `zypper` block supports:
+<a name="nested_pkg_zypper"></a>The `zypper` block supports:
 
 *   `name` - (Required) Package name.
 
@@ -387,18 +387,18 @@ The following arguments are supported:
 <a name="nested_repository"></a>The `repository` block supports:
 
 *   `apt` - (Optional) An Apt Repository. Structure is
-    [documented below](#nested_apt).
+    [documented below](#nested_repository_apt).
 
 *   `yum` - (Optional) A Yum Repository. Structure is
-    [documented below](#nested_yum).
+    [documented below](#nested_repository_yum).
 
 *   `zypper` - (Optional) A Zypper Repository. Structure is
-    [documented below](#nested_zypper).
+    [documented below](#nested_repository_zypper).
 
 *   `goo` - (Optional) A Goo Repository. Structure is
     [documented below](#nested_goo).
 
-<a name="nested_apt"></a>The `apt` block supports:
+<a name="nested_repository_apt"></a>The `apt` block supports:
 
 *   `archive_type` - (Required) Type of archive files in this repository.
     Possible values are: `ARCHIVE_TYPE_UNSPECIFIED`, `DEB`, `DEB_SRC`.
@@ -413,7 +413,7 @@ The following arguments are supported:
 *   `gpg_key` - (Optional) URI of the key file for this repository. The agent
     maintains a keyring at `/etc/apt/trusted.gpg.d/osconfig_agent_managed.gpg`.
 
-<a name="nested_yum"></a>The `yum` block supports:
+<a name="nested_repository_yum"></a>The `yum` block supports:
 
 *   `id` - (Required) A one word, unique name for this repository. This is the
     `repo id` in the yum config file and also the `display_name` if
@@ -426,7 +426,7 @@ The following arguments are supported:
 
 *   `gpg_keys` - (Optional) URIs of GPG keys.
 
-<a name="nested_zypper"></a>The `zypper` block supports:
+<a name="nested_repository_zypper"></a>The `zypper` block supports:
 
 *   `id` - (Required) A one word, unique name for this repository. This is the
     `repo id` in the zypper config file and also the `display_name` if
