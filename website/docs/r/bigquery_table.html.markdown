@@ -220,6 +220,11 @@ The following arguments are supported:
 * `external_catalog_table_options` - (Optional) Options defining open source
     compatible table. Structure is [documented below](#nested_external_catalog_table_options).
 
+* `table_metadata_view` - (Optional) Specifies the view that determines which
+    table information is returned. By default, basic table information and
+    storage statistics (`STORAGE_STATS`) are returned. Possible values are
+    `TABLE_METADATA_VIEW_UNSPECIFIED`, `BASIC`, `STORAGE_STATS`, and `FULL`.
+
 <a name="nested_external_data_configuration"></a>The `external_data_configuration` block supports:
 
 * `autodetect` - (Required) Let BigQuery try to autodetect the schema

@@ -458,6 +458,12 @@ exported:
 
 * `url` - The base URL of the bucket, in the format `gs://<bucket-name>`.
 
+* `project_number` - The project number of the project in which the resource belongs.
+
+* `terraform_labels` - The combination of labels configured directly on the resource and default labels configured on the provider.
+
+* `effective_labels` - All of labels (key/value pairs) present on the resource in GCP, including the labels configured through Terraform, other clients and services.
+
 ## Timeouts
 
 This resource provides the following
