@@ -493,6 +493,70 @@ resource "google_compute_network" "producer_net" {
   auto_create_subnetworks = false
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=memorystore_instance_auto_created_endpoints_ipv6&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Memorystore Instance Auto Created Endpoints Ipv6
+
+
+```hcl
+resource "google_memorystore_instance" "instance-ipv6" {
+  provider    = google-beta
+  instance_id = "ipv6-instance"
+  shard_count = 1
+  desired_auto_created_endpoints {
+    network    = google_compute_network.producer_net.id
+    project_id = data.google_project.project.project_id
+    ip_version = "IPV6"
+  }
+  location                    = "asia-east1"
+  node_type                   = "SHARED_CORE_NANO"
+  deletion_protection_enabled = false
+  depends_on = [
+    google_network_connectivity_service_connection_policy.default
+  ]
+
+  lifecycle {
+    prevent_destroy = "true"
+  }
+}
+
+resource "google_network_connectivity_service_connection_policy" "default" {
+  provider      = google-beta
+  name          = "my-policy"
+  location      = "asia-east1"
+  service_class = "gcp-memorystore"
+  description   = "my basic service connection policy"
+  network       = google_compute_network.producer_net.id
+  psc_config {
+    subnetworks = [google_compute_subnetwork.producer_subnet.id]
+  }
+}
+
+resource "google_compute_subnetwork" "producer_subnet" {
+  provider         = google-beta
+  name             = "my-subnet"
+  ip_cidr_range    = "10.0.0.248/29"
+  region           = "asia-east1"
+  network          = google_compute_network.producer_net.id
+  stack_type       = "IPV4_IPV6"
+  ipv6_access_type = "INTERNAL"
+}
+
+resource "google_compute_network" "producer_net" {
+  provider                 = google-beta
+  name                     = "my-network"
+  auto_create_subnetworks  = false
+  enable_ula_internal_ipv6 = true
+}
+
+data "google_project" "project" {
+  provider = google-beta
+}
+```
 
 ## Argument Reference
 
@@ -947,6 +1011,12 @@ The following arguments are supported:
   Required. The consumer network where the IP address resides, in the form of
   projects/{project_id}/global/networks/{network_id}.
 
+* `ip_version` -
+  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  Immutable. The IP version that the consumer endpoint will use.
+  Default value is `IPV4`.
+  Possible values are: `IPV4`, `IPV6`.
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
@@ -1160,6 +1230,10 @@ In addition to the arguments listed above, the following computed attributes are
   (Output)
   Output only. Ports of the exposed endpoint.
 
+* `ip_version` -
+  (Output, [Beta](../guides/provider_versions.html.markdown))
+  The IP version of the PSC connection. Possible values are `IPV4` and `IPV6`.
+
 <a name="nested_psc_attachment_details"></a>The `psc_attachment_details` block contains:
 
 * `service_attachment` -
@@ -1218,6 +1292,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `port` -
   (Output)
   Output only. Ports of the exposed endpoint.
+
+* `ip_version` -
+  (Output, [Beta](../guides/provider_versions.html.markdown))
+  The IP version of the PSC connection. Possible values are `IPV4` and `IPV6`.
 
 <a name="nested_managed_server_ca"></a>The `managed_server_ca` block contains:
 
