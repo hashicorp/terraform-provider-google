@@ -4122,6 +4122,7 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 			// No endpoints or empty array, nothing to process
 		} else {
 			transformed := make([]interface{}, 0)
+			transformedPsc := make([]interface{}, 0)
 			uniqueEndpoints := make(map[string]bool) // Track unique project+network combos
 
 			for _, endpoint := range endpointsArray {
@@ -4157,6 +4158,10 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 								"project_id": projectID,
 								"network":    networkID,
 							})
+							transformedPsc = append(transformedPsc, map[string]interface{}{
+								"project_id": projectID,
+								"network":    networkID,
+							})
 						}
 					}
 				}
@@ -4173,8 +4178,8 @@ func resourceMemorystoreInstanceDecoder(d *schema.ResourceData, meta interface{}
 					d.Set("desired_auto_created_endpoints", []interface{}{})
 				}
 				if okPsc {
-					d.Set("desired_psc_auto_connections", transformed)
-					log.Printf("[DEBUG] Setting desired_psc_auto_connections in decoder within endpoints for %#v", transformed)
+					d.Set("desired_psc_auto_connections", transformedPsc)
+					log.Printf("[DEBUG] Setting desired_psc_auto_connections in decoder within endpoints for %#v", transformedPsc)
 				} else if okEndpoint {
 					d.Set("desired_psc_auto_connections", []interface{}{})
 				}

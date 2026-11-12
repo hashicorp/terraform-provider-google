@@ -1,0 +1,3 @@
+```release-note:enhancement
+memorystore: added `desired_auto_created_endpoints.ip_version`, `endpoints.connections.psc_auto_connection.ip_version`, and `psc_auto_connections.ip_version` fields to `google_memorystore_instance` (beta)
+```
