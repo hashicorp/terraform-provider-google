@@ -101,6 +101,16 @@ fields:
     - api_field: template.labels
     - api_field: template.nodeSelector.accelerator
     - api_field: template.revision
+    - api_field: template.sandboxes.templates.args
+    - api_field: template.sandboxes.templates.command
+    - api_field: template.sandboxes.templates.env.name
+    - api_field: template.sandboxes.templates.env.value
+    - api_field: template.sandboxes.templates.image
+    - api_field: template.sandboxes.templates.name
+    - api_field: template.sandboxes.templates.volumeMounts.mountPath
+    - api_field: template.sandboxes.templates.volumeMounts.name
+    - api_field: template.sandboxes.templates.volumeMounts.subPath
+    - api_field: template.sandboxes.templates.workingDir
     - api_field: template.serviceAccount
     - api_field: template.volumes.cloudSqlInstance.instances
     - api_field: template.volumes.emptyDir.medium

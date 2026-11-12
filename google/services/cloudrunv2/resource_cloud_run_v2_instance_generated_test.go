@@ -926,6 +926,130 @@ resource "google_cloud_run_v2_instance" "default" {
 `, context)
 }
 
+func TestAccCloudRunV2Instance_cloudrunv2InstanceSandboxTemplatesExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"cloud_run_instance_name": "tf-test-cloudrun-instance" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"cloud_run_instance_name": "tf-test-cloudrun-instance" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckCloudRunV2InstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCloudRunV2Instance_cloudrunv2InstanceSandboxTemplatesExample(context),
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "conditions", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_instance.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccCloudRunV2Instance_cloudrunv2InstanceSandboxTemplatesUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_cloud_run_v2_instance.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_cloud_run_v2_instance.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"annotations", "conditions", "labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_cloud_run_v2_instance.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccCloudRunV2Instance_cloudrunv2InstanceSandboxTemplatesExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_instance" "default" {
+  name         = "%{cloud_run_instance_name}"
+  location     = "us-west4"
+  launch_stage = "BETA"
+
+  containers {
+    image            = "us-docker.pkg.dev/cloudrun/container/hello"
+    sandbox_launcher = true
+  }
+  sandboxes {
+    templates {
+      name  = "hello"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+`, context)
+}
+
+func testAccCloudRunV2Instance_cloudrunv2InstanceSandboxTemplatesUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_cloud_run_v2_instance" "default" {
+  name         = "%{cloud_run_instance_name}"
+  location     = "us-west4"
+  launch_stage = "BETA"
+
+  containers {
+    image            = "us-docker.pkg.dev/cloudrun/container/hello"
+    sandbox_launcher = false
+    volume_mounts {
+      name = "empty-dir-volume"
+      mount_path = "/mnt"
+    }
+  }
+  sandboxes {
+    templates {
+      name  = "hello"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+      command = ["/bin/sh"]
+      args = ["foo"]
+      env {
+        name = "PORT"
+        value = "8080"
+      }
+      volume_mounts {
+        name = "empty-dir-volume"
+        mount_path = "/mnt"
+        sub_path = "/home/user"
+      }
+      working_dir = "/mnt/app"
+    }
+  }
+  volumes {
+    name = "empty-dir-volume"
+    empty_dir {
+      medium = "MEMORY"
+      size_limit = "256Mi"
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckCloudRunV2InstanceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

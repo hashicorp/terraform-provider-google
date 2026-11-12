@@ -400,6 +400,33 @@ resource "google_cloud_run_v2_instance" "default" {
   }
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=cloudrunv2_instance_sandbox_templates&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Cloudrunv2 Instance Sandbox Templates
+
+
+```hcl
+resource "google_cloud_run_v2_instance" "default" {
+  name         = "cloudrun-instance"
+  location     = "us-west4"
+  launch_stage = "BETA"
+
+  containers {
+    image            = "us-docker.pkg.dev/cloudrun/container/hello"
+    sandbox_launcher = true
+  }
+  sandboxes {
+    templates {
+      name  = "hello"
+      image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -453,6 +480,11 @@ The following arguments are supported:
 * `service_account` -
   (Optional)
   Email address of the IAM service account associated with the Instance. The service account represents the identity of the running Instance, and determines what permissions the instance has.
+
+* `sandboxes` -
+  (Optional)
+  Configuration for sandboxes.
+  Structure is [documented below](#nested_sandboxes).
 
 * `volumes` -
   (Optional)
@@ -535,6 +567,10 @@ The following arguments are supported:
   List of ports to expose from the container. Only a single port can be specified. The specified ports must be listening on all interfaces (0.0.0.0) within the container to be accessible.
   If omitted, a port number will be chosen and passed to the container through the PORT environment variable for the container to listen on
   Structure is [documented below](#nested_containers_ports).
+
+* `sandbox_launcher` -
+  (Optional)
+  Indicates that this container can act as a sandbox supervisor and launch sandboxes.
 
 * `volume_mounts` -
   (Optional)
@@ -760,6 +796,71 @@ The following arguments are supported:
 * `service` -
   (Optional)
   Optional. Service is the name of the service to place in the gRPC HealthCheckRequest (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md ). If this is not specified, the default behavior is defined by gRPC
+
+<a name="nested_sandboxes"></a>The `sandboxes` block supports:
+
+* `templates` -
+  (Optional)
+  Sandbox templates that can be launched through the `sandbox` CLI.
+  Structure is [documented below](#nested_sandboxes_templates).
+
+
+<a name="nested_sandboxes_templates"></a>The `templates` block supports:
+
+* `name` -
+  (Required)
+  Name of the sandbox specified as a DNS_LABEL (RFC 1123).
+
+* `image` -
+  (Required)
+  Name of the container image in Dockerhub or Artifact Registry. If the host is not provided, Dockerhub is assumed.
+
+* `command` -
+  (Optional)
+  Entrypoint array. Not executed within a shell. The docker image's ENTRYPOINT is used if this is not provided.
+
+* `args` -
+  (Optional)
+  Arguments to the entrypoint. The docker image's CMD is used if this is not provided.
+
+* `env` -
+  (Optional)
+  List of environment variables to set in the sandbox.
+  Structure is [documented below](#nested_sandboxes_templates_env).
+
+* `volume_mounts` -
+  (Optional)
+  Volume to mount into the container's filesystem.
+  Structure is [documented below](#nested_sandboxes_templates_volume_mounts).
+
+* `working_dir` -
+  (Optional)
+  Container's working directory. If not specified, the container runtime's default will be used, which might be configured in the container image.
+
+
+<a name="nested_sandboxes_templates_env"></a>The `env` block supports:
+
+* `name` -
+  (Required)
+  Name of the environment variable. Must be a C_IDENTIFIER, and may not exceed 32768 characters.
+
+* `value` -
+  (Optional)
+  Literal value of the environment variable. Defaults to "" and the maximum allowed length is 32768 characters. Variable references are not supported in Cloud Run.
+
+<a name="nested_sandboxes_templates_volume_mounts"></a>The `volume_mounts` block supports:
+
+* `name` -
+  (Required)
+  This must match the Name of a Volume.
+
+* `mount_path` -
+  (Required)
+  Path within the container at which the volume should be mounted. Must not contain ':'. For Cloud SQL volumes, it can be left empty, or must otherwise be /cloudsql. All instances defined in the Volume will be available as /cloudsql/[instance]. For more information on Cloud SQL volumes, visit https://cloud.google.com/sql/docs/mysql/connect-run
+
+* `sub_path` -
+  (Optional)
+  Path within the volume from which the container's volume should be mounted.
 
 <a name="nested_volumes"></a>The `volumes` block supports:
 

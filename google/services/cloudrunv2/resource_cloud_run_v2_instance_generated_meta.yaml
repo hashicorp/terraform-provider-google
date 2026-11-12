@@ -40,6 +40,7 @@ fields:
     - api_field: containers.ports.containerPort
     - api_field: containers.ports.name
     - api_field: containers.resources.limits
+    - api_field: containers.sandboxLauncher
     - api_field: containers.startupProbe.failureThreshold
     - api_field: containers.startupProbe.grpc.port
     - api_field: containers.startupProbe.grpc.service
@@ -82,6 +83,16 @@ fields:
     - api_field: observedGeneration
     - api_field: reconciling
     - api_field: restartPolicy
+    - api_field: sandboxes.templates.args
+    - api_field: sandboxes.templates.command
+    - api_field: sandboxes.templates.env.name
+    - api_field: sandboxes.templates.env.value
+    - api_field: sandboxes.templates.image
+    - api_field: sandboxes.templates.name
+    - api_field: sandboxes.templates.volumeMounts.mountPath
+    - api_field: sandboxes.templates.volumeMounts.name
+    - api_field: sandboxes.templates.volumeMounts.subPath
+    - api_field: sandboxes.templates.workingDir
     - api_field: satisfiesPzs
     - api_field: serviceAccount
     - api_field: terminalCondition.instanceReason

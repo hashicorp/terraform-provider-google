@@ -1,0 +1,11 @@
+```release-note:enhancement
+cloudrunv2: added `sandboxes` and `containers.sandbox_launcher` fields to `google_cloud_run_v2_instance` resource
+```
+
+```release-note:enhancement
+cloudrunv2: added `template.template.sandboxes` field to `google_cloud_run_v2_job` resource
+```
+
+```release-note:enhancement
+cloudrunv2: added `template.sandboxes` field to `google_cloud_run_v2_worker_pool` resource
+```
