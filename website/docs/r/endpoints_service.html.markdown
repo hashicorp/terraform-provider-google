@@ -59,6 +59,13 @@ Either this, or *both* of `grpc_config` and `protoc_output_base64` must be speci
 
 * `project`: (Optional) The project ID that the service belongs to.  If not provided, provider project is used.
 
+* `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
+  When a 'terraform destroy' or 'terraform apply' would delete the resource,
+  the command will fail if this field is set to "PREVENT" in Terraform state.
+  When set to "ABANDON", the command will remove the resource from Terraform
+  management without updating or deleting the resource in the API.
+  When set to "DELETE", deleting the resource is allowed.
+
 ## Attributes Reference
 In addition to the arguments, the following attributes are available:
 
@@ -66,23 +73,23 @@ In addition to the arguments, the following attributes are available:
 
 * `dns_address`: The address at which the service can be found - usually the same as the service name.
 
-* `apis`: A list of API objects; structure is documented below.
+* `apis`: A list of API objects; structure is [documented below](#nested_apis).
 
-* `endpoints`: A list of Endpoint objects; structure is documented below.
+* `endpoints`: A list of Endpoint objects; structure is [documented below](#nested_endpoints).
 
 - - -
 ### API Object Structure
 
-The `apis` block supports:
+<a name="nested_apis"></a>The `apis` block supports:
 
 * `name`: The FQDN of the API as described in the provided config.
 * `syntax`: `SYNTAX_PROTO2` or `SYNTAX_PROTO3`.
 * `version`: A version string for this api. If specified, will have the form major-version.minor-version, e.g. `1.10`.
-* `methods`: A list of Method objects; structure is documented below.
+* `methods`: A list of Method objects; structure is [documented below](#nested_apis_methods).
 
 ### Method Object Structure
 
-The `methods` block supports:
+<a name="nested_apis_methods"></a>The `methods` block supports:
 
 * `name`: The simple name of this method as described in the provided config.
 * `syntax`: `SYNTAX_PROTO2` or `SYNTAX_PROTO3`.
@@ -91,7 +98,7 @@ The `methods` block supports:
 
 ### Endpoint Object Structure
 
-The `endpoints` block supports:
+<a name="nested_endpoints"></a>The `endpoints` block supports:
 
 * `name`: The simple name of the endpoint as described in the config.
 * `address`: The FQDN of the endpoint as described in the config.
