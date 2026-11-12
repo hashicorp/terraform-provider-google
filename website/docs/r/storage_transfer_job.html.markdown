@@ -309,7 +309,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `path` - (Optional) Root path to transfer objects. Must be an empty string or full path name that ends with a '/'. This field is treated as an object prefix. As such, it should generally not begin with a '/'.
 
-* `aws_access_key` - (Optional) AWS credentials block.
+* `aws_access_key` - (Optional) AWS credentials block. Structure [documented below](#nested_aws_s3_data_source_aws_access_key).
 
 * `role_arn` - (Optional) The Amazon Resource Name (ARN) of the role to support temporary credentials via 'AssumeRoleWithWebIdentity'. For more information about ARNs, see [IAM ARNs](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns). When a role ARN is provided, Transfer Service fetches temporary credentials for the session using a 'AssumeRoleWithWebIdentity' call for the provided role using the [GoogleServiceAccount][] for this project.
 
@@ -323,7 +323,7 @@ A duration in seconds with up to nine fractional digits, terminated by 's'. Exam
 
 * `location` - (Required) The **GCS URI** to the manifest file (CSV or line-delimited). Example: `gs://my-bucket/manifest.csv`
 
-The `aws_access_key` block supports:
+<a name="nested_aws_s3_data_source_aws_access_key"></a>The `aws_access_key` block supports:
 
 * `access_key_id` - (Required) AWS Key ID.
 
@@ -343,13 +343,13 @@ The `aws_access_key` block supports:
 
 * `credentials_secret` - (Optional, (../guides/provider_versions.html.markdown)) Full Resource name of a secret in Secret Manager containing [SAS Credentials in JSON form](https://cloud.google.com/storage-transfer/docs/reference/rest/v1/TransferSpec#azureblobstoragedata:~:text=begin%20with%20a%20%27/%27.-,credentialsSecret,-string). Service Agent for Storage Transfer must have permissions to access secret. If credentials_secret is specified, do not specify azure_credentials.`,
 
-* `azure_credentials` - (Optional, (../guides/provider_versions.html.markdown)) Credentials used to authenticate API requests to Azure block.
+* `azure_credentials` - (Optional, (../guides/provider_versions.html.markdown)) Credentials used to authenticate API requests to Azure block. Structure [documented below](#nested_azure_blob_storage_data_source_azure_credentials).
 
 * `federated_identity_config` - (Optional) Federated identity config of a user registered Azure application. Structure [documented below](#nested_federated_identity_config).
 
 * `private_network_service` - (Optional) Service Directory Service to be used as the endpoint for transfers from a customer-managed VPC. Format: `projects/{projectId}/locations/{location}/namespaces/{namespace}/services/{service}`.
 
-The `azure_credentials` block supports:
+<a name="nested_azure_blob_storage_data_source_azure_credentials"></a>The `azure_credentials` block supports:
 
 * `sas_token` - (Required) Azure shared access signature. See [Grant limited access to Azure Storage resources using shared access signatures (SAS)](https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview).
 
@@ -393,7 +393,7 @@ Each action may be one of `FIND`, `DELETE`, and `COPY`.
 * `log_action_states` - (Optional) A list of loggable action states. If empty, no logs are generated. Not supported for transfers with PosixFilesystem data sources; use enableOnpremGcsTransferLogs instead.
 Each action state may be one of `SUCCEEDED`, and `FAILED`.
 
-* `enable_on_prem_gcs_transfer` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.
+* `enable_on_prem_gcs_transfer_logs` - (Optional) For transfers with a PosixFilesystem source, this option enables the Cloud Storage transfer logs for this transfer.
 Defaults to false.
 
 <a name="nested_metadata_options"></a>The `metadata_options` block supports:
