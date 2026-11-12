@@ -205,7 +205,9 @@ The following arguments are supported:
   **Note**: This property is write-only and will not be read from the API.
   **Caution**: Existing database roles will be overwriten with new values from this field.
 
-The optional `password_policy` block is only supported for creating MySQL and Postgres users. The `password_policy` block supports:
+* `password_policy` - (Optional) The password policy for the user. Only supported for creating MySQL and Postgres users. Structure is [documented below](#nested_password_policy).
+
+<a name="nested_password_policy"></a>The `password_policy` block supports:
 
 * `allowed_failed_attempts` - (Optional) Number of failed attempts allowed before the user get locked.
 
@@ -215,7 +217,9 @@ The optional `password_policy` block is only supported for creating MySQL and Po
 
 * `enable_password_verification` - (Optional) If true, the user must specify the current password before changing the password. This flag is supported only for MySQL.
 
-The read only `password_policy.status` subblock supports:
+* `status` - (read only) The password status of the user. Structure is [documented below](#nested_password_policy_status).
+
+<a name="nested_password_policy_status"></a>The read only `password_policy.status` subblock supports:
 
 * `locked` - (read only) If true, user does not have login privileges.
 
@@ -223,7 +227,15 @@ The read only `password_policy.status` subblock supports:
 
 ## Attributes Reference
 
-Only the arguments listed above are exposed as attributes.
+In addition to the arguments listed above, the following computed attributes are exported:
+
+* `sql_server_user_details` - (read only) SQL Server specific user details. Structure is [documented below](#nested_sql_server_user_details).
+
+<a name="nested_sql_server_user_details"></a>The `sql_server_user_details` block supports:
+
+* `disabled` - (read only) If the user has been disabled.
+
+* `server_roles` - (read only) The server roles for this user in the database.
 
 ## Timeouts
 
