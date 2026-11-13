@@ -1,0 +1,15 @@
+```release-note:new-list-resource
+`google_gkeonprem_bare_metal_admin_cluster`
+```
+
+```release-note:new-list-resource
+`google_gkeonprem_bare_metal_cluster`
+```
+
+```release-note:new-list-resource
+`google_gkeonprem_vmware_admin_cluster`
+```
+
+```release-note:new-list-resource
+`google_gkeonprem_vmware_cluster`
+```
