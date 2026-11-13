@@ -1,0 +1,52 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_design_center_component
+generation_type: mmv1
+source_file: products/designcenter/Component.yaml
+api_service_name: designcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Component
+fields:
+    - api_field: apis
+    - api_field: applicationInfo.apphubApplicationId
+    - api_field: applicationInfo.attributes.businessOwners.displayName
+    - api_field: applicationInfo.attributes.businessOwners.email
+    - api_field: applicationInfo.attributes.criticality.type
+    - api_field: applicationInfo.attributes.developerOwners.displayName
+    - api_field: applicationInfo.attributes.developerOwners.email
+    - api_field: applicationInfo.attributes.environment.type
+    - api_field: applicationInfo.attributes.operatorOwners.displayName
+    - api_field: applicationInfo.attributes.operatorOwners.email
+    - api_field: applicationInfo.deploymentRegion
+    - api_field: applicationInfo.displayName
+    - api_field: applicationInfo.scope.type
+    - field: application_template
+      provider_only: true
+    - api_field: applicationTemplateRevisionUri
+    - field: component_id
+      provider_only: true
+    - api_field: componentParameterSchema.defaultValue
+      json: true
+    - api_field: componentParameterSchema.isRequired
+    - api_field: componentParameterSchema.key
+    - api_field: componentParameterSchema.type
+    - api_field: connectionsParameters.connection
+    - api_field: connectionsParameters.parameters.key
+    - api_field: connectionsParameters.parameters.value
+      json: true
+    - api_field: createTime
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: parameters.key
+    - api_field: parameters.value
+      json: true
+    - api_field: roles
+    - api_field: sharedTemplateRevisionUri
+    - field: space
+      provider_only: true
+    - api_field: updateTime
+    - api_field: useAsRootModule
+    - field: deletion_policy
+      provider_only: true
