@@ -17548,11 +17548,12 @@ func TestAccContainerCluster_disableControlPlaneIP(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
-				// With IP endpoints disabled, the API dictates private_cluster_config:
-				// enable_private_endpoint is forced to true and master_global_access is
-				// forced to disabled. The config deliberately sets the opposite values,
-				// so this step fails with a non-empty plan unless diffs on those
-				// API-dictated fields are suppressed.
+				// With IP endpoints disabled, the API dictates private_cluster_config
+				// (enable_private_endpoint is forced to true and master_global_access is
+				// forced to disabled) and ignores/omits master_authorized_networks_config.
+				// The config deliberately sets the opposite private_cluster_config values
+				// and includes a master_authorized_networks_config block, so this step
+				// fails with a non-empty plan unless diffs on those fields are suppressed.
 				Config: testAccContainerCluster_ControlPlaneIPdisabledWithPrivateClusterConfig(clusterName, networkName, subnetworkName),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
@@ -17618,6 +17619,15 @@ resource "google_container_cluster" "primary" {
     master_global_access_config {
       enabled = true
     }
+  }
+
+  master_authorized_networks_config {
+    cidr_blocks {
+      cidr_block   = "10.0.0.0/28"
+      display_name = "test-net"
+    }
+    gcp_public_cidrs_access_enabled      = true
+    private_endpoint_enforcement_enabled = true
   }
 }
 `, clusterName, networkName, subnetworkName)

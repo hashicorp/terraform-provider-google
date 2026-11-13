@@ -68,36 +68,41 @@ var (
 				// This should be kept Optional. Expressing the
 				// parent with no entries and omitting the
 				// parent entirely are semantically different.
-				Optional:    true,
-				Elem:        cidrBlockConfig,
-				Description: `External networks that can access the Kubernetes cluster master through HTTPS.`,
+				Optional:         true,
+				Elem:             cidrBlockConfig,
+				DiffSuppressFunc: containerClusterMasterAuthorizedNetworksConfigSuppress,
+				Description:      `External networks that can access the Kubernetes cluster master through HTTPS.`,
 			},
 			"gcp_public_cidrs_access_enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Description: `Whether Kubernetes master is accessible via Google Compute Engine Public IPs.`,
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: containerClusterMasterAuthorizedNetworksConfigSuppress,
+				Description:      `Whether Kubernetes master is accessible via Google Compute Engine Public IPs.`,
 			},
 			"private_endpoint_enforcement_enabled": {
-				Type:        schema.TypeBool,
-				Optional:    true,
-				Computed:    true,
-				Description: `Whether authorized networks is enforced on the private endpoint or not. Defaults to false.`,
+				Type:             schema.TypeBool,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: containerClusterMasterAuthorizedNetworksConfigSuppress,
+				Description:      `Whether authorized networks is enforced on the private endpoint or not. Defaults to false.`,
 			},
 		},
 	}
 	cidrBlockConfig = &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"cidr_block": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.IsCIDRNetwork(0, 32),
-				Description:  `External network that can access Kubernetes master through HTTPS. Must be specified in CIDR notation.`,
+				Type:             schema.TypeString,
+				Required:         true,
+				ValidateFunc:     validation.IsCIDRNetwork(0, 32),
+				DiffSuppressFunc: containerClusterMasterAuthorizedNetworksConfigSuppress,
+				Description:      `External network that can access Kubernetes master through HTTPS. Must be specified in CIDR notation.`,
 			},
 			"display_name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Description: `Field for users to identify CIDR blocks.`,
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: containerClusterMasterAuthorizedNetworksConfigSuppress,
+				Description:      `Field for users to identify CIDR blocks.`,
 			},
 		},
 	}
@@ -1681,12 +1686,13 @@ func ResourceContainerCluster() *schema.Resource {
 			},
 
 			"master_authorized_networks_config": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Computed:    true,
-				MaxItems:    1,
-				Elem:        masterAuthorizedNetworksConfig,
-				Description: `The desired configuration options for master authorized networks. Omit the nested cidr_blocks attribute to disallow external access (except the cluster node IPs, which GKE automatically whitelists).`,
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				MaxItems:         1,
+				Elem:             masterAuthorizedNetworksConfig,
+				DiffSuppressFunc: containerClusterMasterAuthorizedNetworksConfigSuppress,
+				Description:      `The desired configuration options for master authorized networks. Omit the nested cidr_blocks attribute to disallow external access (except the cluster node IPs, which GKE automatically whitelists).`,
 			},
 
 			"min_master_version": {
@@ -8467,10 +8473,25 @@ func containerClusterApiDictatedPrivateEndpointField(k string, d privateClusterC
 	return containerClusterIpEndpointsDisabled(d)
 }
 
+// Suppress diffs on master_authorized_networks_config and its nested fields when
+// control_plane_endpoints_config.ip_endpoints_config.enabled = false. With IP endpoints
+// disabled, expandControlPlaneEndpointsConfig returns early without sending
+// master_authorized_networks_config and GKE does not return it, so any configured block
+// would permanently diff against the state.
+func containerClusterMasterAuthorizedNetworksConfigSuppress(k, old, new string, d *schema.ResourceData) bool {
+	if d == nil {
+		return false
+	}
+	return containerClusterIpEndpointsDisabled(d)
+}
+
 // containerClusterIpEndpointsDisabled reports whether control_plane_endpoints_config
 // turns off IP access (ip_endpoints_config.enabled = false). IP endpoints are enabled by
 // default, so this is only true when the block is present and explicitly disabled.
 func containerClusterIpEndpointsDisabled(d privateClusterConfigDiffSuppressData) bool {
+	if d == nil {
+		return false
+	}
 	if v, ok := d.GetOk("control_plane_endpoints_config.0.ip_endpoints_config.#"); !ok || v.(int) == 0 {
 		return false
 	}
