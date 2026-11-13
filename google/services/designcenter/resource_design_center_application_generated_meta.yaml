@@ -1,0 +1,74 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_design_center_application
+generation_type: mmv1
+source_file: products/designcenter/Application.yaml
+api_service_name: designcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Application
+fields:
+    - api_field: appParameters.key
+    - api_field: appParameters.value
+      json: true
+    - api_field: apphubApplication
+    - field: application_id
+      provider_only: true
+    - api_field: attributes.businessOwners.displayName
+    - api_field: attributes.businessOwners.email
+    - api_field: attributes.criticality.type
+    - api_field: attributes.developerOwners.displayName
+    - api_field: attributes.developerOwners.email
+    - api_field: attributes.environment.type
+    - api_field: attributes.operatorOwners.displayName
+    - api_field: attributes.operatorOwners.email
+    - api_field: componentParameters.component
+    - api_field: componentParameters.parameters.key
+    - api_field: componentParameters.parameters.value
+      json: true
+    - api_field: componentParameters.state
+    - api_field: compositeApplicationParameters.serviceAccountMap
+    - api_field: connectionConfigs.connectionUri
+    - api_field: connectionConfigs.destinationComponentParameters.key
+    - api_field: connectionConfigs.destinationComponentParameters.value
+      json: true
+    - api_field: connectionConfigs.sourceComponentParameters.key
+    - api_field: connectionConfigs.sourceComponentParameters.value
+      json: true
+    - api_field: createTime
+    - api_field: deploymentMetadata.build
+    - api_field: deploymentMetadata.componentOutputParameters.component
+    - api_field: deploymentMetadata.componentOutputParameters.parameters.key
+    - api_field: deploymentMetadata.componentOutputParameters.parameters.value
+      json: true
+    - api_field: deploymentMetadata.error.code
+    - api_field: deploymentMetadata.error.detail
+    - api_field: deploymentMetadata.error.errorMessage
+    - api_field: deploymentMetadata.error.type
+    - api_field: deploymentMetadata.retryAttempts
+    - api_field: deploymentMetadata.revision
+    - api_field: deploymentMetadata.workerPool
+    - api_field: deploymentProject
+    - api_field: deploymentRegion
+    - api_field: deploymentTarget.gkeDeploymentTarget.clusterSelfLink
+    - api_field: deploymentTarget.gkeDeploymentTarget.kubernetesServiceAccount
+    - api_field: deploymentTarget.gkeDeploymentTarget.kubernetesServiceAccountCreation
+    - api_field: deploymentTarget.gkeDeploymentTarget.namespace
+    - api_field: description
+    - api_field: displayName
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: rolesApisConfig.apis.api
+    - api_field: rolesApisConfig.apis.systemProvided
+    - api_field: rolesApisConfig.projectId
+    - api_field: rolesApisConfig.roles.role
+    - api_field: rolesApisConfig.roles.systemProvided
+    - api_field: scope.type
+    - api_field: serviceAccount
+    - api_field: source.applicationTemplateRevision
+    - field: space
+      provider_only: true
+    - api_field: state
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
