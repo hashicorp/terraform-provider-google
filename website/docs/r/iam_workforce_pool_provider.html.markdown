@@ -181,10 +181,11 @@ resource "google_iam_workforce_pool_provider" "example" {
         filter      = "mail:sales"
     }
   }
-  display_name        = "Display name"
-  description         = "A sample OIDC workforce pool provider."
-  disabled            = false
-  attribute_condition = "true"
+  display_name            = "Display name"
+  description             = "A sample OIDC workforce pool provider."
+  disabled                = false
+  attribute_condition     = "true"
+  attribute_sync_interval = "7200s"
 }
 ```
 
@@ -640,6 +641,16 @@ The following arguments are supported:
 * `detailed_audit_logging` -
   (Optional)
   If true, populates additional debug information in Cloud Audit Logs for this provider. Logged attribute mappings and values can be found in `sts.googleapis.com` data access logs. Default value is false.
+
+* `attribute_sync_interval` -
+  (Optional)
+  An interval that determines how often user attributes are synced from the IdP.
+  Must be between 30 minutes (`1800s`) and 12 hours (`43200s`), and is only supported
+  for OIDC Authorization Code Flow providers (`oidc.web_sso_config.response_type = "CODE"`).
+  This configuration is used only when the Google Cloud session length policy is configured.
+  When Google Cloud session length policy is configured and `attribute_sync_interval` is not
+  configured, attributes are synced after a default interval of 30 minutes (`1800s`).
+  A duration in seconds with up to nine fractional digits, ending with '`s`'. Example: "`3600s`".
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.
 	When a 'terraform destroy' or 'terraform apply' would delete the resource,
