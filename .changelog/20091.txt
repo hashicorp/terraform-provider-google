@@ -1,0 +1,3 @@
+```release-note:enhancement
+container: added `node_config.consolidation_delay` field to `google_container_cluster` and `google_container_node_pool` resources
+```

@@ -820,7 +820,7 @@ func TestAccContainerCluster_withMaxRunDuration(t *testing.T) {
 	})
 }
 
-func TestAccContainerCluster_withFlexStart(t *testing.T) {
+func TestAccContainerCluster_withFlexStartAndConsolidationDelay(t *testing.T) {
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -834,12 +834,37 @@ func TestAccContainerCluster_withFlexStart(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerCluster_withFlexStart(clusterName, npName, networkName, subnetworkName),
+				// consolidation_delay requires autoscaling on the node pool. The default
+				// node pool that GKE creates from the top-level node_config has no
+				// autoscaling, so GKE rejects the field there.
+				Config:      testAccContainerCluster_withNodeConfigConsolidationDelay(clusterName, networkName, subnetworkName),
+				ExpectError: regexp.MustCompile(`(?i)consolidation delay is not supported without autoscaling`),
+			},
+			{
+				Config: testAccContainerCluster_withFlexStartAndConsolidationDelay(clusterName, npName, networkName, subnetworkName, "600s"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_cluster.flex_start", "node_pool.0.node_config.0.machine_type", "n4-standard-2"),
 					resource.TestCheckResourceAttr("google_container_cluster.flex_start",
 						"node_pool.0.node_config.0.reservation_affinity.0.consume_reservation_type", "NO_RESERVATION"),
 					resource.TestCheckResourceAttr("google_container_cluster.flex_start", "node_pool.0.node_config.0.flex_start", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.flex_start", "node_pool.0.node_config.0.consolidation_delay", "600s"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.flex_start",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection", "min_master_version", "node_pool.0.node_config.0.taint"},
+			},
+			{
+				Config: testAccContainerCluster_withFlexStartAndConsolidationDelay(clusterName, npName, networkName, subnetworkName, "1200s"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.flex_start", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.flex_start", "node_pool.0.node_config.0.consolidation_delay", "1200s"),
 				),
 			},
 			{
@@ -9718,7 +9743,7 @@ resource "google_container_cluster" "max_run_duration" {
 `, clusterName, npName, duration, networkName, subnetworkName)
 }
 
-func testAccContainerCluster_withFlexStart(clusterName, npName, networkName, subnetworkName string) string {
+func testAccContainerCluster_withFlexStartAndConsolidationDelay(clusterName, npName, networkName, subnetworkName, consolidationDelay string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "uscentral1a" {
   location = "us-east1-b"
@@ -9751,6 +9776,7 @@ resource "google_container_cluster" "flex_start" {
       machine_type = "n4-standard-2"
 	  flex_start = true
 	  max_run_duration = "604800s"
+	  consolidation_delay = "%s"
 	  
 	  reservation_affinity {
       	consume_reservation_type = "NO_RESERVATION"
@@ -9769,7 +9795,7 @@ resource "google_container_cluster" "flex_start" {
   subnetwork          = "%s"
 
 }
-`, clusterName, npName, networkName, subnetworkName)
+`, clusterName, npName, consolidationDelay, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withILBSubSetting(clusterName, npName, networkName, subnetworkName string) string {
@@ -12346,6 +12372,25 @@ resource "google_container_cluster" "with_node_pool" {
   deletion_protection = false
 }
 `, cluster, np, networkName, subnetworkName)
+}
+
+func testAccContainerCluster_withNodeConfigConsolidationDelay(cluster, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "with_node_config" {
+  name               = "%s"
+  location           = "us-east1-b"
+  initial_node_count = 1
+
+  node_config {
+    consolidation_delay = "600s"
+  }
+
+  network    = "%s"
+  subnetwork = "%s"
+
+  deletion_protection = false
+}
+`, cluster, networkName, subnetworkName)
 }
 
 func testAccContainerCluster_withNodePoolUpdateAutoscaling(cluster, np, networkName, subnetworkName string) string {

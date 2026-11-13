@@ -6132,7 +6132,7 @@ resource "google_container_node_pool" "np" {
 `, clusterName, networkName, subnetworkName, np)
 }
 
-func TestAccContainerNodePool_withFlexStart(t *testing.T) {
+func TestAccContainerNodePool_withFlexStartAndConsolidationDelay(t *testing.T) {
 	t.Parallel()
 
 	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
@@ -6146,12 +6146,30 @@ func TestAccContainerNodePool_withFlexStart(t *testing.T) {
 		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
 		Steps: []resource.TestStep{
 			{
-				Config: testAccContainerNodePool_withFlexStart(clusterName, np, networkName, subnetworkName),
+				Config: testAccContainerNodePool_withFlexStartAndConsolidationDelay(clusterName, np, networkName, subnetworkName, "600s"),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.machine_type", "n4-standard-2"),
 					resource.TestCheckResourceAttr("google_container_node_pool.np",
 						"node_config.0.reservation_affinity.0.consume_reservation_type", "NO_RESERVATION"),
 					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.flex_start", "true"),
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.consolidation_delay", "600s"),
+				),
+			},
+			{
+				ResourceName:            "google_container_node_pool.np",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"node_config.0.taint"},
+			},
+			{
+				Config: testAccContainerNodePool_withFlexStartAndConsolidationDelay(clusterName, np, networkName, subnetworkName, "1200s"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_node_pool.np", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_node_pool.np", "node_config.0.consolidation_delay", "1200s"),
 				),
 			},
 			{
@@ -6164,7 +6182,7 @@ func TestAccContainerNodePool_withFlexStart(t *testing.T) {
 	})
 }
 
-func testAccContainerNodePool_withFlexStart(clusterName, np, networkName, subnetworkName string) string {
+func testAccContainerNodePool_withFlexStartAndConsolidationDelay(clusterName, np, networkName, subnetworkName, consolidationDelay string) string {
 	return fmt.Sprintf(`
 data "google_container_engine_versions" "central1a" {
   location = "us-east1-b"
@@ -6202,6 +6220,7 @@ resource "google_container_node_pool" "np" {
    	machine_type = "n4-standard-2"
 	flex_start = true
 	max_run_duration = "604800s"
+	consolidation_delay = "%s"
 
 	reservation_affinity {
       consume_reservation_type = "NO_RESERVATION"
@@ -6214,7 +6233,7 @@ resource "google_container_node_pool" "np" {
 	}
   }
 }
-`, clusterName, networkName, subnetworkName, np)
+`, clusterName, networkName, subnetworkName, np, consolidationDelay)
 }
 
 func TestAccContainerNodePool_tpuTopology(t *testing.T) {
