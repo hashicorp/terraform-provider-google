@@ -1,0 +1,3 @@
+```release-note:new-resource
+`google_design_center_catalog_template`
+```
