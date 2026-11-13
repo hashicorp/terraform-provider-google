@@ -145,6 +145,26 @@ resource "google_container_cluster" "primary" {
 
 ~> **Note:** If you omit the `control_plane_soak_duration` field completely, GKE bypasses the two-step feature and performs a standard one-step upgrade. You must specify a duration between 6 hours and 7 days.
 
+## Example Usage - GKE Cluster with KCP_HPA Logging
+
+```hcl
+resource "google_container_cluster" "primary" {
+  name               = "gke-logging-cluster"
+  location           = "us-central1-a"
+  initial_node_count = 1
+
+  # Enable KCP_HPA logging along with system components
+  logging_config {
+    enable_components = ["SYSTEM_COMPONENTS", "KCP_HPA"]
+  }
+
+  # To disable KCP_HPA logging, remove it from the enable_components list:
+  # logging_config {
+  #   enable_components = ["SYSTEM_COMPONENTS"]
+  # }
+}
+```
+
 ## Argument Reference
 
 * `name` - (Required) The name of the cluster, unique within the project and
@@ -824,8 +844,7 @@ This block also contains several computed attributes, documented below.
 
 <a name="nested_logging_config"></a>The `logging_config` block supports:
 
-*  `enable_components` - (Required) The GKE components exposing logs. Supported values include:
-`SYSTEM_COMPONENTS`, `KCP_VPA`, `APISERVER`, `CONTROLLER_MANAGER`, `SCHEDULER`, and `WORKLOADS`.
+*  `enable_components` - (Required) The GKE components exposing logs. Supported values include: `SYSTEM_COMPONENTS`, `APISERVER`, `CONTROLLER_MANAGER`, `SCHEDULER`, `WORKLOADS`, `KCP_VPA`, `KCP_CONNECTION`, `KCP_SSHD`, and `KCP_HPA`.
 
 <a name="nested_monitoring_config"></a>The `monitoring_config` block supports:
 
