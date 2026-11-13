@@ -636,6 +636,10 @@ The following arguments are supported:
 Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig
 specified, then this instance will have no external IPv6 Internet access. Structure [documented below](#nested_ipv6_access_config).
 
+* `internal_ipv6_prefix_length` - (Optional) The prefix length of the primary internal IPv6 range.
+
+* `ipv6_address` - (Optional) An IPv6 internal network address for this network interface. If not specified, Google Cloud will automatically assign an internal IPv6 address from the instance's subnetwork.
+
 * `queue_count` - (Optional) The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.
 
 <a name="nested_access_config"></a>The `access_config` block supports:
@@ -692,6 +696,8 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `preemptible` - (Optional) Allows instance to be preempted. This defaults to
     false. Read more on this
     [here](https://cloud.google.com/compute/docs/instances/preemptible).
+
+* `min_node_cpus` - (Optional) Minimum number of cpus for the instance.
 
 * `node_affinities` - (Optional) Specifies node affinities or anti-affinities
    to determine which sole-tenant nodes your instances and managed instance
@@ -804,9 +810,9 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `type` - (Required) The type of reservation from which this instance can consume resources.
 
 * `specific_reservation` - (Optional) Specifies the label selector for the reservation to use..
-    Structure is documented below.
+    Structure is [documented below](#nested_reservation_affinity_specific_reservation).
 
-The `specific_reservation` block supports:
+<a name="nested_reservation_affinity_specific_reservation"></a>The `specific_reservation` block supports:
 
 * `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
 
@@ -873,6 +879,20 @@ Referencing an instance template via this attribute prevents Time of Check to Ti
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
 * `network_interface.0.parent_nic_name` - Name of the parent network interface of a dynamic network interface.
+
+* `network_interface.0.name` - The name of the network_interface.
+
+* `network_interface.0.ipv6_access_type` - One of EXTERNAL, INTERNAL to indicate whether the IP can be accessed from the Internet. This field is always inherited from its subnetwork.
+
+* `network_interface.0.access_config.0.public_ptr_domain_name` - The DNS domain name for the public PTR record.
+
+* `network_interface.0.ipv6_access_config.0.external_ipv6` - The first IPv6 address of the external IPv6 range associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.
+
+* `network_interface.0.ipv6_access_config.0.external_ipv6_prefix_length` - The prefix length of the external IPv6 range.
+
+* `network_interface.0.ipv6_access_config.0.name` - The name of this access configuration.
+
+* `network_interface.0.ipv6_access_config.0.public_ptr_domain_name` - The domain name to be used when creating DNSv6 records for the external IPv6 ranges.
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/language/meta-arguments/lifecycle.html
