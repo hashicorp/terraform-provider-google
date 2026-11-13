@@ -55,6 +55,48 @@ func TestAccIAMWorkforcePoolWorkforcePoolProvider_oidc(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"oidc.0.client_secret.0.value.0.plain_text"},
 			},
 			{
+				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_update_attributeSyncInterval(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_iam_workforce_pool_provider.my_provider", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_iam_workforce_pool_provider.my_provider",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"oidc.0.client_secret.0.value.0.plain_text"},
+			},
+			{
+				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_clear_attributeSyncInterval(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_iam_workforce_pool_provider.my_provider", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_iam_workforce_pool_provider.my_provider",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"oidc.0.client_secret.0.value.0.plain_text"},
+			},
+			{
+				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_set_attributeSyncInterval(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_iam_workforce_pool_provider.my_provider", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_iam_workforce_pool_provider.my_provider",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"oidc.0.client_secret.0.value.0.plain_text"},
+			},
+			{
 				Config: testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_update(context),
 			},
 			{
@@ -577,6 +619,82 @@ resource "google_iam_workforce_pool" "my_pool" {
 }
 
 resource "google_iam_workforce_pool_provider" "my_provider" {
+  workforce_pool_id       = google_iam_workforce_pool.my_pool.workforce_pool_id
+  location                = google_iam_workforce_pool.my_pool.location
+  provider_id             = "tf-test-my-provider-%{random_suffix}"
+  attribute_mapping       = {
+    "google.subject"      = "assertion.sub"
+  }
+  oidc {
+    issuer_uri            = "https://accounts.thirdparty.com"
+    client_id             = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["groups", "roles"]
+    }
+  }
+  display_name            = "Display name"
+  description             = "A sample OIDC workforce pool provider."
+  disabled                = false
+  attribute_condition     = "true"
+  attribute_sync_interval = "7200s"
+}
+`, context)
+}
+
+func testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_update_attributeSyncInterval(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "my_pool" {
+  workforce_pool_id = "tf-test-my-pool-%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "my_provider" {
+  workforce_pool_id       = google_iam_workforce_pool.my_pool.workforce_pool_id
+  location                = google_iam_workforce_pool.my_pool.location
+  provider_id             = "tf-test-my-provider-%{random_suffix}"
+  attribute_mapping       = {
+    "google.subject"      = "assertion.sub"
+  }
+  oidc {
+    issuer_uri            = "https://accounts.thirdparty.com"
+    client_id             = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["groups", "roles"]
+    }
+  }
+  display_name            = "Display name"
+  description             = "A sample OIDC workforce pool provider."
+  disabled                = false
+  attribute_condition     = "true"
+  attribute_sync_interval = "3600s"
+}
+`, context)
+}
+
+func testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_clear_attributeSyncInterval(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "my_pool" {
+  workforce_pool_id = "tf-test-my-pool-%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "my_provider" {
   workforce_pool_id   = google_iam_workforce_pool.my_pool.workforce_pool_id
   location            = google_iam_workforce_pool.my_pool.location
   provider_id         = "tf-test-my-provider-%{random_suffix}"
@@ -601,6 +719,44 @@ resource "google_iam_workforce_pool_provider" "my_provider" {
   description         = "A sample OIDC workforce pool provider."
   disabled            = false
   attribute_condition = "true"
+}
+`, context)
+}
+
+func testAccIAMWorkforcePoolWorkforcePoolProvider_oidc_set_attributeSyncInterval(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_iam_workforce_pool" "my_pool" {
+  workforce_pool_id = "tf-test-my-pool-%{random_suffix}"
+  parent            = "organizations/%{org_id}"
+  location          = "global"
+}
+
+resource "google_iam_workforce_pool_provider" "my_provider" {
+  workforce_pool_id       = google_iam_workforce_pool.my_pool.workforce_pool_id
+  location                = google_iam_workforce_pool.my_pool.location
+  provider_id             = "tf-test-my-provider-%{random_suffix}"
+  attribute_mapping       = {
+    "google.subject"      = "assertion.sub"
+  }
+  oidc {
+    issuer_uri            = "https://accounts.thirdparty.com"
+    client_id             = "client-id"
+    client_secret {
+      value {
+        plain_text = "client-secret"
+      }
+    }
+    web_sso_config {
+      response_type             = "CODE"
+      assertion_claims_behavior = "MERGE_USER_INFO_OVER_ID_TOKEN_CLAIMS"
+      additional_scopes         = ["groups", "roles"]
+    }
+  }
+  display_name            = "Display name"
+  description             = "A sample OIDC workforce pool provider."
+  disabled                = false
+  attribute_condition     = "true"
+  attribute_sync_interval = "1800s"
 }
 `, context)
 }

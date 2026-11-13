@@ -339,10 +339,11 @@ resource "google_iam_workforce_pool_provider" "example" {
         filter      = "mail:sales"
     }
   }
-  display_name        = "Display name"
-  description         = "A sample OIDC workforce pool provider."
-  disabled            = false
-  attribute_condition = "true"
+  display_name            = "Display name"
+  description             = "A sample OIDC workforce pool provider."
+  disabled                = false
+  attribute_condition     = "true"
+  attribute_sync_interval = "7200s"
 }
 `, context)
 }

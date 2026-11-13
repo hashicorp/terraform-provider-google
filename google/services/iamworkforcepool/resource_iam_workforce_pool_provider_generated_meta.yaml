@@ -9,6 +9,7 @@ api_resource_type_kind: WorkforcePoolProvider
 fields:
     - api_field: attributeCondition
     - api_field: attributeMapping
+    - api_field: attributeSyncInterval
     - api_field: description
     - api_field: detailedAuditLogging
     - api_field: disabled

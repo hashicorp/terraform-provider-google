@@ -1,0 +1,3 @@
+```release-note:enhancement
+iamworkforcepool: added `attribute_sync_interval` field to `google_iam_workforce_pool_provider` resource
+```

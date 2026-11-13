@@ -256,6 +256,18 @@ An object containing a list of '"key": value' pairs.
 Example: '{ "name": "wrench", "mass": "1.3kg", "count": "3" }'.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"attribute_sync_interval": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+				Description: `An interval that determines how often user attributes are synced from the IdP.
+Must be between 30 minutes ('1800s') and 12 hours ('43200s'), and is only supported
+for OIDC Authorization Code Flow providers ('oidc.web_sso_config.response_type = "CODE"').
+This configuration is used only when the Google Cloud session length policy is configured.
+When Google Cloud session length policy is configured and 'attribute_sync_interval' is not
+configured, attributes are synced after a default interval of 30 minutes ('1800s').
+A duration in seconds with up to nine fractional digits, ending with ''s''. Example: "'3600s'".`,
+			},
 			"description": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -791,6 +803,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderCreate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("detailed_audit_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(detailedAuditLoggingProp)) && (ok || !reflect.DeepEqual(v, detailedAuditLoggingProp)) {
 		obj["detailedAuditLogging"] = detailedAuditLoggingProp
 	}
+	attributeSyncIntervalProp, err := expandIAMWorkforcePoolWorkforcePoolProviderAttributeSyncInterval(d.Get("attribute_sync_interval"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("attribute_sync_interval"); !tpgresource.IsEmptyValue(reflect.ValueOf(attributeSyncIntervalProp)) && (ok || !reflect.DeepEqual(v, attributeSyncIntervalProp)) {
+		obj["attributeSyncInterval"] = attributeSyncIntervalProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers?workforcePoolProviderId={{provider_id}}")
 	if err != nil {
@@ -1111,6 +1129,12 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 	} else if v, ok := d.GetOkExists("detailed_audit_logging"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, detailedAuditLoggingProp)) {
 		obj["detailedAuditLogging"] = detailedAuditLoggingProp
 	}
+	attributeSyncIntervalProp, err := expandIAMWorkforcePoolWorkforcePoolProviderAttributeSyncInterval(d.Get("attribute_sync_interval"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("attribute_sync_interval"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, attributeSyncIntervalProp)) {
+		obj["attributeSyncInterval"] = attributeSyncIntervalProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"locations/{{location}}/workforcePools/{{workforce_pool_id}}/providers/{{provider_id}}")
 	if err != nil {
@@ -1163,6 +1187,10 @@ func resourceIAMWorkforcePoolWorkforcePoolProviderUpdate(d *schema.ResourceData,
 
 	if d.HasChange("detailed_audit_logging") {
 		updateMask = append(updateMask, "detailedAuditLogging")
+	}
+
+	if d.HasChange("attribute_sync_interval") {
+		updateMask = append(updateMask, "attributeSyncInterval")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -1633,6 +1661,10 @@ func flattenIAMWorkforcePoolWorkforcePoolProviderScimUsage(v interface{}, d *sch
 }
 
 func flattenIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenIAMWorkforcePoolWorkforcePoolProviderAttributeSyncInterval(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2205,6 +2237,10 @@ func expandIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(v interface
 	return v, nil
 }
 
+func expandIAMWorkforcePoolWorkforcePoolProviderAttributeSyncInterval(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceIAMWorkforcePoolWorkforcePoolProviderDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
 	if v := res["state"]; v == "DELETED" {
 		return nil, nil
@@ -2253,6 +2289,9 @@ func ResourceIAMWorkforcePoolWorkforcePoolProviderFlatten(d *schema.ResourceData
 		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
 	}
 	if err = d.Set("detailed_audit_logging", flattenIAMWorkforcePoolWorkforcePoolProviderDetailedAuditLogging(res["detailedAuditLogging"], d, config)); err != nil {
+		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
+	}
+	if err = d.Set("attribute_sync_interval", flattenIAMWorkforcePoolWorkforcePoolProviderAttributeSyncInterval(res["attributeSyncInterval"], d, config)); err != nil {
 		return fmt.Errorf("Error reading WorkforcePoolProvider: %s", err)
 	}
 
