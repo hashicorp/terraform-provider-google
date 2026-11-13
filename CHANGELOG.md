@@ -3,26 +3,31 @@
 ## 8.11.0 (Nov 10, 2026)
 
 DEPRECATIONS:
+* compute: deprecated `md5_authentication_keys` on `google_compute_router`; it no longer has any effect. Use `md5_authentication_key` on `google_compute_router_peer` instead. ([#30489](https://github.com/hashicorp/terraform-provider-google/pull/30489))
 * vertexai: deprecated `optimized` on `google_vertex_ai_feature_online_store`. Use `bigtable` for online serving instead. ([#30550](https://github.com/hashicorp/terraform-provider-google/pull/30550))
 
 FEATURES:
 * **New Data Source:** `google_redis_cluster_token_auth_user` ([#30599](https://github.com/hashicorp/terraform-provider-google/pull/30599))
 * **New Resource:** `google_backup_dr_auto_protection_policy` ([#30575](https://github.com/hashicorp/terraform-provider-google/pull/30575))
 * **New Resource:** `google_data_lineage_open_lineage_job` ([#30573](https://github.com/hashicorp/terraform-provider-google/pull/30573))
+* **New Resource:** `google_dataflow_config_store_setting` ([#30484](https://github.com/hashicorp/terraform-provider-google/pull/30484))
 * **New Resource:** `google_dataform_config` ([#30617](https://github.com/hashicorp/terraform-provider-google/pull/30617))
 * **New Resource:** `google_dataform_repository_release_config` ([#30617](https://github.com/hashicorp/terraform-provider-google/pull/30617))
 * **New Resource:** `google_dataform_repository_workflow_config` ([#30617](https://github.com/hashicorp/terraform-provider-google/pull/30617))
 * **New Resource:** `google_dialogflow_companion_agent` ([#30549](https://github.com/hashicorp/terraform-provider-google/pull/30549))
+* **New Resource:** `google_discovery_engine_project_provision` ([#30487](https://github.com/hashicorp/terraform-provider-google/pull/30487))
 * **New Resource:** `google_redis_cluster_token_auth_user` ([#30599](https://github.com/hashicorp/terraform-provider-google/pull/30599))
 * **New Resource:** `google_vertex_ai_evaluation_item` ([#30515](https://github.com/hashicorp/terraform-provider-google/pull/30515))
 
 IMPROVEMENTS:
 * agenticapplications: added `mcp_data_sources.session_id_header` and `mcp_data_sources.task_id_header` fields to `google_agentic_applications_analyst_agent_persona` resource ([#30553](https://github.com/hashicorp/terraform-provider-google/pull/30553))
+* apigee: added `NO_RETENTION` value to `retention` field on `google_apigee_organization` resource ([#30511](https://github.com/hashicorp/terraform-provider-google/pull/30511))
 * apigee: added `labels` field to `google_apigee_api` resource ([#30567](https://github.com/hashicorp/terraform-provider-google/pull/30567))
 * appengine: promoted `vpc_access` field on `google_app_engine_standard_app_version` resource to GA (ga) ([#30570](https://github.com/hashicorp/terraform-provider-google/pull/30570))
 * ces: added `modality` and `model_settings` fields to `google_ces_deployment` resource ([#30576](https://github.com/hashicorp/terraform-provider-google/pull/30576))
 * cloudbuild: added `build.options.worker_release` field to `google_cloudbuild_trigger` resource ([#30602](https://github.com/hashicorp/terraform-provider-google/pull/30602))
 * compute: added `ASN` option to `enforce_on_key` and `enforce_on_key_configs.enforce_on_key_type` fields in `google_compute_security_policy`, `google_compute_security_policy_rule`, `google_compute_region_security_policy`, and `google_compute_region_security_policy_rule` resources ([#30544](https://github.com/hashicorp/terraform-provider-google/pull/30544))
+* compute: added `google_compute_instance_reset` action for `google_compute_instance` resource ([#30481](https://github.com/hashicorp/terraform-provider-google/pull/30481))
 * compute: promoted `aai_enabled` and `application_aware_interconnect` fields on `google_compute_interconnect` to GA ([#30606](https://github.com/hashicorp/terraform-provider-google/pull/30606))
 * compute: promoted `image_optimization_policy` fields on `google_compute_url_map` resource to GA ([#30585](https://github.com/hashicorp/terraform-provider-google/pull/30585))
 * gemini: added `has_custom_instructions` field to `google_gemini_gemini_gcp_enablement_setting` resource ([#30608](https://github.com/hashicorp/terraform-provider-google/pull/30608))
@@ -34,6 +39,7 @@ IMPROVEMENTS:
 * provider: improved refresh speed of `*_iam_member`, `*_iam_binding`, `*_iam_audit_config` and `*_iam_policy` resources and `*_iam_policy` data sources that share a parent, which are no longer read one at a time ([#30609](https://github.com/hashicorp/terraform-provider-google/pull/30609))
 * redis: added `zone_distribution_config.zones` and `zone_distribution_config.active_zones` fields to `google_redis_cluster` resource ([#30582](https://github.com/hashicorp/terraform-provider-google/pull/30582))
 * resourcemanagerv3: added `boundaries` field to `google_resource_manager_capability_config` resource ([#30615](https://github.com/hashicorp/terraform-provider-google/pull/30615))
+* sql: `blue_green_deployment` on `google_sql_database_instance` can now be removed in the same apply as a `database_version` upgrade ([#30483](https://github.com/hashicorp/terraform-provider-google/pull/30483))
 * storage: added `rapid_cache_config` field to `google_storage_managed_folder` resource ([#30607](https://github.com/hashicorp/terraform-provider-google/pull/30607))
 * storageinsights: added `labels` field to `google_storage_insights_report_config` resource ([#30547](https://github.com/hashicorp/terraform-provider-google/pull/30547))
 * vertexai: added `spec.context_spec.memory_bank_config.customization_configs.generate_memories_examples.conversation_source.events.content.parts.speech_metadata` field to `google_vertex_ai_reasoning_engine` resource ([#30551](https://github.com/hashicorp/terraform-provider-google/pull/30551))
@@ -48,6 +54,7 @@ BUG FIXES:
 * cloudidentity: fixed Resource Identity import for `google_cloud_identity_policy` ([#30529](https://github.com/hashicorp/terraform-provider-google/pull/30529))
 * cloudsecuritycompliance: fixed `organization` not being populated in state and Resource Identity during import for `google_cloud_security_compliance_cloud_control`, `google_cloud_security_compliance_framework`, and `google_cloud_security_compliance_framework_deployment` ([#30556](https://github.com/hashicorp/terraform-provider-google/pull/30556))
 * colab: fixed bad diffs for `euc_config.euc_disabled` and `shielded_vm_config.enable_secure_boot` when set to `false` on `google_colab_runtime_template` ([#30591](https://github.com/hashicorp/terraform-provider-google/pull/30591))
+* compute: fixed `google_compute_router` updates removing MD5 authentication keys added by `google_compute_router_peer` ([#30489](https://github.com/hashicorp/terraform-provider-google/pull/30489))
 * compute: fixed default provider `region` not being populated in state and Resource Identity for `google_compute_region_network_policy`, `google_compute_region_network_firewall_policy`, and `google_compute_region_network_firewall_policy_with_rules` when `region` is omitted from configuration ([#30526](https://github.com/hashicorp/terraform-provider-google/pull/30526))
 * dataform: fixed default provider `region` not being populated in state and Resource Identity for `google_dataform_repository` when `region` is omitted from configuration ([#30557](https://github.com/hashicorp/terraform-provider-google/pull/30557))
 * discoveryengine: fixed `google_discovery_engine_data_store` silently ignoring changes to fields nested in `document_processing_config`. These changes now force replacement of the resource. ([#30601](https://github.com/hashicorp/terraform-provider-google/pull/30601))
