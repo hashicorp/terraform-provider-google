@@ -648,6 +648,223 @@ func TestContainerClusterApiDictatedPrivateEndpointField(t *testing.T) {
 	}
 }
 
+func TestContainerClusterMasterAuthorizedNetworksConfigSuppress(t *testing.T) {
+	t.Parallel()
+
+	const (
+		ipEndpointsCountKey   = "control_plane_endpoints_config.0.ip_endpoints_config.#"
+		ipEndpointsEnabledKey = "control_plane_endpoints_config.0.ip_endpoints_config.0.enabled"
+	)
+
+	keys := []string{
+		"master_authorized_networks_config.#",
+		"master_authorized_networks_config.0.cidr_blocks.#",
+		"master_authorized_networks_config.0.cidr_blocks.123456.cidr_block",
+		"master_authorized_networks_config.0.cidr_blocks.123456.display_name",
+		"master_authorized_networks_config.0.gcp_public_cidrs_access_enabled",
+		"master_authorized_networks_config.0.private_endpoint_enforcement_enabled",
+	}
+
+	cases := map[string]struct {
+		planned  map[string]interface{}
+		expected bool
+	}{
+		"ip endpoints disabled suppresses master_authorized_networks_config": {
+			planned: map[string]interface{}{
+				ipEndpointsCountKey:   1,
+				ipEndpointsEnabledKey: false,
+			},
+			expected: true,
+		},
+		"ip endpoints enabled does not suppress master_authorized_networks_config": {
+			planned: map[string]interface{}{
+				ipEndpointsCountKey:   1,
+				ipEndpointsEnabledKey: true,
+			},
+			expected: false,
+		},
+		"without control_plane_endpoints_config does not suppress": {
+			planned:  map[string]interface{}{},
+			expected: false,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			d := &tpgresource.ResourceDiffMock{After: tc.planned}
+			for _, k := range keys {
+				if got := containerClusterIpEndpointsDisabled(d); got != tc.expected {
+					t.Errorf("%s (%s): expected %v, but was %v", tn, k, tc.expected, got)
+				}
+			}
+		})
+	}
+
+	if containerClusterMasterAuthorizedNetworksConfigSuppress("master_authorized_networks_config.#", "0", "1", nil) {
+		t.Errorf("expected false when ResourceData is nil")
+	}
+}
+
+func TestUnitContainerCluster_masterAuthorizedNetworksConfigPlan(t *testing.T) {
+	t.Parallel()
+
+	r := &schema.Resource{Schema: map[string]*schema.Schema{
+		"control_plane_endpoints_config":    ResourceContainerCluster().Schema["control_plane_endpoints_config"],
+		"master_authorized_networks_config": ResourceContainerCluster().Schema["master_authorized_networks_config"],
+	}}
+
+	fullManBlock := []interface{}{
+		map[string]interface{}{
+			"gcp_public_cidrs_access_enabled":      true,
+			"private_endpoint_enforcement_enabled": true,
+			"cidr_blocks": []interface{}{
+				map[string]interface{}{
+					"cidr_block":   "10.0.0.0/28",
+					"display_name": "test-net",
+				},
+			},
+		},
+	}
+	cidrOnlyManBlock := []interface{}{
+		map[string]interface{}{
+			"cidr_blocks": []interface{}{
+				map[string]interface{}{
+					"cidr_block":   "10.0.0.0/28",
+					"display_name": "test-net",
+				},
+			},
+		},
+	}
+	emptyManBlock := []interface{}{
+		map[string]interface{}{},
+	}
+
+	ipEndpointsConfig := func(enabled bool) []interface{} {
+		return []interface{}{
+			map[string]interface{}{
+				"ip_endpoints_config": []interface{}{
+					map[string]interface{}{
+						"enabled": enabled,
+					},
+				},
+			},
+		}
+	}
+
+	priorWithIpDisabled := &terraform.InstanceState{
+		ID: "id",
+		Attributes: map[string]string{
+			"id":                               "id",
+			"control_plane_endpoints_config.#": "1",
+			"control_plane_endpoints_config.0.ip_endpoints_config.#":         "1",
+			"control_plane_endpoints_config.0.ip_endpoints_config.0.enabled": "false",
+			"master_authorized_networks_config.#":                            "0",
+		},
+	}
+
+	priorWithIpEnabled := &terraform.InstanceState{
+		ID: "id",
+		Attributes: map[string]string{
+			"id":                               "id",
+			"control_plane_endpoints_config.#": "1",
+			"control_plane_endpoints_config.0.ip_endpoints_config.#":         "1",
+			"control_plane_endpoints_config.0.ip_endpoints_config.0.enabled": "true",
+			"master_authorized_networks_config.#":                            "0",
+		},
+	}
+
+	priorWithoutControlPlaneConfig := &terraform.InstanceState{
+		ID: "id",
+		Attributes: map[string]string{
+			"id":                                  "id",
+			"control_plane_endpoints_config.#":    "0",
+			"master_authorized_networks_config.#": "0",
+		},
+	}
+
+	cases := []struct {
+		name           string
+		prior          *terraform.InstanceState
+		config         map[string]interface{}
+		wantEmptyDiff  bool
+		wantManChanged bool
+	}{
+		{
+			name:  "ip_endpoints_disabled/full_man_block_suppressed",
+			prior: priorWithIpDisabled,
+			config: map[string]interface{}{
+				"control_plane_endpoints_config":    ipEndpointsConfig(false),
+				"master_authorized_networks_config": fullManBlock,
+			},
+			wantEmptyDiff:  true,
+			wantManChanged: false,
+		},
+		{
+			name:  "ip_endpoints_disabled/cidr_only_man_block_suppressed",
+			prior: priorWithIpDisabled,
+			config: map[string]interface{}{
+				"control_plane_endpoints_config":    ipEndpointsConfig(false),
+				"master_authorized_networks_config": cidrOnlyManBlock,
+			},
+			wantEmptyDiff:  true,
+			wantManChanged: false,
+		},
+		{
+			name:  "ip_endpoints_disabled/empty_man_block_suppressed",
+			prior: priorWithIpDisabled,
+			config: map[string]interface{}{
+				"control_plane_endpoints_config":    ipEndpointsConfig(false),
+				"master_authorized_networks_config": emptyManBlock,
+			},
+			wantEmptyDiff:  true,
+			wantManChanged: false,
+		},
+		{
+			name:  "ip_endpoints_enabled/full_man_block_not_suppressed",
+			prior: priorWithIpEnabled,
+			config: map[string]interface{}{
+				"control_plane_endpoints_config":    ipEndpointsConfig(true),
+				"master_authorized_networks_config": fullManBlock,
+			},
+			wantEmptyDiff:  false,
+			wantManChanged: true,
+		},
+		{
+			name:  "no_control_plane_endpoints_config/full_man_block_not_suppressed",
+			prior: priorWithoutControlPlaneConfig,
+			config: map[string]interface{}{
+				"master_authorized_networks_config": fullManBlock,
+			},
+			wantEmptyDiff:  false,
+			wantManChanged: true,
+		},
+	}
+
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			diff, err := r.SimpleDiff(context.Background(), tc.prior, terraform.NewResourceConfigRaw(tc.config), nil)
+			if err != nil {
+				t.Fatalf("SimpleDiff: %v", err)
+			}
+			gotEmptyDiff := diff.Empty()
+			if gotEmptyDiff != tc.wantEmptyDiff {
+				t.Errorf("diff.Empty() = %t, want %t (diff: %+v)", gotEmptyDiff, tc.wantEmptyDiff, diff)
+			}
+
+			d, err := schema.InternalMap(r.SchemaMap()).Data(tc.prior, diff)
+			if err != nil {
+				t.Fatalf("Data: %v", err)
+			}
+			if got := d.HasChange("master_authorized_networks_config"); got != tc.wantManChanged {
+				t.Errorf("d.HasChange(\"master_authorized_networks_config\") = %t, want %t (diff: %+v)", got, tc.wantManChanged, diff)
+			}
+		})
+	}
+}
+
 func TestContainerCluster_IsClusterUpdateRetryableError(t *testing.T) {
 	t.Parallel()
 
