@@ -23,6 +23,7 @@ fields:
     - api_field: network
     - field: odb_network_id
       provider_only: true
+    - api_field: serviceConnectivityConfig.pscInterfaceConfig.networkAttachment
     - api_field: state
     - field: terraform_labels
       provider_only: true

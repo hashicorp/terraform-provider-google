@@ -180,6 +180,43 @@ If not specified, the system will pick a zone based on availability.`,
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"service_connectivity_config": {
+				Type:     schema.TypeList,
+				Optional: true,
+				ForceNew: true,
+				Description: `Configuration to enable the service (Oracledatabase@Google Cloud) to
+establish connectivity to the database.
+This should be specified if you intend to associate this OdbNetwork with
+a DatabaseConnection resource to 'ExecuteSQL' on the database, or to
+create a ServiceIntegration with the Database.
+Please don't specify it otherwise to avoid complicating the network setup.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"psc_interface_config": {
+							Type:        schema.TypeList,
+							Required:    true,
+							ForceNew:    true,
+							Description: `Configuration for Private Service Connect (PSC) interface.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"network_attachment": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+										Description: `The resource name of the Network Attachment that
+Oracledatabase@Google Cloud will use to establish private
+connectivity to the database via a Private Service Connect Interface
+(PSC-I). Format:
+projects/{project}/regions/{region}/networkAttachments/{network_attachment}`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"create_time": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -268,6 +305,12 @@ func resourceOracleDatabaseOdbNetworkCreate(d *schema.ResourceData, meta interfa
 		return err
 	} else if v, ok := d.GetOkExists("gcp_oracle_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(gcpOracleZoneProp)) && (ok || !reflect.DeepEqual(v, gcpOracleZoneProp)) {
 		obj["gcpOracleZone"] = gcpOracleZoneProp
+	}
+	serviceConnectivityConfigProp, err := expandOracleDatabaseOdbNetworkServiceConnectivityConfig(d.Get("service_connectivity_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("service_connectivity_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(serviceConnectivityConfigProp)) && (ok || !reflect.DeepEqual(v, serviceConnectivityConfigProp)) {
+		obj["serviceConnectivityConfig"] = serviceConnectivityConfigProp
 	}
 	effectiveLabelsProp, err := expandOracleDatabaseOdbNetworkEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -577,6 +620,36 @@ func flattenOracleDatabaseOdbNetworkGcpOracleZone(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenOracleDatabaseOdbNetworkServiceConnectivityConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["psc_interface_config"] =
+		flattenOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfig(original["pscInterfaceConfig"], d, config)
+	return []interface{}{transformed}
+}
+func flattenOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["network_attachment"] =
+		flattenOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfigNetworkAttachment(original["networkAttachment"], d, config)
+	return []interface{}{transformed}
+}
+func flattenOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfigNetworkAttachment(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenOracleDatabaseOdbNetworkState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -605,6 +678,54 @@ func expandOracleDatabaseOdbNetworkNetwork(v interface{}, d tpgresource.Terrafor
 }
 
 func expandOracleDatabaseOdbNetworkGcpOracleZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseOdbNetworkServiceConnectivityConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedPscInterfaceConfig, err := expandOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfig(original["psc_interface_config"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedPscInterfaceConfig); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["pscInterfaceConfig"] = transformedPscInterfaceConfig
+	}
+
+	return transformed, nil
+}
+
+func expandOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedNetworkAttachment, err := expandOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfigNetworkAttachment(original["network_attachment"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedNetworkAttachment); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["networkAttachment"] = transformedNetworkAttachment
+	}
+
+	return transformed, nil
+}
+
+func expandOracleDatabaseOdbNetworkServiceConnectivityConfigPscInterfaceConfigNetworkAttachment(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -638,6 +759,9 @@ func ResourceOracleDatabaseOdbNetworkFlatten(d *schema.ResourceData, meta interf
 		return fmt.Errorf("Error reading OdbNetwork: %s", err)
 	}
 	if err = d.Set("gcp_oracle_zone", flattenOracleDatabaseOdbNetworkGcpOracleZone(res["gcpOracleZone"], d, config)); err != nil {
+		return fmt.Errorf("Error reading OdbNetwork: %s", err)
+	}
+	if err = d.Set("service_connectivity_config", flattenOracleDatabaseOdbNetworkServiceConnectivityConfig(res["serviceConnectivityConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading OdbNetwork: %s", err)
 	}
 	if err = d.Set("state", flattenOracleDatabaseOdbNetworkState(res["state"], d, config)); err != nil {
