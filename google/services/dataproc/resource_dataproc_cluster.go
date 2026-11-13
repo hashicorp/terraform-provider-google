@@ -2619,8 +2619,8 @@ by Dataproc`,
 // secondaryWorkerFlexibleConfigForceNew forces replacement for known
 // secondary_worker_flexible_config shape changes that Dataproc can't make in
 // place: a changed shape on an existing group, or a group added after creation
-// with a shape that differs from worker_flexible_config. Unknown and unset values
-// are left to the API.
+// with a shape that differs from worker_flexible_config. Shape values that are
+// unknown until apply also force replacement.
 func secondaryWorkerFlexibleConfigForceNew(_ context.Context, d *schema.ResourceDiff, _ interface{}) error {
 	const sec = "cluster_config.0.secondary_worker_flexible_config"
 	oldSec, newSec := d.GetChange(sec)
@@ -2639,12 +2639,24 @@ func secondaryWorkerFlexibleConfigForceNew(_ context.Context, d *schema.Resource
 		key := sec + ".0." + field
 		current, want := d.GetChange(key)
 		if added {
-			if !d.NewValueKnown("cluster_config.0.worker_flexible_config.0." + field) {
-				continue
+			// If the value is unknown until apply, replace now: a planned update can't
+			// become a replacement during apply. (An unknown worker_flexible_config
+			// value already forces replacement through its own ForceNew.)
+			if !d.NewValueKnown(key) {
+				return d.ForceNew(sec)
 			}
 			current = d.Get("cluster_config.0.worker_flexible_config.0." + field)
+		} else if !d.NewValueKnown(key) {
+			// An unknown value reads as empty, so it only counts as a change when the
+			// old value is set. Otherwise it is left to the API.
+			if current != 0 && current != "" {
+				if err := d.ForceNew(key); err != nil {
+					return err
+				}
+			}
+			continue
 		}
-		if !d.NewValueKnown(key) || current == want || current == 0 || current == "" || want == 0 || want == "" {
+		if current == want || current == 0 || current == "" || want == 0 || want == "" {
 			continue
 		}
 		if err := d.ForceNew(key); err != nil {

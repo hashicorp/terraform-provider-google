@@ -1,0 +1,3 @@
+```release-note:bug
+dataproc: fixed an apply-time "planned action changed" error on `google_dataproc_cluster` when `cluster_config.secondary_worker_flexible_config` shape fields are only known after apply; such changes now plan a replacement
+```

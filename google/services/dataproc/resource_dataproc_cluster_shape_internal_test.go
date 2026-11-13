@@ -119,13 +119,15 @@ func TestSecondaryWorkerFlexibleConfigForceNew(t *testing.T) {
 		{"existing group, hardware_class change", state(true), config(sec(1, 8, "STANDARD", 200)), true},
 		{"existing group, boot_disk_size_gb change", state(true), config(sec(1, 8, "PERFORMANCE", 300)), true},
 		{"existing group, boot_disk_size_gb omitted", state(true), config(sec(1, 8, "PERFORMANCE", nil)), false},
-		{"existing group, unknown core_count", state(true), config(sec(1, unknown, "PERFORMANCE", 200)), false},
+		{"existing group, unknown core_count", state(true), config(sec(1, unknown, "PERFORMANCE", 200)), true},
+		{"existing group, unknown hardware_class", state(true), config(sec(1, 8, unknown, 200)), true},
+		{"existing group, unknown boot_disk_size_gb", state(true), config(sec(1, 8, "PERFORMANCE", unknown)), true},
 		{"block removed from config", state(true), config(nil), false},
 		{"added, matching worker", state(false), config(sec(1, 4, "STANDARD", 100)), false},
 		{"added, boot omitted", state(false), config(sec(1, 4, "STANDARD", nil)), false},
 		{"added, core_count mismatch", state(false), config(sec(1, 8, "STANDARD", nil)), true},
 		{"added, hardware_class mismatch", state(false), config(sec(1, 4, "PERFORMANCE", nil)), true},
-		{"added, unknown core_count", state(false), config(sec(1, unknown, "STANDARD", nil)), false},
+		{"added, unknown core_count", state(false), config(sec(1, unknown, "STANDARD", nil)), true},
 		{"added, unknown num_instances", state(false), config(sec(unknown, 4, "STANDARD", nil)), false},
 	}
 	for _, tc := range cases {
