@@ -57,6 +57,36 @@ func DataConnectorJsonStructFieldsDiffSuppress(k, old, new string, d *schema.Res
 	return (old == "" && new == "{}") || (old == "{}" && new == "")
 }
 
+func shouldSkipDataConnectorReadyPoll(dataSource, syncMode string) bool {
+	return strings.EqualFold(dataSource, "bigquery") && strings.EqualFold(syncMode, "STREAMING")
+}
+
+// waitForDataConnectorReady polls GET on the DataConnector until state (and
+// action_state, when present) leaves "CREATING". setUpDataConnectorV2 can
+// return a completed Operation while background initialization is still in
+// progress and subsequent updates would be rejected with FAILED_PRECONDITION.
+// Connectors may legitimately finish initialization in states such as "ACTIVE",
+// "FAILED" (for example when awaiting allowlisting), or "INITIALIZATION_FAILED",
+// so any non-"CREATING" state is treated as terminal.
+func waitForDataConnectorReady(d *schema.ResourceData, config *transport_tpg.Config, timeout time.Duration) error {
+	id := d.Id()
+	return tpgresource.Retry(timeout, config.SleepUnit, func() *retry.RetryError {
+		if err := resourceDiscoveryEngineDataConnectorRead(d, config); err != nil {
+			return retry.NonRetryableError(err)
+		}
+		if d.Id() == "" {
+			return retry.NonRetryableError(fmt.Errorf("DataConnector %q was not found during creation", id))
+		}
+		state := d.Get("state").(string)
+		actionState := d.Get("action_state").(string)
+		if state == "CREATING" || actionState == "CREATING" {
+			return retry.RetryableError(fmt.Errorf("DataConnector %q still has state=%q, action_state=%q", id, state, actionState))
+		}
+		log.Printf("[DEBUG] DataConnector %q left CREATING state (state=%q, action_state=%q)", id, state, actionState)
+		return nil
+	})
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -827,6 +857,14 @@ func resourceDiscoveryEngineDataConnectorCreate(d *schema.ResourceData, meta int
 		// The resource didn't actually create
 		d.SetId("")
 		return fmt.Errorf("Error waiting to create DataConnector: %s", err)
+	}
+
+	// BigQuery streaming connectors remain in CREATING until continuous query
+	// allowlisting completes, which can take days and exceeds Terraform timeouts.
+	if shouldSkipDataConnectorReadyPoll(d.Get("data_source").(string), d.Get("sync_mode").(string)) {
+		log.Printf("[DEBUG] Skipping post-create readiness poll for BigQuery streaming DataConnector %q", id)
+	} else if err := waitForDataConnectorReady(d, config, d.Timeout(schema.TimeoutCreate)); err != nil {
+		return fmt.Errorf("Error waiting for DataConnector %q to finish initializing during creation: %s", id, err)
 	}
 
 	log.Printf("[DEBUG] Finished creating DataConnector %q: %#v", d.Id(), res)

@@ -41,9 +41,6 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBas
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
-		ExternalProviders: map[string]resource.ExternalProvider{
-			"time": {},
-		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_basic(context),
@@ -53,7 +50,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBas
 				ResourceName:            "google_discovery_engine_data_connector.onedrive-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "state", "update_time"},
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "update_time"},
 			},
 			{
 				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_update(context),
@@ -208,12 +205,7 @@ resource "google_discovery_engine_data_connector" "onedrive-basic" {
 
 func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_update(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "time_sleep" "wait_1_minute" {
-  create_duration = "60s"
-}
-
 resource "google_discovery_engine_data_connector" "onedrive-basic" {
-  depends_on                   = [time_sleep.wait_1_minute]
   location                     = "global"
   collection_id                = "tf-test-collection-id%{random_suffix}"
   collection_display_name      = "tf-test-dataconnector-onedrive"
@@ -244,12 +236,7 @@ resource "google_discovery_engine_data_connector" "onedrive-basic" {
 func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorOnedriveBasicExample_updateJsonParams(context map[string]interface{}, tenantId string) string {
 	context["tenant_id"] = tenantId
 	return acctest.Nprintf(`
-resource "time_sleep" "wait_1_minute" {
-  create_duration = "60s"
-}
-
 resource "google_discovery_engine_data_connector" "onedrive-basic" {
-  depends_on                   = [time_sleep.wait_1_minute]
   location                     = "global"
   collection_id                = "tf-test-collection-id%{random_suffix}"
   collection_display_name      = "tf-test-dataconnector-onedrive"
