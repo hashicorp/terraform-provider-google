@@ -62,6 +62,8 @@ fields:
     api_field: 'config.confidentialNodes.enabled'
   - field: 'node_config.confidential_nodes.confidential_instance_type'
     api_field: 'config.confidentialNodes.confidentialInstanceType'
+  - field: 'node_config.consolidation_delay'
+    api_field: 'config.consolidationDelay'
   - field: 'node_config.containerd_config.private_registry_access_config.certificate_authority_domain_config.fqdns'
     api_field: 'config.containerdConfig.privateRegistryAccessConfig.certificateAuthorityDomainConfig.fqdns'
   - field: 'node_config.containerd_config.private_registry_access_config.certificate_authority_domain_config.gcp_secret_manager_certificate_config.secret_uri'

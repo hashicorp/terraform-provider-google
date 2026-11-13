@@ -1172,6 +1172,8 @@ The `master_authorized_networks_config.cidr_blocks` block supports:
 
 * `confidential_nodes` - (Optional) Configuration for Confidential Nodes feature. Structure is [documented below](#nested_confidential_nodes).
 
+* `consolidation_delay` - (Optional) Duration after which the Cluster Autoscaler can scale down underutilized nodes in the node pool. Requires autoscaling to be enabled on the node pool. The default node pool created from the top-level `node_config` of `google_container_cluster` doesn't have autoscaling, so set this field in `node_pool` blocks or in `google_container_node_pool` instead. If not set, nodes are scaled down according to the cluster's autoscaling profile (see [`cluster_autoscaling.autoscaling_profile`](#nested_cluster_autoscaling)). The GKE API doesn't support unsetting this field, so removing it from the configuration leaves the current value unchanged. A duration in seconds with up to nine fractional digits, ending with 's'. Example: `"600s"`. See [`--consolidation-delay`](https://cloud.google.com/sdk/gcloud/reference/container/node-pools/update#--consolidation-delay) for the supported GKE versions.
+
 * `disk_size_gb` - (Optional) Size of the disk attached to each node, specified
     in GB. The smallest allowed disk size is 10GB. Defaults to 100GB. This is being migrated to `boot_disk.size_gb`, and must match if specified in both places.
     Prefer configuring `boot_disk`.

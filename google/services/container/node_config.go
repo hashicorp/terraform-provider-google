@@ -1430,6 +1430,15 @@ func schemaNodeConfig() *schema.Schema {
 					ForceNew:    true,
 					Description: `Enables Flex Start provisioning model for the node pool`,
 				},
+				"consolidation_delay": {
+					Type:     schema.TypeString,
+					Optional: true,
+					// The GKE API doesn't support unsetting this field, so a value removed
+					// from the configuration is kept as-is in state.
+					Computed:         true,
+					DiffSuppressFunc: tpgresource.DurationDiffSuppress,
+					Description:      `Duration after which the Cluster Autoscaler can scale down underutilized nodes in the node pool. Requires autoscaling to be enabled on the node pool. If not set, nodes are scaled down according to the cluster's autoscaling profile. The GKE API doesn't support unsetting this field, so removing it from the configuration leaves the current value unchanged. A duration in seconds with up to nine fractional digits, ending with 's'. Example: "600s".`,
+				},
 			},
 		},
 	}
@@ -1939,6 +1948,10 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 
 	if v, ok := nodeConfig["flex_start"]; ok {
 		nc.FlexStart = v.(bool)
+	}
+
+	if v, ok := nodeConfig["consolidation_delay"]; ok {
+		nc.ConsolidationDelay = v.(string)
 	}
 
 	if v, ok := nodeConfig["confidential_nodes"]; ok {
@@ -2970,6 +2983,7 @@ func flattenNodeConfig(c *container.NodeConfig, v interface{}) []map[string]inte
 		"advanced_machine_features":          flattenAdvancedMachineFeaturesConfig(c.AdvancedMachineFeatures),
 		"max_run_duration":                   c.MaxRunDuration,
 		"flex_start":                         c.FlexStart,
+		"consolidation_delay":                c.ConsolidationDelay,
 		"sole_tenant_config":                 flattenSoleTenantConfig(c.SoleTenantConfig),
 		"fast_socket":                        flattenFastSocket(c.FastSocket),
 		"resource_manager_tags":              flattenResourceManagerTags(c.ResourceManagerTags),
@@ -3812,6 +3826,39 @@ func nodePoolNodeConfigUpdate(d *schema.ResourceData, config *transport_tpg.Conf
 				}
 
 				log.Printf("[INFO] Updated logging_variant for node pool %s", name)
+			}
+		}
+
+		if d.HasChange(prefix + "node_config.0.consolidation_delay") {
+			if v, ok := d.GetOk(prefix + "node_config.0.consolidation_delay"); ok {
+				req := &container.UpdateNodePoolRequest{
+					Name:               name,
+					ConsolidationDelay: v.(string),
+				}
+
+				updateF := func() error {
+					clusterNodePoolsUpdateCall := NewClient(config, userAgent).Projects.Locations.Clusters.NodePools.Update(nodePoolInfo.fullyQualifiedName(name), req)
+					if config.UserProjectOverride {
+						clusterNodePoolsUpdateCall.Header().Add("X-Goog-User-Project", nodePoolInfo.project)
+					}
+					op, err := clusterNodePoolsUpdateCall.Do()
+					if err != nil {
+						return err
+					}
+
+					// Wait until it's updated
+					return ContainerOperationWait(config, op,
+						nodePoolInfo.project,
+						nodePoolInfo.location,
+						"updating GKE node pool consolidation_delay", userAgent,
+						timeout)
+				}
+
+				if err := retryWhileIncompatibleOperation(timeout, npLockKey, updateF); err != nil {
+					return err
+				}
+
+				log.Printf("[INFO] Updated consolidation_delay for node pool %s", name)
 			}
 		}
 
