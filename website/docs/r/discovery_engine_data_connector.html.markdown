@@ -176,6 +176,88 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
   }
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=discoveryengine_dataconnector_jira_with_json_action_params&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Discoveryengine Dataconnector Jira With Json Action Params
+
+
+```hcl
+resource "google_discovery_engine_data_connector" "jira-with-json-action-params" {
+  location                     = "global"
+  collection_id                = "collection-id"
+  collection_display_name      = "Jira Federated"
+  data_source                  = "jira"
+  params = {
+    instance_uri               = "https://example.atlassian.net"
+    instance_id                = "12345678-1234-1234-1234-123456789abc"
+    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
+    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
+    refresh_token              = "SECRET_MANAGER_RESOURCE_NAME"
+    auth_type                  = "OAUTH"
+  }
+  refresh_interval             = "86400s"
+  entities {
+    entity_name                = "project"
+  }
+  entities {
+    entity_name                = "issue"
+  }
+  entities {
+    entity_name                = "comment"
+  }
+  entities {
+    entity_name                = "attachment"
+  }
+  static_ip_enabled            = false
+  destination_configs {
+    key = "url"
+    destinations {
+      host = "https://example.atlassian.net"
+      port = 123
+    }
+    params                     = jsonencode({
+      "destination_type": "private"
+    })
+  }
+  connector_modes              = ["FEDERATED", "ACTIONS"]
+  sync_mode                    = "PERIODIC"
+  auto_run_disabled            = true
+  incremental_sync_disabled    = true
+  action_config {
+    json_action_params = jsonencode({
+      "auth_type" : "OAUTH",
+      "client_id" : "SECRET_MANAGER_RESOURCE_NAME",
+      "client_secret" : "SECRET_MANAGER_RESOURCE_NAME",
+      "instance_id" : "12345678-1234-1234-1234-123456789abc",
+      "instance_uri" : "https://example.atlassian.net"
+    })
+    create_bap_connection      = true
+  }
+  bap_config {
+    supported_connector_modes = ["ACTIONS"]
+    enabled_actions = [
+      "create_issue",
+      "update_issue",
+      "change_issue_status",
+      "create_comment",
+      "update_comment",
+      "upload_attachment",
+    ]
+  }
+  tag                          = "sample-tag"
+  metadata {
+    title             = "Jira Connector"
+    description       = "Jira Connector Description"
+    short_description = "Jira Connector Short Description"
+    author            = "Google"
+    note              = "Sample Note"
+  }
+}
+```
 
 ## Argument Reference
 
@@ -397,6 +479,13 @@ The following arguments are supported:
   Params needed to configure the actions in the format of
   String-to-String (Key, Value) pairs. Contains connection
   credentials and configuration for the action connector.
+
+* `json_action_params` -
+  (Optional)
+  Params needed to configure the actions in the format of a json string.
+  Use this instead of `action_params` when some values must be sent as
+  non-string JSON types, for example booleans such as
+  `pkce_support_enabled` for custom MCP connectors.
 
 * `is_action_configured` -
   (Output)

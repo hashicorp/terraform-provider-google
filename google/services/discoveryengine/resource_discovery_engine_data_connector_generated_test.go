@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -76,7 +77,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorServicenowB
 				ResourceName:            "google_discovery_engine_data_connector.servicenow-basic",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "action_config.0.json_action_params", "auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "json_params", "location", "params", "sync_mode"},
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_connector.servicenow-basic",
@@ -164,7 +165,7 @@ func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithAct
 				ResourceName:            "google_discovery_engine_data_connector.jira-with-actions",
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "action_state", "auto_run_disabled", "collection_display_name", "collection_id", "errors", "incremental_sync_disabled", "json_params", "location", "params", "state", "sync_mode", "update_time"},
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "action_config.0.json_action_params", "action_state", "auto_run_disabled", "collection_display_name", "collection_id", "errors", "incremental_sync_disabled", "json_params", "location", "params", "state", "sync_mode", "update_time"},
 			},
 			{
 				ResourceName:       "google_discovery_engine_data_connector.jira-with-actions",
@@ -227,6 +228,143 @@ resource "google_discovery_engine_data_connector" "jira-with-actions" {
       client_secret            = "SECRET_MANAGER_RESOURCE_NAME"
       auth_type                = "OAUTH"
     }
+    create_bap_connection      = true
+  }
+  bap_config {
+    supported_connector_modes = ["ACTIONS"]
+    enabled_actions = [
+      "create_issue",
+      "update_issue",
+      "change_issue_status",
+      "create_comment",
+      "update_comment",
+      "upload_attachment",
+    ]
+  }
+  tag                          = "sample-tag"
+  metadata {
+    title             = "Jira Connector"
+    description       = "Jira Connector Description"
+    short_description = "Jira Connector Short Description"
+    author            = "Google"
+    note              = "Sample Note"
+  }
+}
+`, context)
+}
+
+func TestAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithJsonActionParamsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"action_instance_id": "12345678-1234-1234-1234-123456789abc",
+		"collection_id":      "tf-test-collection-id" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"action_instance_id": "12345678-1234-1234-1234-123456789def",
+		"collection_id":      "tf-test-collection-id" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithJsonActionParamsExample(context),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.jira-with-json-action-params",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "action_config.0.json_action_params", "action_state", "auto_run_disabled", "collection_display_name", "collection_id", "errors", "incremental_sync_disabled", "json_params", "location", "params", "state", "sync_mode", "update_time"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_connector.jira-with-json-action-params",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithJsonActionParamsExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_data_connector.jira-with-json-action-params", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.jira-with-json-action-params",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"action_config.0.action_params", "action_config.0.create_bap_connection", "action_config.0.json_action_params", "action_state", "auto_run_disabled", "collection_display_name", "collection_id", "errors", "incremental_sync_disabled", "json_params", "location", "params", "state", "sync_mode", "update_time"},
+			},
+			{
+				ResourceName:       "google_discovery_engine_data_connector.jira-with-json-action-params",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataConnector_discoveryengineDataconnectorJiraWithJsonActionParamsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_connector" "jira-with-json-action-params" {
+  location                     = "global"
+  collection_id                = "%{collection_id}"
+  collection_display_name      = "Jira Federated"
+  data_source                  = "jira"
+  params = {
+    instance_uri               = "https://example.atlassian.net"
+    instance_id                = "12345678-1234-1234-1234-123456789abc"
+    client_id                  = "SECRET_MANAGER_RESOURCE_NAME"
+    client_secret              = "SECRET_MANAGER_RESOURCE_NAME"
+    refresh_token              = "SECRET_MANAGER_RESOURCE_NAME"
+    auth_type                  = "OAUTH"
+  }
+  refresh_interval             = "86400s"
+  entities {
+    entity_name                = "project"
+  }
+  entities {
+    entity_name                = "issue"
+  }
+  entities {
+    entity_name                = "comment"
+  }
+  entities {
+    entity_name                = "attachment"
+  }
+  static_ip_enabled            = false
+  destination_configs {
+    key = "url"
+    destinations {
+      host = "https://example.atlassian.net"
+      port = 123
+    }
+    params                     = jsonencode({
+      "destination_type": "private"
+    })
+  }
+  connector_modes              = ["FEDERATED", "ACTIONS"]
+  sync_mode                    = "PERIODIC"
+  auto_run_disabled            = true
+  incremental_sync_disabled    = true
+  action_config {
+    json_action_params = jsonencode({
+      "auth_type" : "OAUTH",
+      "client_id" : "SECRET_MANAGER_RESOURCE_NAME",
+      "client_secret" : "SECRET_MANAGER_RESOURCE_NAME",
+      "instance_id" : "%{action_instance_id}",
+      "instance_uri" : "https://example.atlassian.net"
+    })
     create_bap_connection      = true
   }
   bap_config {
