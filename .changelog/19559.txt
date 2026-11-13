@@ -1,0 +1,3 @@
+```release-note:enhancement
+oracledatabase: added `service_connectivity_config` field to `google_oracle_database_odb_network` resource
+```

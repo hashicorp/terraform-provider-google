@@ -117,10 +117,12 @@ func TestAccOracleDatabaseOdbNetwork_oracledatabaseOdbnetworkFullExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"odb_network_id":      fmt.Sprintf("tf-test-odbnetwork-full-%s", acctest.RandString(t, 10)),
-		"project":             "oasis-terraform-testing-prod",
-		"random_suffix":       randomSuffix,
+		"deletion_protection":     false,
+		"network_attachment_name": fmt.Sprintf("tf-test-na-%s", acctest.RandString(t, 10)),
+		"odb_network_id":          fmt.Sprintf("tf-test-odbnetwork-full-%s", acctest.RandString(t, 10)),
+		"project":                 "oasis-terraform-testing-prod",
+		"subnetwork_name":         fmt.Sprintf("tf-test-sub-%s", acctest.RandString(t, 10)),
+		"random_suffix":           randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -158,12 +160,37 @@ resource "google_oracle_database_odb_network" "my-odbnetwork"{
   labels = {
     terraform_created = "true"
   }
+  service_connectivity_config {
+    psc_interface_config {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+  }
   deletion_protection = "%{deletion_protection}"
 }
 
 data "google_compute_network" "default" {
   name     = "new"
   project = "%{project}"
+}
+
+resource "google_compute_network_attachment" "default" {
+  name                  = "%{network_attachment_name}"
+  region                = "us-west3"
+  project               = "%{project}"
+  description           = "basic network attachment description"
+  connection_preference = "ACCEPT_AUTOMATIC"
+
+  subnetworks = [
+    google_compute_subnetwork.default.self_link
+  ]
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "%{subnetwork_name}"
+  region        = "us-west3"
+  project       = "%{project}"
+  network       = data.google_compute_network.default.id
+  ip_cidr_range = "10.1.0.0/16"
 }
 `, context)
 }

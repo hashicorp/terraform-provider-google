@@ -73,12 +73,37 @@ resource "google_oracle_database_odb_network" "my-odbnetwork"{
   labels = {
     terraform_created = "true"
   }
+  service_connectivity_config {
+    psc_interface_config {
+      network_attachment = google_compute_network_attachment.default.id
+    }
+  }
   deletion_protection = "true"
 }
 
 data "google_compute_network" "default" {
   name     = "new"
   project = "my-project"
+}
+
+resource "google_compute_network_attachment" "default" {
+  name                  = "my-attachment"
+  region                = "us-west3"
+  project               = "my-project"
+  description           = "basic network attachment description"
+  connection_preference = "ACCEPT_AUTOMATIC"
+
+  subnetworks = [
+    google_compute_subnetwork.default.self_link
+  ]
+}
+
+resource "google_compute_subnetwork" "default" {
+  name          = "my-subnet"
+  region        = "us-west3"
+  project       = "my-project"
+  network       = data.google_compute_network.default.id
+  ip_cidr_range = "10.1.0.0/16"
 }
 ```
 
@@ -116,6 +141,16 @@ The following arguments are supported:
   Example: us-east4-b-r2.
   If not specified, the system will pick a zone based on availability.
 
+* `service_connectivity_config` -
+  (Optional)
+  Configuration to enable the service (Oracledatabase@Google Cloud) to
+  establish connectivity to the database.
+  This should be specified if you intend to associate this OdbNetwork with
+  a DatabaseConnection resource to `ExecuteSQL` on the database, or to
+  create a ServiceIntegration with the Database.
+  Please don't specify it otherwise to avoid complicating the network setup.
+  Structure is [documented below](#nested_service_connectivity_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -127,6 +162,24 @@ The following arguments are supported:
 	When set to "DELETE", deleting the resource is allowed.
 * `deletion_protection` - (Optional) Whether or not to allow Terraform to destroy the instance. Unless this field is set to false in Terraform state, a terraform destroy or terraform apply that would delete the instance will fail.
 
+
+<a name="nested_service_connectivity_config"></a>The `service_connectivity_config` block supports:
+
+* `psc_interface_config` -
+  (Required)
+  Configuration for Private Service Connect (PSC) interface.
+  Structure is [documented below](#nested_service_connectivity_config_psc_interface_config).
+
+
+<a name="nested_service_connectivity_config_psc_interface_config"></a>The `psc_interface_config` block supports:
+
+* `network_attachment` -
+  (Required)
+  The resource name of the Network Attachment that
+  Oracledatabase@Google Cloud will use to establish private
+  connectivity to the database via a Private Service Connect Interface
+  (PSC-I). Format:
+  projects/{project}/regions/{region}/networkAttachments/{network_attachment}
 
 ## Attributes Reference
 
