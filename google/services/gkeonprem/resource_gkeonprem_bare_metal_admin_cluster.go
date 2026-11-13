@@ -1214,6 +1214,18 @@ func resourceGkeonpremBareMetalAdminClusterRead(d *schema.ResourceData, meta int
 
 	log.Printf("[DEBUG] Finished reading GkeonpremBareMetalAdminCluster %q: %#v", d.Id(), res)
 
+	res, err = resourceGkeonpremBareMetalAdminClusterDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing GkeonpremBareMetalAdminCluster because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
+
 	if err := d.Set("project", project); err != nil {
 		return fmt.Errorf("Error reading BareMetalAdminCluster: %s", err)
 	}
@@ -3764,6 +3776,11 @@ func expandGkeonpremBareMetalAdminClusterEffectiveAnnotations(v interface{}, d t
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func resourceGkeonpremBareMetalAdminClusterDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	res["name"] = tpgresource.GetResourceNameFromSelfLink(res["name"].(string))
+	return res, nil
 }
 
 func ResourceGkeonpremBareMetalAdminClusterFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
