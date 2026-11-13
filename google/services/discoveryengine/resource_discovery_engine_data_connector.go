@@ -290,13 +290,24 @@ capabilities for connectors that support the ACTIONS connector mode.`,
 							Description: `Params needed to configure the actions in the format of
 String-to-String (Key, Value) pairs. Contains connection
 credentials and configuration for the action connector.`,
-							Elem: &schema.Schema{Type: schema.TypeString},
+							Elem:          &schema.Schema{Type: schema.TypeString},
+							ConflictsWith: []string{"action_config.0.json_action_params"},
 						},
 						"create_bap_connection": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Description: `Whether to create a BAP (Business Application Platform) connection
 for this action connector.`,
+						},
+						"json_action_params": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: validation.StringIsJSON,
+							Description: `Params needed to configure the actions in the format of a json string.
+Use this instead of 'action_params' when some values must be sent as
+non-string JSON types, for example booleans such as
+'pkce_support_enabled' for custom MCP connectors.`,
+							ConflictsWith: []string{"action_config.0.action_params"},
 						},
 						"is_action_configured": {
 							Type:     schema.TypeBool,
@@ -1450,6 +1461,8 @@ func flattenDiscoveryEngineDataConnectorActionConfig(v interface{}, d *schema.Re
 	transformed := make(map[string]interface{})
 	transformed["action_params"] =
 		flattenDiscoveryEngineDataConnectorActionConfigActionParams(original["actionParams"], d, config)
+	transformed["json_action_params"] =
+		flattenDiscoveryEngineDataConnectorActionConfigJsonActionParams(original["jsonActionParams"], d, config)
 	transformed["is_action_configured"] =
 		flattenDiscoveryEngineDataConnectorActionConfigIsActionConfigured(original["isActionConfigured"], d, config)
 	transformed["create_bap_connection"] =
@@ -1458,6 +1471,10 @@ func flattenDiscoveryEngineDataConnectorActionConfig(v interface{}, d *schema.Re
 }
 func flattenDiscoveryEngineDataConnectorActionConfigActionParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return d.Get("action_config.0.action_params")
+}
+
+func flattenDiscoveryEngineDataConnectorActionConfigJsonActionParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return d.Get("action_config.0.json_action_params")
 }
 
 func flattenDiscoveryEngineDataConnectorActionConfigIsActionConfigured(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1776,6 +1793,13 @@ func expandDiscoveryEngineDataConnectorActionConfig(v interface{}, d tpgresource
 		transformed["actionParams"] = transformedActionParams
 	}
 
+	transformedJsonActionParams, err := expandDiscoveryEngineDataConnectorActionConfigJsonActionParams(original["json_action_params"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedJsonActionParams); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["jsonActionParams"] = transformedJsonActionParams
+	}
+
 	transformedIsActionConfigured, err := expandDiscoveryEngineDataConnectorActionConfigIsActionConfigured(original["is_action_configured"], d, config)
 	if err != nil {
 		return nil, err
@@ -1802,6 +1826,10 @@ func expandDiscoveryEngineDataConnectorActionConfigActionParams(v interface{}, d
 		m[k] = val.(string)
 	}
 	return m, nil
+}
+
+func expandDiscoveryEngineDataConnectorActionConfigJsonActionParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func expandDiscoveryEngineDataConnectorActionConfigIsActionConfigured(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {

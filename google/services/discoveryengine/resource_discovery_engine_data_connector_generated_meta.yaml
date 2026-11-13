@@ -12,6 +12,7 @@ fields:
     - api_field: actionConfig.actionParams
     - api_field: actionConfig.createBapConnection
     - api_field: actionConfig.isActionConfigured
+    - api_field: actionConfig.jsonActionParams
     - api_field: actionState
     - api_field: autoRunDisabled
     - api_field: bapConfig.enabledActions
