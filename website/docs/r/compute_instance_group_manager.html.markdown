@@ -274,6 +274,8 @@ group. You can specify only one value. Structure is [documented below](#nested_a
 
 * `instance_lifecycle_policy` - (Optional) The instance lifecycle policy for this managed instance group. Structure is [documented below](#nested_instance_lifecycle_policy).
 
+* `service_account` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The service account to be used as credentials for all operations performed by the managed instance group on instances. The service account needs all permissions required to create and delete instances. By default, the service account {projectNumber}@cloudservices.gserviceaccount.com is used.
+
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
     When a 'terraform destroy' or 'terraform apply' would delete the resource,
     the command will fail if this field is set to "PREVENT" in Terraform state.

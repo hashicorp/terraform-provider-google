@@ -232,6 +232,8 @@ group. You can specify one or more values. For more information, see the [offici
 
 * `resource_policies` - (Optional) Resource policies for this managed instance group. Structure is [documented below](#nested_resource_policies).
 
+* `service_account` - (Optional, [Beta](../guides/provider_versions.html.markdown)) The service account to be used as credentials for all operations performed by the managed instance group on instances. The service account needs all permissions required to create and delete instances. By default, the service account {projectNumber}@cloudservices.gserviceaccount.com is used.
+
 - - -
 
 The `standby_policy` block supports:
