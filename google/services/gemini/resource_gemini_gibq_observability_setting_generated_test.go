@@ -120,7 +120,9 @@ resource "google_gemini_gibq_observability_setting" "example" {
     gibq_observability_setting_id = "%{gibq_observability_setting_id}"
     location = "global"
     labels = {"my_key": "my_value"}
-    conversational_analytics_setting {}
+    conversational_analytics_setting {
+        bqaa_enabled = false
+    }
 }
 `, context)
 }
@@ -136,6 +138,7 @@ resource "google_gemini_gibq_observability_setting" "example" {
         traces_enabled = false
         feedback_enabled = false
         logging_enabled = false
+        bqaa_enabled = true
     }
 }
 `, context)

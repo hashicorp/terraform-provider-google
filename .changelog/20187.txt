@@ -1,0 +1,3 @@
+```release-note:enhancement
+gemini: added `conversational_analytics_setting.bqaa_enabled` field to `google_gemini_gibq_observability_setting` resource
+```
