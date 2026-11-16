@@ -44,7 +44,9 @@ resource "google_gemini_gibq_observability_setting" "example" {
     gibq_observability_setting_id = "ls-tf1"
     location = "global"
     labels = {"my_key": "my_value"}
-    conversational_analytics_setting {}
+    conversational_analytics_setting {
+        bqaa_enabled = false
+    }
 }
 ```
 
@@ -101,6 +103,10 @@ The following arguments are supported:
 * `logging_enabled` -
   (Optional)
   Whether to enable logging.
+
+* `bqaa_enabled` -
+  (Optional)
+  Whether to enable BigQuery Agent Analytics (BQAA).
 
 ## Attributes Reference
 
