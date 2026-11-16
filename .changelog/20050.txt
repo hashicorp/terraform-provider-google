@@ -1,0 +1,3 @@
+```release-note:enhancement
+discoveryengine: changed `subscription_tier` in `google_discovery_engine_license_config` resource to accept any value supported by the API, including `SUBSCRIPTION_TIER_ENTERPRISE_EMERGING`
+```
