@@ -475,6 +475,13 @@ func schemaNodeConfig() *schema.Schema {
 								ValidateFunc: validation.IntAtLeast(0),
 								Description:  `Number of local SSDs to be utilized for GKE Data Cache. Uses NVMe interfaces.`,
 							},
+							"ephemeral_capacity_gb": {
+								Type:         schema.TypeInt,
+								Optional:     true,
+								ForceNew:     true,
+								ValidateFunc: validation.IntAtLeast(0),
+								Description:  `Number of gigabytes of local SSD capacity to use for ephemeral storage in mixed local SSD mode. The remaining capacity is available for raw block storage.`,
+							},
 						},
 					},
 				},
@@ -1679,7 +1686,9 @@ func expandNodeConfig(d *schema.ResourceData, prefix string, v interface{}) *con
 		if ok {
 			nc.EphemeralStorageLocalSsdConfig.DataCacheCount = int64(dataCacheCount.(int))
 		}
-
+		if ephemeralCapacityGb, ok := conf["ephemeral_capacity_gb"]; ok {
+			nc.EphemeralStorageLocalSsdConfig.EphemeralCapacityGb = int64(ephemeralCapacityGb.(int))
+		}
 	}
 
 	if v, ok := nodeConfig["secondary_boot_disks"]; ok && len(v.([]interface{})) > 0 {
@@ -3102,10 +3111,14 @@ func flattenLocalNvmeSsdBlockConfig(c *container.LocalNvmeSsdBlockConfig) []map[
 func flattenEphemeralStorageLocalSsdConfig(c *container.EphemeralStorageLocalSsdConfig) []map[string]interface{} {
 	result := []map[string]interface{}{}
 	if c != nil {
-		result = append(result, map[string]interface{}{
+		conf := map[string]interface{}{
 			"local_ssd_count":  c.LocalSsdCount,
 			"data_cache_count": c.DataCacheCount,
-		})
+		}
+		if c.EphemeralCapacityGb > 0 {
+			conf["ephemeral_capacity_gb"] = c.EphemeralCapacityGb
+		}
+		result = append(result, conf)
 	}
 	return result
 }
