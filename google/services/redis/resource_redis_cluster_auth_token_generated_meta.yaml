@@ -1,0 +1,23 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_redis_cluster_auth_token
+generation_type: mmv1
+source_file: products/redis/ClusterAuthToken.yaml
+api_service_name: redis.googleapis.com
+api_version: v1
+api_resource_type_kind: ClusterAuthToken
+fields:
+    - field: cluster
+      provider_only: true
+    - api_field: createTime
+    - api_field: name
+    - field: region
+      provider_only: true
+    - api_field: state
+    - api_field: token
+    - api_field: name
+      field: token_id
+    - field: user_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
