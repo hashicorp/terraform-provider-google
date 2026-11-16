@@ -20829,3 +20829,60 @@ resource "google_container_cluster" "primary" {
 }
 `, clusterName, networkName, subnetworkName, npName, enabled, minProvisionNodes)
 }
+
+func TestAccContainerCluster_nodePoolEphemeralStorageLocalSsdConfigWithEphemeralCapacityGb(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	npName := fmt.Sprintf("tf-test-nodepool-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnet(t, "gke-cluster", networkName)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_nodePoolEphemeralStorageLocalSsdConfigWithEphemeralCapacityGb(clusterName, npName, networkName, subnetworkName),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
+func testAccContainerCluster_nodePoolEphemeralStorageLocalSsdConfigWithEphemeralCapacityGb(clusterName, npName, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+data "google_container_engine_versions" "central1a" {
+  location       = "us-central1-a"
+  version_prefix = "1.37"
+}
+
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-central1-a"
+  min_master_version  = data.google_container_engine_versions.central1a.latest_master_version
+  network             = "%s"
+  subnetwork          = "%s"
+  deletion_protection = false
+
+  node_pool {
+    name       = "%s"
+    node_count = 1
+
+    node_config {
+      machine_type = "n2-standard-4"
+      ephemeral_storage_local_ssd_config {
+        local_ssd_count       = 1
+        ephemeral_capacity_gb = 150
+      }
+    }
+  }
+}
+`, clusterName, networkName, subnetworkName, npName)
+}

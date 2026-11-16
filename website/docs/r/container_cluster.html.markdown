@@ -1427,6 +1427,8 @@ sole_tenant_config {
 
 * `data_cache_count` (Optional) - Number of raw-block local NVMe SSD disks to be attached to the node utilized for GKE Data Cache. If zero, then GKE Data Cache will not be enabled in the nodes.
 
+* `ephemeral_capacity_gb` - (Optional) Number of gigabytes of local SSD capacity to use for ephemeral storage in mixed local SSD mode. The remaining capacity is available for raw block storage.
+
 <a name="nested_fast_socket"></a>The `fast_socket` block supports:
 
 * `enabled` (Required) - Whether or not the NCCL Fast Socket is enabled
