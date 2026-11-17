@@ -177,6 +177,8 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `state` - The current state of the resource, selected from the [JobState enum](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#Job.JobState)
 
+* `type` - The type of this job, selected from the [JobType enum](https://cloud.google.com/dataflow/docs/reference/rest/v1b3/projects.jobs#Job.JobType).
+
 ## Import
 
 This resource does not support import.
