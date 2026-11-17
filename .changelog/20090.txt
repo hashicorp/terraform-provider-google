@@ -1,0 +1,3 @@
+```release-note:bug
+container: fixed an error when creating `google_container_cluster` with `node_pool_auto_config.network_tags` set and neither `enable_autopilot` nor `cluster_autoscaling.enabled` set to `true`
+```

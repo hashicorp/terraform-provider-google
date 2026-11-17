@@ -1764,7 +1764,7 @@ func ResourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				MaxItems:    1,
-				Description: `Node pool configs that apply to all auto-provisioned node pools in autopilot clusters and node auto-provisioning enabled clusters.`,
+				Description: `Node pool configs that apply to all auto-provisioned node pools in autopilot clusters, node auto-provisioning enabled clusters, and node pools auto-created by ComputeClasses in Standard clusters.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"node_kubelet_config": schemaNodePoolAutoConfigNodeKubeletConfig(),
@@ -3252,10 +3252,6 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 
 	if v, ok := d.GetOk("user_managed_keys_config"); ok {
 		cluster.UserManagedKeysConfig = expandUserManagedKeysConfig(v)
-	}
-
-	if err := validateNodePoolAutoConfig(cluster); err != nil {
-		return err
 	}
 
 	if v, ok := d.GetOk("security_posture_config"); ok {
@@ -8642,19 +8638,6 @@ func BinaryAuthorizationDiffSuppress(k, old, new string, r *schema.ResourceData)
 	}
 
 	return false
-}
-
-func validateNodePoolAutoConfig(cluster *container.Cluster) error {
-	if cluster == nil || cluster.NodePoolAutoConfig == nil {
-		return nil
-	}
-	if cluster.NodePoolAutoConfig != nil && cluster.NodePoolAutoConfig.NetworkTags != nil && len(cluster.NodePoolAutoConfig.NetworkTags.Tags) > 0 {
-		if (cluster.Autopilot == nil || !cluster.Autopilot.Enabled) && (cluster.Autoscaling == nil || !cluster.Autoscaling.EnableNodeAutoprovisioning) {
-			return fmt.Errorf("node_pool_auto_config network tags can only be set if enable_autopilot or cluster_autoscaling is enabled")
-		}
-	}
-
-	return nil
 }
 
 func containerClusterSurgeSettingsCustomizeDiff(_ context.Context, d *schema.ResourceDiff, meta interface{}) error {
