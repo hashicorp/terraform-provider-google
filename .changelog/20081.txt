@@ -1,0 +1,3 @@
+```release-note:bug
+workbench: fixed a permadiff on the server-set `workbench-jurisdiction` metadata key in `google_workbench_instance`
+```
