@@ -23,13 +23,14 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/compute"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/memcache"
-	_ "github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
+	"github.com/hashicorp/terraform-provider-google/google/services/servicenetworking"
 )
 
 func TestAccMemcacheInstanceDatasourceConfig(t *testing.T) {
 	t.Parallel()
 
 	context := map[string]interface{}{
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": acctest.RandString(t, 10),
 	}
 
@@ -51,37 +52,24 @@ func TestAccMemcacheInstanceDatasourceConfig(t *testing.T) {
 
 func testAccMemcacheInstanceDatasourceConfig(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-resource "google_compute_network" "memcache_network" {
-  name                     = "test-network"
-}
-
-resource "google_compute_global_address" "service_range" {
-  name                     = "address"
-  purpose                  = "VPC_PEERING"
-  address_type             = "INTERNAL"
-  prefix_length            = 16
-  network                  = google_compute_network.memcache_network.id
-}
-
-resource "google_service_networking_connection" "private_service_connection" {
-  network                  = google_compute_network.memcache_network.id
-  service                  = "servicenetworking.googleapis.com"
-  reserved_peering_ranges  = [google_compute_global_address.service_range.name]
+data "google_compute_network" "memcache_network" {
+  name = "%{network_name}"
 }
 
 resource "google_memcache_instance" "instance" {
-  name                     = "test-instance"
-  authorized_network       = google_service_networking_connection.private_service_connection.network
-  region                   = "us-central1"
+  name               = "tf-test-test-instance%{random_suffix}"
+  authorized_network = data.google_compute_network.memcache_network.id
+  region             = "us-central1"
   node_config {
-    cpu_count              = 1
-    memory_size_mb         = 1024
+    cpu_count      = 1
+    memory_size_mb = 1024
   }
-  node_count               = 1
+  node_count = 1
 }
+
 data "google_memcache_instance" "default" {
-name                       = google_memcache_instance.instance.name
-region                     = "us-central1"
+  name   = google_memcache_instance.instance.name
+  region = "us-central1"
 }
 `, context)
 }
