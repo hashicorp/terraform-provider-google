@@ -67,6 +67,7 @@ The following arguments are supported:
 * `discovery_spec` -
   (Required)
   Required. Specification of the discovery feature applied to data in this zone.
+  Structure is [documented below](#nested_discovery_spec).
   
 * `lake` -
   (Required)
@@ -83,6 +84,7 @@ The following arguments are supported:
 * `resource_spec` -
   (Required)
   Required. Immutable. Specification of the resources that are referenced by the assets within this zone.
+  Structure is [documented below](#nested_resource_spec).
   
 * `type` -
   (Required)
@@ -96,11 +98,12 @@ The following arguments are supported:
     When set to "DELETE", deleting the resource is allowed.  
 
 
-The `discovery_spec` block supports:
+<a name="nested_discovery_spec"></a>The `discovery_spec` block supports:
     
 * `csv_options` -
   (Optional)
   Optional. Configuration for CSV data.
+  Structure is [documented below](#nested_discovery_spec_csv_options).
     
 * `enabled` -
   (Required)
@@ -117,12 +120,13 @@ The `discovery_spec` block supports:
 * `json_options` -
   (Optional)
   Optional. Configuration for Json data.
+  Structure is [documented below](#nested_discovery_spec_json_options).
     
 * `schedule` -
   (Optional)
   Optional. Cron schedule (https://en.wikipedia.org/wiki/Cron) for running discovery periodically. Successive discovery runs must be scheduled at least 60 minutes apart. The default value is to run discovery every 60 minutes. To explicitly set a timezone to the cron tab, apply a prefix in the cron tab: "CRON_TZ=${IANA_TIME_ZONE}" or TZ=${IANA_TIME_ZONE}". The ${IANA_TIME_ZONE} may only be a valid string from IANA time zone database. For example, "CRON_TZ=America/New_York 1 * * * *", or "TZ=America/New_York 1 * * * *".
     
-The `resource_spec` block supports:
+<a name="nested_resource_spec"></a>The `resource_spec` block supports:
     
 * `location_type` -
   (Required)
@@ -151,7 +155,7 @@ Please refer to the field `effective_labels` for all of the labels present on th
   
 
 
-The `csv_options` block supports:
+<a name="nested_discovery_spec_csv_options"></a>The `csv_options` block supports:
     
 * `delimiter` -
   (Optional)
@@ -169,7 +173,7 @@ The `csv_options` block supports:
   (Optional)
   Optional. The number of rows to interpret as header rows that should be skipped when reading data rows.
     
-The `json_options` block supports:
+<a name="nested_discovery_spec_json_options"></a>The `json_options` block supports:
     
 * `disable_type_inference` -
   (Optional)
@@ -187,6 +191,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `asset_status` -
   Output only. Aggregated status of the underlying assets of the zone.
+  Structure is [documented below](#nested_asset_status).
   
 * `create_time` -
   Output only. The time when the zone was created.
@@ -206,6 +211,17 @@ In addition to the arguments listed above, the following computed attributes are
 * `update_time` -
   Output only. The time when the zone was last updated.
   
+<a name="nested_asset_status"></a>The `asset_status` block contains:
+
+* `active_assets` -
+  Number of active assets.
+
+* `security_policy_applying_assets` -
+  Number of assets that are in process of updating the security policy on attached resources.
+
+* `update_time` -
+  Last update time of the status.
+
 ## Timeouts
 
 This resource provides the following
