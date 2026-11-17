@@ -53,6 +53,10 @@ The following arguments are supported:
   (Required)
   PKCS12 file content
 
+* `filehash` -
+  (Required)
+  Hash of the pkcs file
+
 * `deletion_policy` - 
   (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
   When a 'terraform destroy' or 'terraform apply' would delete the resource,
