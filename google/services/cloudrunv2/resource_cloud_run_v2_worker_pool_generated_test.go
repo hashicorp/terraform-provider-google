@@ -857,7 +857,6 @@ func TestAccCloudRunV2WorkerPool_cloudrunv2WorkerPoolStartupLivenessProbeExample
 	context := map[string]interface{}{
 		"cloud_run_worker_pool_name":  "tf-test-cloudrun-worker-pool" + randomSuffix,
 		"compute_network_name":        "tf-test-wp-net" + randomSuffix,
-		"vpc_access_connector_name":   "tf-test-wp-connector" + randomSuffix,
 		"vpc_compute_subnetwork_name": "tf-test-wp-subnet" + randomSuffix,
 		"random_suffix":               randomSuffix,
 	}

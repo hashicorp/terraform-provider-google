@@ -61,7 +61,6 @@ func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentBasicExample(
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"host_project":                  envvar.GetTestProjectFromEnv(),
 		"org_id":                        envvar.GetTestOrgFromEnv(t),
 		"service_project_attachment_id": "tf-test-project-1" + randomSuffix,
 		"random_suffix":                 randomSuffix,
@@ -123,7 +122,6 @@ func TestAccApphubServiceProjectAttachment_serviceProjectAttachmentFullExample(t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"host_project":                  envvar.GetTestProjectFromEnv(),
 		"org_id":                        envvar.GetTestOrgFromEnv(t),
 		"service_project_attachment_id": "tf-test-project-1" + randomSuffix,
 		"random_suffix":                 randomSuffix,

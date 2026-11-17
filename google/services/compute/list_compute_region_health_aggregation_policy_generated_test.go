@@ -47,10 +47,10 @@ func TestAccComputeRegionHealthAggregationPolicyListQuery_generated(t *testing.T
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"description":   "Example health aggregation policy basic" + randomSuffix,
 		"name":          "tf-test-test-health-aggregation-policy" + randomSuffix,
 		"region":        envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

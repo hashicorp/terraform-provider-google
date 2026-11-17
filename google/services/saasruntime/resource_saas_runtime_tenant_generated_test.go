@@ -67,7 +67,6 @@ func TestAccSaasRuntimeTenant_saasRuntimeTenantBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"saas_name":     "tf-test-example-saas" + randomSuffix,
 		"tenant_name":   "tf-test-example-tenant" + randomSuffix,
 		"random_suffix": randomSuffix,

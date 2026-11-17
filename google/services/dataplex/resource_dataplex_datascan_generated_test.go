@@ -800,7 +800,6 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":                   envvar.GetTestRegionFromEnv(),
 		"project_name":               envvar.GetTestProjectFromEnv(),
 		"catalog_publishing_enabled": true,
 		"datascan_name":              "tf-test-datadocumentation" + randomSuffix,
@@ -809,7 +808,6 @@ func TestAccDataplexDatascan_dataplexDatascanDocumentationExample(t *testing.T) 
 	}
 
 	context_1 := map[string]interface{}{
-		"location":                   envvar.GetTestRegionFromEnv(),
 		"project_name":               envvar.GetTestProjectFromEnv(),
 		"catalog_publishing_enabled": false,
 		"datascan_name":              "tf-test-datadocumentation" + randomSuffix,
@@ -956,7 +954,6 @@ func TestAccDataplexDatascan_dataplexDatascanOnetimeDocumentationExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"datascan_name": "tf-test-datadocumentation-onetime" + randomSuffix,
 		"random_suffix": randomSuffix,
@@ -1079,7 +1076,6 @@ func TestAccDataplexDatascan_dataplexDatascanExecutionIdentityUserCredentialExam
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"datascan_name": "tf-test-dataplex-id-user-cred" + randomSuffix,
 		"random_suffix": randomSuffix,
@@ -1174,7 +1170,6 @@ func TestAccDataplexDatascan_dataplexDatascanExecutionIdentityServiceAccountExam
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":      envvar.GetTestRegionFromEnv(),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"datascan_name": "tf-test-dataplex-id-sa" + randomSuffix,
 		"random_suffix": randomSuffix,

@@ -60,7 +60,6 @@ func TestAccGKEBackupBackupChannel_gkebackupBackupchannelBasicExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
 		"destination_project": "projects/24240755850",
 		"name":                "tf-test-basic-channel" + randomSuffix,
 		"random_suffix":       randomSuffix,

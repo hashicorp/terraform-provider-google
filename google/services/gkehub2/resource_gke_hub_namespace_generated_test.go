@@ -60,7 +60,6 @@ func TestAccGKEHub2Namespace_gkehubNamespaceBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

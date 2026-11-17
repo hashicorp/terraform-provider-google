@@ -46,10 +46,10 @@ func TestAccGKEBackupBackupChannelListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":             envvar.GetTestProjectFromEnv(),
 		"destination_project": "projects/24240755850",
 		"name":                "tf-test-basic-channel" + randomSuffix,
 		"location":            envvar.GetTestRegionFromEnv(),
+		"project":             envvar.GetTestProjectFromEnv(),
 		"random_suffix":       randomSuffix,
 	}
 

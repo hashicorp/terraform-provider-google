@@ -60,8 +60,6 @@ func TestAccComputeRegionCompositeHealthCheck_computeRegionCompositeHealthCheckB
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"description":   "Example composite health check basic" + randomSuffix,
 		"name":          "tf-test-test-composite-health-check" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

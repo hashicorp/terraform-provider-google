@@ -61,7 +61,6 @@ func TestAccArtifactRegistryRule_artifactRegistryRuleBasicExample(t *testing.T) 
 
 	context := map[string]interface{}{
 		"desc":          "example docker repository",
-		"name":          "tf-test-my-repo-rule-name" + randomSuffix,
 		"repository_id": "tf-test-my-repository" + randomSuffix,
 		"rule_id":       "tf-test-my-repo-rule-id" + randomSuffix,
 		"random_suffix": randomSuffix,
@@ -122,7 +121,6 @@ func TestAccArtifactRegistryRule_artifactRegistryRuleFullExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"desc":          "example docker repository",
-		"name":          "tf-test-my-repo-rule-name" + randomSuffix,
 		"repository_id": "tf-test-my-repository" + randomSuffix,
 		"rule_id":       "tf-test-my-repo-rule-full-id" + randomSuffix,
 		"random_suffix": randomSuffix,

@@ -47,7 +47,6 @@ func TestAccColabNotebookExecutionListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project_id":            envvar.GetTestProjectFromEnv(),
 		"service_account":       envvar.GetTestServiceAccountFromEnv(t),
 		"bucket":                "tf_test_my_bucket" + randomSuffix,
 		"runtime_template_name": "tf-test-runtime-template-name" + randomSuffix,

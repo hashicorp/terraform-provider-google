@@ -66,7 +66,6 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterExample(t *te
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"name":            "tf-test-jupyter-session-template" + randomSuffix,
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}
@@ -135,7 +134,6 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesJupyterFullExample(t
 		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
 		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-dataproc-session-template-key1").CryptoKey.Name,
 		"name":            "tf-test-jupyter-session-template" + randomSuffix,
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "jupyer-session-test-network", "jupyter-session-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}
@@ -294,7 +292,6 @@ func TestAccDataprocSessionTemplate_dataprocSessionTemplatesSparkConnectExample(
 	context := map[string]interface{}{
 		"project_name":    envvar.GetTestProjectFromEnv(),
 		"name":            "tf-test-sc-session-template" + randomSuffix,
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "spark-connect-session-test-network", "spark-connect-session-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}

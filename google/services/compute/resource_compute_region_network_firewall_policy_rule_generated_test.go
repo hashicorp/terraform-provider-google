@@ -175,7 +175,6 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
 		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
@@ -244,11 +243,9 @@ func TestAccComputeRegionNetworkFirewallPolicyRule_regionNetworkFirewallPolicyRu
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"project_name":  envvar.GetTestProjectFromEnv(),
 		"region":        envvar.GetTestRegionFromEnv(),
 		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
-		"network":       "tf-test-network" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

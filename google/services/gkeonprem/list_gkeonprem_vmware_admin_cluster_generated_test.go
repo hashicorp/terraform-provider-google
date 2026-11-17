@@ -48,6 +48,7 @@ func TestAccGkeonpremVmwareAdminClusterListQuery_generated(t *testing.T) {
 	context := map[string]interface{}{
 		"name":          "basic" + randomSuffix,
 		"location":      envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

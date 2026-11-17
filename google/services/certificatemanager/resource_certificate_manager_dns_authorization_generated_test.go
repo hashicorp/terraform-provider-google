@@ -62,7 +62,6 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 	context := map[string]interface{}{
 		"dns_auth_name": "tf-test-dns-auth" + randomSuffix,
 		"subdomain":     "subdomain" + randomSuffix,
-		"zone_name":     "tf-test-my-zone" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -121,7 +120,6 @@ func TestAccCertificateManagerDnsAuthorization_certificateManagerDnsAuthorizatio
 	context := map[string]interface{}{
 		"dns_auth_name": "tf-test-dns-auth" + randomSuffix,
 		"subdomain":     "subdomain" + randomSuffix,
-		"zone_name":     "tf-test-my-zone" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

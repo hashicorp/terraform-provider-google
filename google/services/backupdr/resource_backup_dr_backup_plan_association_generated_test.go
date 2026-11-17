@@ -65,7 +65,6 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                    envvar.GetTestProjectFromEnv(),
 		"account_id":                 "tf-test-my-custom" + randomSuffix,
 		"backup_plan_association_id": "tf-test-my-bpa" + randomSuffix,
 		"backup_plan_id":             "tf-test-bp-bpa-test" + randomSuffix,
@@ -178,7 +177,6 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaFilestoreExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                    envvar.GetTestProjectFromEnv(),
 		"backup_plan_association_id": "tf-test-my-bpa-filestore" + randomSuffix,
 		"backup_plan_id":             "tf-test-bp-bpa-filestore" + randomSuffix,
 		"backup_vault_id":            "tf-test-bv-bpa-filestore" + randomSuffix,
@@ -274,7 +272,6 @@ func TestAccBackupDRBackupPlanAssociation_backupDrBpaNetappExample(t *testing.T)
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                    envvar.GetTestProjectFromEnv(),
 		"backup_plan_association_id": "tf-test-my-bpa-netapp" + randomSuffix,
 		"backup_plan_id":             "tf-test-bp-bpa-netapp" + randomSuffix,
 		"backup_vault_id":            "tf-test-bv-bpa-netapp" + randomSuffix,

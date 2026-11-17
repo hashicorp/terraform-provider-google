@@ -62,11 +62,10 @@ func TestAccCloudSupportSupportEventSubscription_cloudSupportEventSubscriptionBa
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"project_id":      envvar.GetTestProjectFromEnv(),
-		"subscription_id": "tf-test-my-subscription" + randomSuffix,
-		"topic_name":      "tf-test-test-topic" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"topic_name":    "tf-test-test-topic" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -131,11 +130,10 @@ func TestAccCloudSupportSupportEventSubscription_cloudSupportEventSubscriptionUp
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"project_id":      envvar.GetTestProjectFromEnv(),
-		"subscription_id": "tf-test-my-subscription" + randomSuffix,
-		"topic_name":      "tf-test-test-topic-2" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"org_id":        envvar.GetTestOrgFromEnv(t),
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"topic_name":    "tf-test-test-topic-2" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

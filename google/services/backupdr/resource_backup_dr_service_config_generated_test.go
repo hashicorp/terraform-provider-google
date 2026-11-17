@@ -60,8 +60,6 @@ func TestAccBackupDRServiceConfig_backupDrServiceConfigExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"resource_type": "compute.googleapis.com/Instance" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

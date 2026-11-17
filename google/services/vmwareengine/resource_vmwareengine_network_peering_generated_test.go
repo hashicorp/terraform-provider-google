@@ -61,7 +61,6 @@ func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringVenExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"region":            envvar.GetTestRegionFromEnv(),
 		"name":              "tf-test-sample-network-peering" + randomSuffix,
 		"network_name":      "tf-test-default-np-nw" + randomSuffix,
 		"peer_network_name": "tf-test-peer-np-nw" + randomSuffix,
@@ -124,7 +123,6 @@ func TestAccVmwareengineNetworkPeering_vmwareEngineNetworkPeeringStandardExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"region":        envvar.GetTestRegionFromEnv(),
 		"name":          "tf-test-sample-network-peering" + randomSuffix,
 		"network_name":  "tf-test-default-standard-nw-np" + randomSuffix,
 		"vpc_name":      "tf-test-default-vpc" + randomSuffix,

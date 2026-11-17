@@ -62,7 +62,6 @@ func TestAccDiscoveryEngineAssistant_discoveryengineAssistantBasicExample(t *tes
 	context := map[string]interface{}{
 		"data_store_id": "tf-test-example-data-store-id" + randomSuffix,
 		"engine_id":     "tf-test-example-engine-id" + randomSuffix,
-		"template_id":   "tf-test-example-template-id" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

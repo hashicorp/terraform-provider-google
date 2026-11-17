@@ -64,7 +64,6 @@ func TestAccBiglakeHiveHiveTable_biglakeHiveTableExample(t *testing.T) {
 	context := map[string]interface{}{
 		"bucket_cols":        "[\"bucket_col1\"]",
 		"bucket_name":        "tf-test-example-bucket" + randomSuffix,
-		"col_comment":        "col comment",
 		"columns":            "columns {\n  name    = \"col0\"\n  type    = \"STRING\"\n  comment = \"column that will be deleted on update\"\n}\ncolumns {\n  name    = \"col1\"\n  type    = \"STRING\"\n  comment = \"first skewed column\"\n}\n",
 		"compressed":         true,
 		"description":        "Hive table description",
@@ -80,7 +79,6 @@ func TestAccBiglakeHiveHiveTable_biglakeHiveTableExample(t *testing.T) {
 	context_1 := map[string]interface{}{
 		"bucket_cols":        "[\"bucket_col1\", \"bucket_col2\"]",
 		"bucket_name":        "tf-test-example-bucket" + randomSuffix,
-		"col_comment":        "updated col comment",
 		"columns":            "columns {\n  name    = \"col1\"\n  type    = \"STRING\"\n  comment = \"first skewed column updated comment\"\n}\ncolumns {\n  name    = \"col2\"\n  type    = \"STRING\"\n  comment = \"second skewed column\"\n}\n",
 		"compressed":         false,
 		"description":        "Updated Hive table description",

@@ -62,7 +62,6 @@ func TestAccComputeExternalVpnGateway_externalVpnGatewayExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"external_gateway_name": "tf-test-external-gateway" + randomSuffix,
-		"global_address_name":   "tf-test-global-address" + randomSuffix,
 		"ha_vpn_gateway_name":   "tf-test-ha-vpn" + randomSuffix,
 		"network_name":          "tf-test-network-1" + randomSuffix,
 		"router_name":           "tf-test-ha-vpn-router1" + randomSuffix,

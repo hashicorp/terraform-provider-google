@@ -63,7 +63,6 @@ func TestAccCESToolset_cesToolsetOpenapiServiceAccountAuthConfigExample(t *testi
 		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -157,7 +156,6 @@ func TestAccCESToolset_cesToolsetOpenapiOauthConfigExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -254,7 +252,6 @@ func TestAccCESToolset_cesToolsetOpenapiServiceAgentIdTokenAuthConfigExample(t *
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -346,7 +343,6 @@ func TestAccCESToolset_cesToolsetOpenapiApiKeyConfigExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -443,7 +439,6 @@ func TestAccCESToolset_cesToolsetBearerTokenConfigExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -537,7 +532,6 @@ func TestAccCESToolset_cesToolsetMcpServiceAccountAuthConfigExample(t *testing.T
 		"service_account":  envvar.GetTestServiceAccountFromEnv(t),
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -621,7 +615,6 @@ func TestAccCESToolset_cesToolsetMcpOauthConfigExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -708,7 +701,6 @@ func TestAccCESToolset_cesToolsetMcpServiceAgentIdTokenAuthConfigExample(t *test
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -797,7 +789,6 @@ func TestAccCESToolset_cesToolsetMcpApiKeyConfigExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}
@@ -884,7 +875,6 @@ func TestAccCESToolset_cesToolsetMcpBearerTokenConfigExample(t *testing.T) {
 	context := map[string]interface{}{
 		"app_display_name": "tf-test-my-app" + randomSuffix,
 		"app_id":           "tf-test-app-id" + randomSuffix,
-		"location":         "us" + randomSuffix,
 		"toolset_id":       "tf-test-toolset1" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}

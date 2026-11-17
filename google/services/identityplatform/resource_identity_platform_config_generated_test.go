@@ -64,7 +64,6 @@ func TestAccIdentityPlatformConfig_identityPlatformConfigBasicExample(t *testing
 	context := map[string]interface{}{
 		"billing_acct":     envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":           envvar.GetTestOrgFromEnv(t),
-		"instance_name":    "tf-test-memory-cache" + randomSuffix,
 		"project_id":       "tf-test-my-project" + randomSuffix,
 		"quota_start_time": time.Now().AddDate(0, 0, 1).Format(time.RFC3339),
 		"random_suffix":    randomSuffix,

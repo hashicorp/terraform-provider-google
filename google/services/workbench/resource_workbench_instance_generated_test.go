@@ -258,7 +258,6 @@ func TestAccWorkbenchInstance_workbenchInstanceLabelsStoppedExample(t *testing.T
 	context := map[string]interface{}{
 		"service_account": envvar.GetTestServiceAccountFromEnv(t),
 		"instance_name":   "tf-test-workbench-instance" + randomSuffix,
-		"network_name":    "tf-test-wbi-test-default" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}
 

@@ -62,7 +62,6 @@ func TestAccComputeManagedSslCertificate_managedSslCertificateBasicExample(t *te
 	context := map[string]interface{}{
 		"backend_service_name":   "tf-test-backend-service" + randomSuffix,
 		"cert_name":              "tf-test-test-cert" + randomSuffix,
-		"dns_zone_name":          "dnszone" + randomSuffix,
 		"forwarding_rule_name":   "tf-test-forwarding-rule" + randomSuffix,
 		"http_health_check_name": "tf-test-http-health-check" + randomSuffix,
 		"proxy_name":             "tf-test-test-proxy" + randomSuffix,

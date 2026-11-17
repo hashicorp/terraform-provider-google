@@ -76,7 +76,6 @@ func TestAccSaasRuntimeUnitOperation_saasRuntimeUnitOperationBasicExample(t *tes
 		"provision_operation_name":   "tf-test-provision-unit-operation" + randomSuffix,
 		"release_name":               "tf-test-example-release" + randomSuffix,
 		"saas_name":                  "tf-test-example-saas" + randomSuffix,
-		"tenant_name":                "tf-test-example-tenant" + randomSuffix,
 		"tenant_project_name":        "tenant" + randomSuffix,
 		"unit_name":                  "tf-test-example-unit" + randomSuffix,
 		"unitkind_name":              "tf-test-vm-unitkind" + randomSuffix,

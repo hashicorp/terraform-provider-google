@@ -50,8 +50,7 @@ func TestAccBiglakeIcebergIcebergCatalogIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"name": "tf_test_my_iceberg_catalog" + randomSuffix,
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -89,8 +88,7 @@ func TestAccBiglakeIcebergIcebergCatalogIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"name": "tf_test_my_iceberg_catalog" + randomSuffix,
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,8 +124,7 @@ func TestAccBiglakeIcebergIcebergCatalogIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"name": "tf_test_my_iceberg_catalog" + randomSuffix,
+		"name":          "tf_test_my_iceberg_catalog" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -783,7 +783,6 @@ func TestAccRedisCluster_redisClusterCmekExample(t *testing.T) {
 		"cluster_name":                "tf-test-cmek-cluster" + randomSuffix,
 		"deletion_protection_enabled": false,
 		"kms_key_name":                kms.BootstrapKMSKeyInLocation(t, "northamerica-south1").CryptoKey.Name,
-		"kms_ring_name":               "tf-test-my-key-ring" + randomSuffix,
 		"network_name":                "tf-test-my-network" + randomSuffix,
 		"policy_name":                 "tf-test-my-policy" + randomSuffix,
 		"subnet_name":                 "tf-test-my-subnet" + randomSuffix,

@@ -63,7 +63,6 @@ func TestAccIAMWorkforcePoolWorkforcePoolProviderScimToken_iamWorkforcePoolProvi
 		"org_id":            envvar.GetTestOrgFromEnv(t),
 		"provider_id":       "tf-test-example-prvdr" + randomSuffix,
 		"scim_tenant_id":    "tf-test-example-tenant" + randomSuffix,
-		"scim_token_id":     "tf-test-example-scim-token" + randomSuffix,
 		"workforce_pool_id": "tf-test-example-pool" + randomSuffix,
 		"random_suffix":     randomSuffix,
 	}

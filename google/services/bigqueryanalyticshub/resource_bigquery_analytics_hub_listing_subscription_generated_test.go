@@ -63,7 +63,6 @@ func TestAccBigqueryAnalyticsHubListingSubscription_bigqueryAnalyticshubListingS
 
 	context := map[string]interface{}{
 		"data_exchange_id":       "tf_test_my_data_exchange" + randomSuffix,
-		"description":            "example data exchange" + randomSuffix,
 		"destination_dataset_id": "tf_test_destination_dataset" + randomSuffix,
 		"listing_id":             "tf_test_my_listing" + randomSuffix,
 		"random_suffix":          randomSuffix,

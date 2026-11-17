@@ -229,7 +229,6 @@ func TestAccIAMBetaWorkloadIdentityPool_iamWorkloadIdentityPoolFullTrustDomainMo
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                   envvar.GetTestProjectNumberFromEnv(),
 		"workload_identity_pool_id": "tf-test-example-pool" + randomSuffix,
 		"random_suffix":             randomSuffix,
 	}

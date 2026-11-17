@@ -202,7 +202,6 @@ func TestAccRedisInstance_redisInstanceFullWithPersistenceConfigExample(t *testi
 
 	context := map[string]interface{}{
 		"instance_name":   "tf-test-ha-memory-cache-persis" + randomSuffix,
-		"network_name":    compute.BootstrapSharedTestNetwork(t, "redis-full-persis"),
 		"prevent_destroy": false,
 		"random_suffix":   randomSuffix,
 	}

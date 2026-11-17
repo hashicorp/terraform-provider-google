@@ -161,7 +161,6 @@ func TestAccCloudSecurityComplianceFramework_cloudsecuritycomplianceFrameworkPro
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
 		"framework_name": "tf-test-example-framework" + randomSuffix,
 		"random_suffix":  randomSuffix,
 	}

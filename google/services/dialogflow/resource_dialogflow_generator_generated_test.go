@@ -60,7 +60,6 @@ func TestAccDialogflowGenerator_dialogflowGeneratorBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"profile_name":  "tf-test-dialogflow-profile" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

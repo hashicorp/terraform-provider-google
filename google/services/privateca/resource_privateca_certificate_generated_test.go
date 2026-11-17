@@ -60,7 +60,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateConfigExample(t *testing.T)
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":          envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
 		"certificate_name": "tf-test-my-certificate" + randomSuffix,
 		"random_suffix":    randomSuffix,
@@ -201,7 +200,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithTemplateExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                   envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":                "tf-test-my-pool" + randomSuffix,
 		"certificate_name":          "tf-test-my-certificate" + randomSuffix,
 		"certificate_template_name": "tf-test-my-certificate-template" + randomSuffix,
@@ -375,7 +373,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateCsrExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":          envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
 		"certificate_name": "tf-test-my-certificate" + randomSuffix,
 		"random_suffix":    randomSuffix,
@@ -472,7 +469,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateNoAuthorityExample(t *testi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":          envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
 		"certificate_name": "tf-test-my-certificate" + randomSuffix,
 		"random_suffix":    randomSuffix,
@@ -601,7 +597,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateCustomSkiExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":          envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
 		"certificate_name": "tf-test-my-certificate" + randomSuffix,
 		"random_suffix":    randomSuffix,
@@ -733,7 +728,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateSubjectConfigOrgOptionalExa
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":          envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
 		"certificate_name": "tf-test-my-certificate" + randomSuffix,
 		"random_suffix":    randomSuffix,
@@ -854,7 +848,6 @@ func TestAccPrivatecaCertificate_privatecaCertificateWithRequestedNotBeforeTimeE
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":          envvar.GetTestProjectFromEnv(),
 		"ca_pool_id":       "tf-test-my-pool" + randomSuffix,
 		"certificate_name": "tf-test-my-certificate" + randomSuffix,
 		"random_suffix":    randomSuffix,

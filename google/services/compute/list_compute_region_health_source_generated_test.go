@@ -46,10 +46,10 @@ func TestAccComputeRegionHealthSourceListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"description":   "Example health source basic" + randomSuffix,
 		"name":          "tf-test-test-health-source" + randomSuffix,
 		"region":        envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

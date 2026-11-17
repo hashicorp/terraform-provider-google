@@ -47,7 +47,7 @@ func TestAccVertexAIFeatureOnlineStoreListQuery_generated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"name":          "tf_test_example_feature_online_store" + randomSuffix,
-		"region":        "us-central1",
+		"region":        envvar.GetTestRegionFromEnv(),
 		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}

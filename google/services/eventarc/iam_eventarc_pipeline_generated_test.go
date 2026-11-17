@@ -50,8 +50,6 @@ func TestAccEventarcPipelineIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/eventarc.admin",
-		"project_id":    envvar.GetTestProjectFromEnv(),
-
 		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
 		"topic_name":    "tf-test-some-topic" + randomSuffix,
 	}
@@ -91,8 +89,6 @@ func TestAccEventarcPipelineIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/eventarc.admin",
-		"project_id":    envvar.GetTestProjectFromEnv(),
-
 		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
 		"topic_name":    "tf-test-some-topic" + randomSuffix,
 	}
@@ -130,8 +126,6 @@ func TestAccEventarcPipelineIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/eventarc.admin",
-		"project_id":    envvar.GetTestProjectFromEnv(),
-
 		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
 		"topic_name":    "tf-test-some-topic" + randomSuffix,
 	}

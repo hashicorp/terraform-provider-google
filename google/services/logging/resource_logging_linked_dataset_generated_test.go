@@ -61,11 +61,10 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetBasicExample(t *testing.T) 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"bucket_id":       "tf-test-my-bucket" + randomSuffix,
-		"link_id":         "mylink" + randomSuffix,
-		"project":         resourcemanager.BootstrapProject(t, "tf-boot-loglink1-", envvar.GetTestBillingAccountFromEnv(t), []string{"logging.googleapis.com", "bigquery.googleapis.com"}).ProjectId,
-		"random_suffix":   randomSuffix,
+		"bucket_id":     "tf-test-my-bucket" + randomSuffix,
+		"link_id":       "mylink" + randomSuffix,
+		"project":       resourcemanager.BootstrapProject(t, "tf-boot-loglink1-", envvar.GetTestBillingAccountFromEnv(t), []string{"logging.googleapis.com", "bigquery.googleapis.com"}).ProjectId,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -115,11 +114,10 @@ func TestAccLoggingLinkedDataset_loggingLinkedDatasetAllParamsExample(t *testing
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"bucket_id":       "tf-test-my-bucket" + randomSuffix,
-		"link_id":         "mylink" + randomSuffix,
-		"project":         resourcemanager.BootstrapProject(t, "tf-boot-loglink2-", envvar.GetTestBillingAccountFromEnv(t), []string{"logging.googleapis.com", "bigquery.googleapis.com"}).ProjectId,
-		"random_suffix":   randomSuffix,
+		"bucket_id":     "tf-test-my-bucket" + randomSuffix,
+		"link_id":       "mylink" + randomSuffix,
+		"project":       resourcemanager.BootstrapProject(t, "tf-boot-loglink2-", envvar.GetTestBillingAccountFromEnv(t), []string{"logging.googleapis.com", "bigquery.googleapis.com"}).ProjectId,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

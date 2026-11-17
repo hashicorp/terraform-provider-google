@@ -67,7 +67,6 @@ func TestAccSaasRuntimeRelease_saasRuntimeReleaseBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":               envvar.GetTestProjectFromEnv(),
 		"previous_release_name": "tf-test-previous-release" + randomSuffix,
 		"release_name":          "tf-test-example-release" + randomSuffix,
 		"saas_name":             "tf-test-example-saas" + randomSuffix,

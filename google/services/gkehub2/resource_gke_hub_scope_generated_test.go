@@ -60,7 +60,6 @@ func TestAccGKEHub2Scope_gkehubScopeBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"resource_name": "tf-test-my-scope" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

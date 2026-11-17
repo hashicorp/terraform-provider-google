@@ -222,7 +222,6 @@ func TestAccAlloydbInstance_alloydbInstancePscTestExample(t *testing.T) {
 	context := map[string]interface{}{
 		"alloydb_cluster_name":  "tf-test-alloydb-cluster" + randomSuffix,
 		"alloydb_instance_name": "tf-test-alloydb-instance" + randomSuffix,
-		"network_name":          "tf-test-alloydb-network" + randomSuffix,
 		"random_suffix":         randomSuffix,
 	}
 

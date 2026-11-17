@@ -47,9 +47,9 @@ func TestAccComputeCrossSiteNetworkListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"description":   "Example cross site network" + randomSuffix,
 		"name":          "tf-test-test-cross-site-network" + randomSuffix,
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

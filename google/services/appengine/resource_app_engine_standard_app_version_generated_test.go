@@ -64,10 +64,8 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionExample(t *te
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"account_id":    "tf-test-my-account" + randomSuffix,
 		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
-		"project_id":    "tf-test-ae-project" + randomSuffix,
 		"service_name":  "tf-test-ae-service" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -200,7 +198,6 @@ func TestAccAppEngineStandardAppVersion_appEngineStandardAppVersionBundledServic
 
 	context := map[string]interface{}{
 		"bucket_name":   "tf-test-gae-bkt-bundled" + randomSuffix,
-		"project_id":    "tf-test-tf-test-project" + randomSuffix,
 		"sa_email":      "tf-test-gae-sa" + randomSuffix,
 		"service_id":    "tf-test-bundled-service" + randomSuffix,
 		"random_suffix": randomSuffix,

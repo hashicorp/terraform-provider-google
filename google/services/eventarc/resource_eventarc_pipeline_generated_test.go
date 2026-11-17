@@ -65,7 +65,6 @@ func TestAccEventarcPipeline_eventarcPipelineWithTopicDestinationExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
 		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
 		"topic_name":    "tf-test-some-topic" + randomSuffix,
 		"random_suffix": randomSuffix,
@@ -177,7 +176,6 @@ func TestAccEventarcPipeline_eventarcPipelineWithWorkflowDestinationExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
 		"pipeline_name": "tf-test-some-pipeline" + randomSuffix,
 		"workflow_name": "tf-test-some-workflow" + randomSuffix,
 		"random_suffix": randomSuffix,

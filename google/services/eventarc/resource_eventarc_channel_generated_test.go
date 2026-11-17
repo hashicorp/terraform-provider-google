@@ -68,11 +68,10 @@ func TestAccEventarcChannel_eventarcChannelWithCmekExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":        envvar.GetTestProjectFromEnv(),
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"channel_name":   "tf-test-some-channel" + randomSuffix,
-		"key_name":       kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-channel-key").CryptoKey.Name,
-		"random_suffix":  randomSuffix,
+		"project":       envvar.GetTestProjectFromEnv(),
+		"channel_name":  "tf-test-some-channel" + randomSuffix,
+		"key_name":      kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-central1", "tf-bootstrap-eventarc-channel-key").CryptoKey.Name,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

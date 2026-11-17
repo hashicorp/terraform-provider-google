@@ -47,13 +47,11 @@ func TestAccVertexAIFeaturestoreListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"billing_account": envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":          envvar.GetTestOrgFromEnv(t),
-		"kms_key_name":    kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"name":            "tf_test_terraform_featurestore" + randomSuffix,
-		"project":         "tf-test-appeng-flex" + randomSuffix,
-		"region":          "us-central1",
-		"random_suffix":   randomSuffix,
+		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
+		"name":          "tf_test_terraform_featurestore" + randomSuffix,
+		"region":        envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": randomSuffix,
 	}
 
 	var listDisplayName acctest.ListDisplayName

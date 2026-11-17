@@ -63,7 +63,6 @@ func TestAccVertexAIEvaluationMetric_vertexAiEvaluationMetricExample(t *testing.
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":              envvar.GetTestProjectFromEnv(),
 		"evaluation_metric_id": "tf-test-example-metric" + randomSuffix,
 		"random_suffix":        randomSuffix,
 	}
@@ -121,7 +120,6 @@ func TestAccVertexAIEvaluationMetric_vertexAiEvaluationMetricFullExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":              envvar.GetTestProjectFromEnv(),
 		"bucket_name":          "tf-test-eval-metric-test-bucket" + randomSuffix,
 		"evaluation_metric_id": "tf-test-example-metric-full" + randomSuffix,
 		"kms_key_name":         kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,

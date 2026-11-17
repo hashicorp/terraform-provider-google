@@ -61,7 +61,6 @@ func TestAccDNSResponsePolicyRule_dnsResponsePolicyRuleBasicExample(t *testing.T
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"cluster_1_name":            "tf-test-cluster-1" + randomSuffix,
 		"network_1_name":            "tf-test-network-1" + randomSuffix,
 		"network_2_name":            "tf-test-network-2" + randomSuffix,
 		"response_policy_name":      "tf-test-example-response-policy" + randomSuffix,

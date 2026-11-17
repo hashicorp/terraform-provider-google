@@ -49,8 +49,6 @@ func TestAccGKEHub2ScopeIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
 		"resource_name": "tf-test-my-scope" + randomSuffix,
 	}
 
@@ -89,8 +87,6 @@ func TestAccGKEHub2ScopeIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
 		"resource_name": "tf-test-my-scope" + randomSuffix,
 	}
 
@@ -127,8 +123,6 @@ func TestAccGKEHub2ScopeIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
 		"resource_name": "tf-test-my-scope" + randomSuffix,
 	}
 

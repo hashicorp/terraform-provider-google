@@ -61,9 +61,8 @@ func TestAccDataplexEntryLink_dataplexEntryLinkBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_number":  envvar.GetTestProjectNumberFromEnv(),
-		"entry_link_name": "tf_test_entry_link_basic" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -145,9 +144,8 @@ func TestAccDataplexEntryLink_dataplexEntryLinkFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_number":  envvar.GetTestProjectNumberFromEnv(),
-		"entry_link_name": "tf_test_my_entry_link_full" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -242,10 +240,9 @@ func TestAccDataplexEntryLink_dataplexEntryLinkWithAspectExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":      envvar.GetTestProjectFromEnv(),
-		"project_number":  envvar.GetTestProjectNumberFromEnv(),
-		"entry_link_name": "tf_test_my_entry_link_full_with_aspect" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"project_id":     envvar.GetTestProjectFromEnv(),
+		"project_number": envvar.GetTestProjectNumberFromEnv(),
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

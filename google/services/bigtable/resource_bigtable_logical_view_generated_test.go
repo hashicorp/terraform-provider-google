@@ -61,11 +61,10 @@ func TestAccBigtableLogicalView_bigtableLogicalViewExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"deletion_protection": false,
-		"instance_name":       "tf-test-bt-instance" + randomSuffix,
-		"logical_view_name":   "tf-test-bt-logical-view" + randomSuffix,
-		"table_name":          "tf-test-bt-table" + randomSuffix,
-		"random_suffix":       randomSuffix,
+		"instance_name":     "tf-test-bt-instance" + randomSuffix,
+		"logical_view_name": "tf-test-bt-logical-view" + randomSuffix,
+		"table_name":        "tf-test-bt-table" + randomSuffix,
+		"random_suffix":     randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

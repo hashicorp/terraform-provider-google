@@ -48,12 +48,10 @@ func TestAccBiglakeHiveHiveTableIamBindingGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/biglake.editor",
-
+		"random_suffix":      randomSuffix,
+		"role":               "roles/biglake.editor",
 		"bucket_cols":        "[\"bucket_col1\"]",
 		"bucket_name":        "tf-test-example-bucket" + randomSuffix,
-		"col_comment":        "col comment",
 		"columns":            "columns {\n  name    = \"col0\"\n  type    = \"STRING\"\n  comment = \"column that will be deleted on update\"\n}\ncolumns {\n  name    = \"col1\"\n  type    = \"STRING\"\n  comment = \"first skewed column\"\n}\n",
 		"compressed":         true,
 		"description":        "Hive table description",
@@ -98,12 +96,10 @@ func TestAccBiglakeHiveHiveTableIamMemberGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/biglake.editor",
-
+		"random_suffix":      randomSuffix,
+		"role":               "roles/biglake.editor",
 		"bucket_cols":        "[\"bucket_col1\"]",
 		"bucket_name":        "tf-test-example-bucket" + randomSuffix,
-		"col_comment":        "col comment",
 		"columns":            "columns {\n  name    = \"col0\"\n  type    = \"STRING\"\n  comment = \"column that will be deleted on update\"\n}\ncolumns {\n  name    = \"col1\"\n  type    = \"STRING\"\n  comment = \"first skewed column\"\n}\n",
 		"compressed":         true,
 		"description":        "Hive table description",
@@ -146,12 +142,10 @@ func TestAccBiglakeHiveHiveTableIamPolicyGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/biglake.editor",
-
+		"random_suffix":      randomSuffix,
+		"role":               "roles/biglake.editor",
 		"bucket_cols":        "[\"bucket_col1\"]",
 		"bucket_name":        "tf-test-example-bucket" + randomSuffix,
-		"col_comment":        "col comment",
 		"columns":            "columns {\n  name    = \"col0\"\n  type    = \"STRING\"\n  comment = \"column that will be deleted on update\"\n}\ncolumns {\n  name    = \"col1\"\n  type    = \"STRING\"\n  comment = \"first skewed column\"\n}\n",
 		"compressed":         true,
 		"description":        "Hive table description",

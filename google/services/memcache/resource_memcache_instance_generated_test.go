@@ -62,7 +62,6 @@ func TestAccMemcacheInstance_memcacheInstanceBasicTestExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":  "address" + randomSuffix,
 		"instance_name": "tf-test-test-instance" + randomSuffix,
 		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "vpc-network-1"),
 		"random_suffix": randomSuffix,

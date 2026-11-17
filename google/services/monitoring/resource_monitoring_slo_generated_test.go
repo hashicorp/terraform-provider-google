@@ -123,7 +123,6 @@ func TestAccMonitoringSlo_monitoringSloRequestBasedExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"service_id":    "tf-test-custom-srv-request-slos" + randomSuffix,
 		"slo_id":        "tf-test-consumed-api-slo" + randomSuffix,
 		"random_suffix": randomSuffix,
@@ -187,7 +186,6 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedGoodBadMetricFilterExample(t 
 
 	context := map[string]interface{}{
 		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
-		"slo_id":        "tf-test-good-bad-metric-filter" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -247,7 +245,6 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricMeanExample(t *testing.
 
 	context := map[string]interface{}{
 		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
-		"slo_id":        "tf-test-metric-mean-range" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -313,7 +310,6 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedMetricSumExample(t *testing.T
 
 	context := map[string]interface{}{
 		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
-		"slo_id":        "tf-test-metric-sum-range" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -379,7 +375,6 @@ func TestAccMonitoringSlo_monitoringSloWindowsBasedRatioThresholdExample(t *test
 
 	context := map[string]interface{}{
 		"service_id":    "tf-test-custom-srv-windows-slos" + randomSuffix,
-		"slo_id":        "tf-test-ratio-threshold" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

@@ -63,8 +63,6 @@ func TestAccGKEHub2MembershipBinding_gkehubMembershipBindingBasicExample(t *test
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":            envvar.GetTestRegionFromEnv(),
-		"project":             envvar.GetTestProjectFromEnv(),
 		"cluster_name":        "tf-test-basic-cluster" + randomSuffix,
 		"deletion_protection": false,
 		"network_name":        compute.BootstrapSharedTestNetwork(t, "gke-cluster"),

@@ -61,10 +61,9 @@ func TestAccDataplexDataProductDataAsset_dataplexDataProductDataAssetBasicExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"data_asset_id":   "tf-test-data-product-data-asset" + randomSuffix,
-		"data_product_id": "tf-test-data-product" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"data_asset_id": "tf-test-data-product-data-asset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -134,10 +133,9 @@ func TestAccDataplexDataProductDataAsset_dataplexDataProductDataAssetFullExample
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"data_asset_id":   "tf-test-data-product-data-asset" + randomSuffix,
-		"data_product_id": "tf-test-data-product" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"data_asset_id": "tf-test-data-product-data-asset" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

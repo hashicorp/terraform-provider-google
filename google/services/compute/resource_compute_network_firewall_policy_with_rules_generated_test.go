@@ -66,7 +66,6 @@ func TestAccComputeNetworkFirewallPolicyWithRules_computeNetworkFirewallPolicyWi
 		"org_id":                 envvar.GetTestOrgFromEnv(t),
 		"address_group":          "tf-test-address-group" + randomSuffix,
 		"fw_policy":              "tf-test-fw-policy" + randomSuffix,
-		"network":                "tf-test-network" + randomSuffix,
 		"security_profile":       "tf-test-sp" + randomSuffix,
 		"security_profile_group": "tf-test-spg" + randomSuffix,
 		"tag_key":                "tf-test-tag-key" + randomSuffix,

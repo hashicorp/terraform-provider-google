@@ -52,7 +52,6 @@ func TestAccGKEHubMembershipIamBindingGenerated(t *testing.T) {
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"location":      envvar.GetTestRegionFromEnv(),
-		"project":       envvar.GetTestProjectFromEnv(),
 
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,
@@ -96,7 +95,6 @@ func TestAccGKEHubMembershipIamMemberGenerated(t *testing.T) {
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"location":      envvar.GetTestRegionFromEnv(),
-		"project":       envvar.GetTestProjectFromEnv(),
 
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,
@@ -138,7 +136,6 @@ func TestAccGKEHubMembershipIamPolicyGenerated(t *testing.T) {
 		"random_suffix": randomSuffix,
 		"role":          "roles/viewer",
 		"location":      envvar.GetTestRegionFromEnv(),
-		"project":       envvar.GetTestProjectFromEnv(),
 
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,

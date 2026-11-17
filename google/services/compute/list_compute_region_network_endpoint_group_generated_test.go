@@ -49,7 +49,6 @@ func TestAccComputeRegionNetworkEndpointGroupListQuery_generated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
 		"bucket_name":   "tf-test-cloudfunctions-function-example-bucket" + randomSuffix,
-		"function_name": "tf-test-function-neg" + randomSuffix,
 		"neg_name":      "tf-test-function-neg" + randomSuffix,
 		"zip_path":      acctest.CreateZIPArchiveForCloudFunctionSource(t, "./test-fixtures/http_trigger.js"),
 		"region":        envvar.GetTestRegionFromEnv(),
