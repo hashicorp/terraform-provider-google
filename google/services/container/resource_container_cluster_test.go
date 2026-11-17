@@ -5237,6 +5237,40 @@ func TestAccContainerCluster_nodeAutoprovisioningNetworkTags(t *testing.T) {
 	})
 }
 
+// node_pool_auto_config.network_tags also applies to node pools auto-created by
+// ComputeClasses, so it must be settable at creation time on Standard clusters
+// without node auto-provisioning.
+func TestAccContainerCluster_nodePoolAutoConfigNetworkTagsWithoutAutoprovisioning(t *testing.T) {
+	t.Parallel()
+
+	clusterName := fmt.Sprintf("tf-test-cluster-%s", acctest.RandString(t, 10))
+	networkName := tpgcompute.BootstrapSharedTestNetwork(t, "gke-cluster")
+	subnetworkName := tpgcompute.BootstrapSubnetInRegion(t, "gke-cluster", networkName, "us-east1", "10.79.0.0/20")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckContainerClusterDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccContainerCluster_autoprovisioning(clusterName, networkName, subnetworkName, false, true, false),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"cluster_autoscaling.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.with_autoprovisioning",
+						"node_pool_auto_config.0.network_tags.0.tags.0", "test-network-tag"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.with_autoprovisioning",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"min_master_version", "deletion_protection"},
+			},
+		},
+	})
+}
+
 func TestAccContainerCluster_withDefaultComputeClassEnabled(t *testing.T) {
 	t.Parallel()
 
