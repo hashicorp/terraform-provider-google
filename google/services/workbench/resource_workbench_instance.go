@@ -136,6 +136,7 @@ var WorkbenchInstanceProvidedMetadata = []string{
 	"use-collaborative",
 	"user-data",
 	"version",
+	"workbench-jurisdiction",
 
 	"disable-swap-binaries",
 	"enable-guest-attributes",
