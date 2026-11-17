@@ -1,0 +1,3 @@
+```release-note:bug
+ces: fixed diff on new `model_settings` default in `google_ces_app` when omitted from configuration
+```

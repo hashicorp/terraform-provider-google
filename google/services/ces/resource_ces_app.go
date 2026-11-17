@@ -962,6 +962,7 @@ information relevant to the app's details or intended usages.`,
 			},
 			"model_settings": {
 				Type:        schema.TypeList,
+				Computed:    true,
 				Optional:    true,
 				Description: `Model settings contains various configurations for the LLM model.`,
 				MaxItems:    1,
@@ -969,6 +970,7 @@ information relevant to the app's details or intended usages.`,
 					Schema: map[string]*schema.Schema{
 						"model": {
 							Type:     schema.TypeString,
+							Computed: true,
 							Optional: true,
 							Description: `The LLM model that the agent should use.
 If not set, the agent will inherit the model from its parent agent.`,
