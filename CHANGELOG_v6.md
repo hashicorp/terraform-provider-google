@@ -1336,7 +1336,7 @@ IMPROVEMENTS:
 * cloudbuild: added `private_service_connect` field to `google_cloudbuild_worker_pool` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
 * clouddeploy: added `associated_entities` field to `google_clouddeploy_target` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
 * clouddeploy: added `serial_pipeline.strategy.canary.runtime_config.kubernetes.gateway_service_mesh.route_destinations` field to `google_clouddeploy_delivery_pipeline` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
-* cloudidentity: added `create_time` field to `google_cloud_identity_group_membership` data source ([#20354](https://github.com/hashicorp/terraform-provider-google/pull/20354))
+* cloudidentity: added `create_time` field to `google_cloud_identity_group_memberships` data source ([#20354](https://github.com/hashicorp/terraform-provider-google/pull/20354))
 * composer: added multiple composer 3 related fields to `google_composer_environment` ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * compute: `google_compute_instance`, `google_compute_instance_template`, `google_compute_region_instance_template` now supports `advanced_machine_features.enable_uefi_networking` field ([#20531](https://github.com/hashicorp/terraform-provider-google/pull/20531))
 * compute: added `advanced_machine_features.performance_monitoring_unit` field to `google_compute_instance`, `google_compute_instance_template`, and `google_compute_region_instance_template` resources ([#20353](https://github.com/hashicorp/terraform-provider-google/pull/20353))
