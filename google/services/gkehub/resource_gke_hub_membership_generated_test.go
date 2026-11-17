@@ -63,7 +63,6 @@ func TestAccGKEHubMembership_gkehubMembershipRegionalExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"location":        envvar.GetTestRegionFromEnv(),
-		"project":         envvar.GetTestProjectFromEnv(),
 		"cluster_name":    "tf-test-basic-cluster" + randomSuffix,
 		"name":            "basic" + randomSuffix,
 		"network_name":    compute.BootstrapSharedTestNetwork(t, "gke-cluster"),

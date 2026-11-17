@@ -62,11 +62,9 @@ func TestAccLustreInstance_lustreInstanceBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"address_name":    "tf-test-my-ip-address-name" + randomSuffix,
-		"name":            "tf-test-my-instance" + randomSuffix,
-		"network_name":    servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
-		"subnetwork_name": "tf-test-my-subnetwork" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"name":          "tf-test-my-instance" + randomSuffix,
+		"network_name":  servicenetworking.BootstrapSharedServiceNetworkingConnection(t, "default-vpc"),
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

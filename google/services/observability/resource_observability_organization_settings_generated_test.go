@@ -63,7 +63,6 @@ func TestAccObservabilityOrganizationSettings_observabilityOrganizationSettingsB
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us").CryptoKey.Name,
-		"location":      "us" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -129,7 +128,6 @@ func TestAccObservabilityOrganizationSettings_observabilityOrganizationSettingsB
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgFromEnv(t),
-		"location":      "global" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

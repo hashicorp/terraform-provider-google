@@ -46,7 +46,6 @@ func TestAccComputeInterconnectGroupListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"deletion_protection":     false,
 		"interconnect_group_name": "tf-test-example-interconnect-group" + randomSuffix,
 		"project":                 envvar.GetTestProjectFromEnv(),
 		"random_suffix":           randomSuffix,

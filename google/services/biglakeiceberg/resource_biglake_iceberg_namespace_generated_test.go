@@ -61,9 +61,8 @@ func TestAccBiglakeIcebergIcebergNamespace_biglakeIcebergNamespaceExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
-		"bucket_name":            "tf-test-example-bucket" + randomSuffix,
-		"random_suffix":          randomSuffix,
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

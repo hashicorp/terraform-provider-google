@@ -116,7 +116,6 @@ func TestAccChronicleFindingsRefinement_chronicleFindingsRefinementUpdateExample
 		"display_name":            "tf_test_findings_refinement_display_name" + randomSuffix,
 		"outcome_filter_operator": "EQUAL",
 		"outcome_value":           "value1",
-		"outcome_variable":        "risk_score",
 		"query":                   "network.dns.response = true",
 		"random_suffix":           randomSuffix,
 	}
@@ -126,7 +125,6 @@ func TestAccChronicleFindingsRefinement_chronicleFindingsRefinementUpdateExample
 		"display_name":            "tf_test_findings_refinement_display_name" + randomSuffix,
 		"outcome_filter_operator": "CONTAINS",
 		"outcome_value":           "value2",
-		"outcome_variable":        "risk_score",
 		"query":                   "network.dns.response = true",
 		"random_suffix":           randomSuffix,
 	}

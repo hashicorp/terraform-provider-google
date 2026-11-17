@@ -46,9 +46,9 @@ func TestAccCloudRunServiceListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"location":               envvar.GetTestRegionFromEnv(),
+		"project":                envvar.GetTestProjectFromEnv(),
 		"random_suffix":          randomSuffix,
 	}
 

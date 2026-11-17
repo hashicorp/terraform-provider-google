@@ -48,6 +48,7 @@ func TestAccGkeonpremBareMetalAdminClusterListQuery_generated(t *testing.T) {
 	context := map[string]interface{}{
 		"name":          "tf-test-my-cluster" + randomSuffix,
 		"location":      envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

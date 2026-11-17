@@ -63,8 +63,6 @@ func TestAccManagedKafkaConnector_managedkafkaConnectorBasicExample(t *testing.T
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account":     envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":              envvar.GetTestOrgFromEnv(t),
 		"cluster_id":          "tf-test-my-cluster" + randomSuffix,
 		"connect_cluster_id":  "tf-test-my-connect-cluster" + randomSuffix,
 		"connector_id":        "tf-test-my-connector" + randomSuffix,

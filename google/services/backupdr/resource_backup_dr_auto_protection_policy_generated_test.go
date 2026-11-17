@@ -151,7 +151,6 @@ func TestAccBackupDRAutoProtectionPolicy_backupDrAutoProtectionPolicyUpdateExamp
 	context := map[string]interface{}{
 		"auto_protection_policy_id": "tf-test-app-update" + randomSuffix,
 		"backup_vault_id":           "tf-test-bv-app-update" + randomSuffix,
-		"disk_backup_plan_id":       "tf-test-bp-app-update-disk" + randomSuffix,
 		"instance_backup_plan_id":   "tf-test-bp-app-update-vm" + randomSuffix,
 		"random_suffix":             randomSuffix,
 	}

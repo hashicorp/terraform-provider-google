@@ -48,7 +48,6 @@ func TestAccDiscoveryEngineAssistantListQuery_generated(t *testing.T) {
 	context := map[string]interface{}{
 		"data_store_id": "tf-test-example-data-store-id" + randomSuffix,
 		"engine_id":     "tf-test-example-engine-id" + randomSuffix,
-		"template_id":   "tf-test-example-template-id" + randomSuffix,
 		"location":      envvar.GetTestRegionFromEnv(),
 		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,

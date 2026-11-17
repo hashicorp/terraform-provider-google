@@ -47,10 +47,8 @@ func TestAccCloudRunServiceIamBindingGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
+		"random_suffix":          randomSuffix,
+		"role":                   "roles/viewer",
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 	}
 
@@ -87,10 +85,8 @@ func TestAccCloudRunServiceIamMemberGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
+		"random_suffix":          randomSuffix,
+		"role":                   "roles/viewer",
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 	}
 
@@ -125,10 +121,8 @@ func TestAccCloudRunServiceIamPolicyGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
-		"role":          "roles/viewer",
-		"project":       envvar.GetTestProjectFromEnv(),
-
+		"random_suffix":          randomSuffix,
+		"role":                   "roles/viewer",
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 	}
 

@@ -555,8 +555,6 @@ func TestAccBigQueryRoutine_bigqueryRoutineDataGovernanceTypeExample(t *testing.
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"dataset_id":    "tf_test_dataset_id" + randomSuffix,
-		"routine_id":    "tf_test_routine_id" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

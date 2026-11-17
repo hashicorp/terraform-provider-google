@@ -75,8 +75,6 @@ func TestAccOSConfigV2PolicyOrchestrator_osconfigv2PolicyOrchestratorBasicExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                  envvar.GetTestProjectFromEnv(),
-		"project_number":           envvar.GetTestProjectNumberFromEnv(),
 		"orchestrated_resource_id": "tf-test-test-orchestrated-resource" + randomSuffix,
 		"os_policy_id":             "tf-test-test-os-policy" + randomSuffix,
 		"policy_orchestrator_id":   "po" + randomSuffix,

@@ -62,7 +62,6 @@ func TestAccBackupDRBackupVault_backupDrBackupVaultSimpleExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":         envvar.GetTestProjectFromEnv(),
 		"backup_vault_id": "tf-test-backup-vault-test" + randomSuffix,
 		"random_suffix":   randomSuffix,
 	}

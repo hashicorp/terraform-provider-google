@@ -61,8 +61,6 @@ func TestAccHealthcareDataset_healthcareDatasetBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"dataset_name":  "tf-test-example-dataset" + randomSuffix,
-		"location":      "tf-test-us-central1" + randomSuffix,
-		"time_zone":     "tf_test_America/New_York" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

@@ -50,8 +50,7 @@ func TestAccBiglakeHiveHiveCatalogIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"name": "tf_test_my_hive_catalog" + randomSuffix,
+		"name":          "tf_test_my_hive_catalog" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -89,8 +88,7 @@ func TestAccBiglakeHiveHiveCatalogIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"name": "tf_test_my_hive_catalog" + randomSuffix,
+		"name":          "tf_test_my_hive_catalog" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,8 +124,7 @@ func TestAccBiglakeHiveHiveCatalogIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"name": "tf_test_my_hive_catalog" + randomSuffix,
+		"name":          "tf_test_my_hive_catalog" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

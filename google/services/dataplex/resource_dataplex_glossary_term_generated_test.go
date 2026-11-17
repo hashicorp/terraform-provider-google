@@ -60,7 +60,6 @@ func TestAccDataplexGlossaryTerm_dataplexGlossaryTermBasicExample(t *testing.T) 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"term_name":     "tf-test-term-basic" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -110,7 +109,6 @@ func TestAccDataplexGlossaryTerm_dataplexGlossaryTermFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"term_name":     "tf-test-term-full" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

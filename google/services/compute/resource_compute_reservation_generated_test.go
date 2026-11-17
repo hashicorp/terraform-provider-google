@@ -275,7 +275,6 @@ func TestAccComputeReservation_sharedReservationBasicExample(t *testing.T) {
 	context := map[string]interface{}{
 		"billing_account":  envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":           envvar.GetTestOrgFromEnv(t),
-		"project":          envvar.GetTestProjectFromEnv(),
 		"reservation_name": "tf-test-gce-shared-reservation" + randomSuffix,
 		"random_suffix":    randomSuffix,
 	}

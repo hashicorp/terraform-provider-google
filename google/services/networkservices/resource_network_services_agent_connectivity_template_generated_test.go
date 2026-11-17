@@ -65,13 +65,11 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                        envvar.GetTestProjectFromEnv(),
 		"agent_connectivity_template_id": "tf-test-my-connectivity-template" + randomSuffix,
 		"random_suffix":                  randomSuffix,
 	}
 
 	context_1 := map[string]interface{}{
-		"project":                        envvar.GetTestProjectFromEnv(),
 		"agent_connectivity_template_id": "tf-test-my-connectivity-template" + randomSuffix,
 		"random_suffix":                  randomSuffix,
 	}
@@ -166,7 +164,6 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                        envvar.GetTestProjectFromEnv(),
 		"agent_connectivity_template_id": "tf-test-my-connectivity-template" + randomSuffix,
 		"dns_zone_name":                  "tf-test-my-zone" + randomSuffix,
 		"network_attachment_name":        "tf-test-my-attachment" + randomSuffix,
@@ -177,7 +174,6 @@ func TestAccNetworkServicesAgentConnectivityTemplate_networkServicesAgentConnect
 	}
 
 	context_1 := map[string]interface{}{
-		"project":                        envvar.GetTestProjectFromEnv(),
 		"agent_connectivity_template_id": "tf-test-my-connectivity-template" + randomSuffix,
 		"dns_zone_name":                  "tf-test-my-zone" + randomSuffix,
 		"network_attachment_name":        "tf-test-my-attachment" + randomSuffix,

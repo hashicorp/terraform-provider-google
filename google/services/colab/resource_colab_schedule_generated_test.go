@@ -66,7 +66,6 @@ func TestAccColabSchedule_colabScheduleBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"location":              envvar.GetTestRegionFromEnv(),
-		"project_id":            envvar.GetTestProjectFromEnv(),
 		"service_account":       envvar.GetTestServiceAccountFromEnv(t),
 		"bucket":                "tf_test_my_bucket" + randomSuffix,
 		"display_name":          "tf-test-basic-schedule" + randomSuffix,
@@ -197,7 +196,6 @@ func TestAccColabSchedule_colabSchedulePausedExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"location":              envvar.GetTestRegionFromEnv(),
-		"project_id":            envvar.GetTestProjectFromEnv(),
 		"service_account":       envvar.GetTestServiceAccountFromEnv(t),
 		"bucket":                "tf_test_my_bucket" + randomSuffix,
 		"display_name":          "tf-test-paused-schedule" + randomSuffix,
@@ -329,8 +327,6 @@ func TestAccColabSchedule_colabScheduleNotebookFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"location":                 envvar.GetTestRegionFromEnv(),
-		"project_id":               envvar.GetTestProjectFromEnv(),
 		"service_account":          envvar.GetTestServiceAccountFromEnv(t),
 		"bucket":                   "tf_test_my_bucket" + randomSuffix,
 		"cron":                     "*/5 * * * *",

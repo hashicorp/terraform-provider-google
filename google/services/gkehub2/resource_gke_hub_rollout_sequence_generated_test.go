@@ -248,12 +248,9 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredExample(t *
 		"billing_acct":        envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":              envvar.GetTestOrgFromEnv(t),
 		"cluster_name":        "tf-test-rs-cluster" + randomSuffix,
-		"membership_id":       "tf-test-rs-membership" + randomSuffix,
 		"min_node_version":    nil,
-		"network_name":        "tf-test-rs-network" + randomSuffix,
 		"project_id":          "tf-test-rs-project" + randomSuffix,
 		"rollout_sequence_id": "tf-test-rs-user-triggered" + randomSuffix,
-		"subnetwork_name":     "tf-test-rs-subnet" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
 
@@ -261,12 +258,9 @@ func TestAccGKEHub2RolloutSequence_gkeHubRolloutSequenceUserTriggeredExample(t *
 		"billing_acct":        envvar.GetTestBillingAccountFromEnv(t),
 		"org_id":              envvar.GetTestOrgFromEnv(t),
 		"cluster_name":        "tf-test-rs-cluster" + randomSuffix,
-		"membership_id":       "tf-test-rs-membership" + randomSuffix,
 		"min_node_version":    "data.google_container_engine_versions.versions.release_channel_latest_version[\"REGULAR\"]",
-		"network_name":        "tf-test-rs-network" + randomSuffix,
 		"project_id":          "tf-test-rs-project" + randomSuffix,
 		"rollout_sequence_id": "tf-test-rs-user-triggered" + randomSuffix,
-		"subnetwork_name":     "tf-test-rs-subnet" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
 

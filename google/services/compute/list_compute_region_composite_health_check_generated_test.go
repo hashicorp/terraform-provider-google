@@ -46,10 +46,9 @@ func TestAccComputeRegionCompositeHealthCheckListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
-		"description":   "Example composite health check basic" + randomSuffix,
 		"name":          "tf-test-test-composite-health-check" + randomSuffix,
 		"region":        envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

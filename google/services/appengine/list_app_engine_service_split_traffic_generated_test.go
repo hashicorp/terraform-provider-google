@@ -47,13 +47,10 @@ func TestAccAppEngineServiceSplitTrafficListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"org_id":               envvar.GetTestOrgFromEnv(t),
-		"bucket_name":          "tf-test-appengine-static-content" + randomSuffix,
-		"service_id":           "default" + randomSuffix,
-		"service_name":         "tf-test-liveapp" + randomSuffix,
-		"split.allocations.v1": "1" + randomSuffix,
-		"project":              envvar.GetTestProjectFromEnv(),
-		"random_suffix":        randomSuffix,
+		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
+		"service_name":  "tf-test-liveapp" + randomSuffix,
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": randomSuffix,
 	}
 
 	var listDisplayName acctest.ListDisplayName

@@ -239,19 +239,18 @@ func TestAccComputeGlobalForwardingRule_globalForwardingRuleHybridExample(t *tes
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"default_backend_service_name":  "tf-test-backend-default" + randomSuffix,
-		"default_neg_name":              "tf-test-default-neg" + randomSuffix,
-		"forwarding_rule_name":          "tf-test-global-rule" + randomSuffix,
-		"health_check_name":             "tf-test-health-check" + randomSuffix,
-		"http_proxy_name":               "tf-test-target-proxy" + randomSuffix,
-		"hybrid_backend_service_name":   "tf-test-backend-hybrid" + randomSuffix,
-		"hybrid_neg_name":               "tf-test-hybrid-neg" + randomSuffix,
-		"internal_backend_service_name": "tf-test-backend-internal" + randomSuffix,
-		"internal_neg_name":             "tf-test-internal-neg" + randomSuffix,
-		"internal_network_name":         "tf-test-my-internal-network" + randomSuffix,
-		"network_name":                  "tf-test-my-network" + randomSuffix,
-		"subnetwork_name":               "tf-test-my-subnetwork" + randomSuffix,
-		"random_suffix":                 randomSuffix,
+		"default_backend_service_name": "tf-test-backend-default" + randomSuffix,
+		"default_neg_name":             "tf-test-default-neg" + randomSuffix,
+		"forwarding_rule_name":         "tf-test-global-rule" + randomSuffix,
+		"health_check_name":            "tf-test-health-check" + randomSuffix,
+		"http_proxy_name":              "tf-test-target-proxy" + randomSuffix,
+		"hybrid_backend_service_name":  "tf-test-backend-hybrid" + randomSuffix,
+		"hybrid_neg_name":              "tf-test-hybrid-neg" + randomSuffix,
+		"internal_neg_name":            "tf-test-internal-neg" + randomSuffix,
+		"internal_network_name":        "tf-test-my-internal-network" + randomSuffix,
+		"network_name":                 "tf-test-my-network" + randomSuffix,
+		"subnetwork_name":              "tf-test-my-subnetwork" + randomSuffix,
+		"random_suffix":                randomSuffix,
 	}
 
 	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/forwardingRules", "2026-11-01")

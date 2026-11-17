@@ -62,7 +62,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBasicExample(t *testing.T)
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -134,7 +133,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitExample(t 
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -211,7 +209,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerBigqueryRowLimitPercentage
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -288,7 +285,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerPublishToDataplexCatalogEx
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -358,7 +354,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerSccOutputExample(t *testin
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -691,7 +686,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerInspectExample(t *testing.
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -956,7 +950,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerMultipleActionsExample(t *
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -1036,7 +1029,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerCloudStorageOptionalTimesp
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -1112,7 +1104,6 @@ func TestAccDataLossPreventionJobTrigger_dlpJobTriggerTimespanConfigBigQueryExam
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"trigger":       "trigger" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

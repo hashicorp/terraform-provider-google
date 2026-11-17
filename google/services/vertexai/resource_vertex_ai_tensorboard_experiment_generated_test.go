@@ -64,7 +64,6 @@ func TestAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentExample(t
 		"description":             nil,
 		"display_name":            "sample experiment",
 		"labels":                  "{ \"key\" : \"value\" }",
-		"tensorboard":             "tf-test-tensorboard" + randomSuffix,
 		"tensorboardExperimentId": "tf-test-experiment" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}
@@ -73,7 +72,6 @@ func TestAccVertexAITensorboardExperiment_vertexAiTensorboardExperimentExample(t
 		"description":             "updated description",
 		"display_name":            "sample experiment updated",
 		"labels":                  "{ \"key\" : \"value-updated\", \"new-key\" : \"new-value\" }",
-		"tensorboard":             "tf-test-tensorboard" + randomSuffix,
 		"tensorboardExperimentId": "tf-test-experiment" + randomSuffix,
 		"random_suffix":           randomSuffix,
 	}

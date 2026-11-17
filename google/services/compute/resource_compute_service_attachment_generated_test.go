@@ -571,8 +571,6 @@ func TestAccComputeServiceAttachment_serviceAttachmentReconcileConnectionsExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"consumer_address_name":         "tf-test-psc-ilb-consumer-address" + randomSuffix,
-		"consumer_forwarding_rule_name": "tf-test-psc-ilb-consumer-forwarding-rule" + randomSuffix,
 		"nat_subnetwork_name":           "tf-test-psc-ilb-nat" + randomSuffix,
 		"network_name":                  "tf-test-psc-ilb-network" + randomSuffix,
 		"producer_forwarding_rule_name": "tf-test-producer-forwarding-rule" + randomSuffix,

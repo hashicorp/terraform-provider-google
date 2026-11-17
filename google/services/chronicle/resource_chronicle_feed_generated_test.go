@@ -118,12 +118,10 @@ func TestAccChronicleFeed_chronicleFeedGcsExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"chronicle_id":   envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"project_name":   envvar.GetTestProjectFromEnv(),
-		"project_number": envvar.GetTestProjectNumberFromEnv(),
-		"description":    "tf-test-test-feeds-description" + randomSuffix,
-		"resource_name":  "tf-test-test-feeds" + randomSuffix,
-		"random_suffix":  randomSuffix,
+		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
+		"project_name":  envvar.GetTestProjectFromEnv(),
+		"resource_name": "tf-test-test-feeds" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -238,7 +236,6 @@ func TestAccChronicleFeed_chronicleFeedHttpsPushExample(t *testing.T) {
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
 		"project_name":  envvar.GetTestProjectFromEnv(),
-		"description":   "tf-test-test-feeds-description" + randomSuffix,
 		"resource_name": "tf-test-test-feeds" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

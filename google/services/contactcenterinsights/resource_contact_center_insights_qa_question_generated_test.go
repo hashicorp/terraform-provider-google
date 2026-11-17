@@ -60,7 +60,6 @@ func TestAccContactCenterInsightsQaQuestion_contactCenterInsightsQaQuestionBasic
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"revision_id":   "tf-test-qa-revision" + randomSuffix,
 		"scorecard_id":  "tf-test-qa-scorecard" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

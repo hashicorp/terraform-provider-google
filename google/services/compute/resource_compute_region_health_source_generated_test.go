@@ -60,7 +60,6 @@ func TestAccComputeRegionHealthSource_computeRegionHealthSourceBasicExample(t *t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"description":   "Example health source basic" + randomSuffix,
 		"name":          "tf-test-test-health-source" + randomSuffix,
 		"random_suffix": randomSuffix,

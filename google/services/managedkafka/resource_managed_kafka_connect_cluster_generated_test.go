@@ -62,8 +62,6 @@ func TestAccManagedKafkaConnectCluster_managedkafkaConnectClusterBasicExample(t 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account":     envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":              envvar.GetTestOrgFromEnv(t),
 		"cluster_id":          "tf-test-my-cluster" + randomSuffix,
 		"connect_cluster_id":  "tf-test-my-connect-cluster" + randomSuffix,
 		"secondary_subnet_id": "tf-test-my-secondary-subnetwork" + randomSuffix,

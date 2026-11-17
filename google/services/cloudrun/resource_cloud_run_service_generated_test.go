@@ -63,7 +63,6 @@ func TestAccCloudRunService_cloudRunServiceBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
@@ -120,7 +119,6 @@ func TestAccCloudRunService_cloudRunServiceGpuExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
@@ -266,7 +264,6 @@ func TestAccCloudRunService_cloudRunServiceNoauthExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
@@ -336,7 +333,6 @@ func TestAccCloudRunService_cloudRunServiceMultipleEnvironmentVariablesExample(t
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
@@ -414,7 +410,6 @@ func TestAccCloudRunService_cloudRunServiceSecretEnvironmentVariablesExample(t *
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"secret_id":              "secret" + randomSuffix,
 		"random_suffix":          randomSuffix,
@@ -518,7 +513,6 @@ func TestAccCloudRunService_cloudRunServiceSecretVolumesExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"secret_id":              "secret" + randomSuffix,
 		"random_suffix":          randomSuffix,
@@ -705,7 +699,6 @@ func TestAccCloudRunService_cloudRunServiceReadinessProbeExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv-rp" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
@@ -777,7 +770,6 @@ func TestAccCloudRunService_cloudRunServiceIapExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}
@@ -835,7 +827,6 @@ func TestAccCloudRunService_cloudRunServiceSandboxExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":                envvar.GetTestProjectFromEnv(),
 		"cloud_run_service_name": "tf-test-cloudrun-srv" + randomSuffix,
 		"random_suffix":          randomSuffix,
 	}

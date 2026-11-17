@@ -62,7 +62,6 @@ func TestAccDataplexEntry_dataplexEntryBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"project_number":   envvar.GetTestProjectNumberFromEnv(),
-		"aspect_type_name": "tf-test-aspect-type-basic" + randomSuffix,
 		"entry_group_name": "tf-test-entry-group-basic" + randomSuffix,
 		"entry_id":         "tf-test-entry-basic" + randomSuffix,
 		"entry_type_name":  "tf-test-entry-type-basic" + randomSuffix,

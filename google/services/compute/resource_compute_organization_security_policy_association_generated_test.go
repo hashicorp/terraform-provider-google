@@ -62,7 +62,6 @@ func TestAccComputeOrganizationSecurityPolicyAssociation_organizationSecurityPol
 
 	context := map[string]interface{}{
 		"org_id":        envvar.GetTestOrgTargetFromEnv(t),
-		"short_name":    "tf-test-my-short-name" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

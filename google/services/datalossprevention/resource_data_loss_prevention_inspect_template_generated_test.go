@@ -61,7 +61,6 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateBasicExample(t *
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"template":      "temp" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 
@@ -205,7 +204,6 @@ func TestAccDataLossPreventionInspectTemplate_dlpInspectTemplateCustomTypeExampl
 
 	context := map[string]interface{}{
 		"project":       envvar.GetTestProjectFromEnv(),
-		"template":      "temp" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

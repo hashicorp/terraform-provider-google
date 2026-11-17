@@ -46,10 +46,10 @@ func TestAccVertexAIOnlineEvaluatorListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":        envvar.GetTestProjectFromEnv(),
 		"engine_name":    "tf-test-reasoning-engine" + randomSuffix,
 		"evaluator_name": "tf-test-online-evaluator" + randomSuffix,
 		"region":         envvar.GetTestRegionFromEnv(),
+		"project":        envvar.GetTestProjectFromEnv(),
 		"random_suffix":  randomSuffix,
 	}
 

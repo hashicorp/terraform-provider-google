@@ -67,7 +67,6 @@ func TestAccSaasRuntimeUnit_saasRuntimeUnitBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"saas_name":     "tf-test-example-saas" + randomSuffix,
 		"unit_name":     "tf-test-example-unit" + randomSuffix,
 		"unitkind_name": "tf-test-example-unitkind" + randomSuffix,

@@ -334,10 +334,9 @@ func TestAccFirestoreDatabase_firestoreDatabaseEnterpriseExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":              envvar.GetTestProjectFromEnv(),
-		"database_id":             "tf-test-database-id" + randomSuffix,
-		"delete_protection_state": "tf_test_DELETE_PROTECTION_ENABLED" + randomSuffix,
-		"random_suffix":           randomSuffix,
+		"project_id":    envvar.GetTestProjectFromEnv(),
+		"database_id":   "tf-test-database-id" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

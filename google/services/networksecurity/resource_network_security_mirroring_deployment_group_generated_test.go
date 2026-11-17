@@ -63,7 +63,6 @@ func TestAccNetworkSecurityMirroringDeploymentGroup_networkSecurityMirroringDepl
 	context := map[string]interface{}{
 		"deployment_group_id": "tf-test-example-dg" + randomSuffix,
 		"network_name":        "tf-test-example-network" + randomSuffix,
-		"subnetwork_name":     "tf-test-example-subnet" + randomSuffix,
 		"random_suffix":       randomSuffix,
 	}
 

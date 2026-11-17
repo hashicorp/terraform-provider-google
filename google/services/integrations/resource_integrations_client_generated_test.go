@@ -110,9 +110,8 @@ func TestAccIntegrationsClient_integrationsClientFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"crypto_key_name": "tftest-shared-key-1",
-		"key_ring_name":   "tftest-shared-keyring-1",
-		"kms_key":         kms.BootstrapKMSKeyInLocation(t, "us-east1"),
+		"crypto_key_name": tpgresource.GetResourceNameFromSelfLink(kms.BootstrapKMSKeyInLocation(t, "us-east1").CryptoKey.Name),
+		"key_ring_name":   kms.SharedKeyRing,
 		"random_suffix":   randomSuffix,
 	}
 

@@ -60,7 +60,6 @@ func TestAccVertexAIOnlineEvaluator_vertexAiOnlineEvaluatorBasicExample(t *testi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":        envvar.GetTestProjectFromEnv(),
 		"engine_name":    "tf-test-reasoning-engine" + randomSuffix,
 		"evaluator_name": "tf-test-online-evaluator" + randomSuffix,
 		"random_suffix":  randomSuffix,
@@ -150,7 +149,6 @@ func TestAccVertexAIOnlineEvaluator_vertexAiOnlineEvaluatorFullExample(t *testin
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project":        envvar.GetTestProjectFromEnv(),
 		"engine_name":    "tf-test-reasoning-engine" + randomSuffix,
 		"evaluator_name": "tf-test-online-evaluator" + randomSuffix,
 		"metric_name":    "tf-test-eval-metric" + randomSuffix,

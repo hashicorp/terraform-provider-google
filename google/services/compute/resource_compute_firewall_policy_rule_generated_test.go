@@ -179,9 +179,6 @@ func TestAccComputeFirewallPolicyRule_firewallPolicyRuleNetworkContextExample(t 
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 		"folder":        "folder" + randomSuffix,
 		"fw_policy":     "tf-test-fw-policy" + randomSuffix,
-		"network":       "tf-test-network" + randomSuffix,
-		"tag_key":       "tf-test-tag-key" + randomSuffix,
-		"tag_value":     "tf-test-tag-value" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

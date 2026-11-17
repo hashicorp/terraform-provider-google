@@ -60,7 +60,6 @@ func TestAccComputeNetworkEdgeSecurityService_computeNetworkEdgeSecurityServiceB
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_id":    envvar.GetTestProjectFromEnv(),
 		"region":        "us-east1",
 		"resource_name": "tf-test-my-edge-security-service" + randomSuffix,
 		"random_suffix": randomSuffix,

@@ -48,11 +48,9 @@ func TestAccBiglakeIcebergIcebergNamespaceIamBindingGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix":          randomSuffix,
-		"role":                   "roles/biglake.editor",
-		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
-
-		"bucket_name": "tf-test-example-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
+		"role":          "roles/biglake.editor",
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -88,11 +86,9 @@ func TestAccBiglakeIcebergIcebergNamespaceIamMemberGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix":          randomSuffix,
-		"role":                   "roles/biglake.editor",
-		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
-
-		"bucket_name": "tf-test-example-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
+		"role":          "roles/biglake.editor",
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -126,11 +122,9 @@ func TestAccBiglakeIcebergIcebergNamespaceIamPolicyGenerated(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix":          randomSuffix,
-		"role":                   "roles/biglake.editor",
-		"GOOGLE_BILLING_PROJECT": envvar.GetTestProjectFromEnv(),
-
-		"bucket_name": "tf-test-example-bucket" + randomSuffix,
+		"random_suffix": randomSuffix,
+		"role":          "roles/biglake.editor",
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

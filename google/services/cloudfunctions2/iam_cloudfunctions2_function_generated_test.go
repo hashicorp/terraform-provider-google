@@ -54,7 +54,6 @@ func TestAccCloudfunctions2functionIamBindingGenerated(t *testing.T) {
 
 		"bucket_name": "tf-test-gcf-source" + randomSuffix,
 		"function":    "tf-test-function-v2" + randomSuffix,
-		"location":    "us-central1",
 		"zip_path":    "./test-fixtures/function-source.zip",
 	}
 
@@ -97,7 +96,6 @@ func TestAccCloudfunctions2functionIamMemberGenerated(t *testing.T) {
 
 		"bucket_name": "tf-test-gcf-source" + randomSuffix,
 		"function":    "tf-test-function-v2" + randomSuffix,
-		"location":    "us-central1",
 		"zip_path":    "./test-fixtures/function-source.zip",
 	}
 
@@ -138,7 +136,6 @@ func TestAccCloudfunctions2functionIamPolicyGenerated(t *testing.T) {
 
 		"bucket_name": "tf-test-gcf-source" + randomSuffix,
 		"function":    "tf-test-function-v2" + randomSuffix,
-		"location":    "us-central1",
 		"zip_path":    "./test-fixtures/function-source.zip",
 	}
 

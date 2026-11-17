@@ -62,9 +62,7 @@ func TestAccNetworkConnectivityTransport_networkConnectivityTransportBasicExampl
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"network_name":   "tf-test-my-vpc-network" + randomSuffix,
-		"transport_name": "tf-test-basic-transport" + randomSuffix,
-		"random_suffix":  randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

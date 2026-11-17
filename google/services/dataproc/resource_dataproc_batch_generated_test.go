@@ -64,8 +64,6 @@ func TestAccDataprocBatch_dataprocBatchSparkExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-spark-test-network", "dataproc-spark-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}
@@ -129,12 +127,10 @@ func TestAccDataprocBatch_dataprocBatchSparkFullExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"bucket_name":     "tf-test-dataproc-bucket" + randomSuffix,
-		"dataproc_batch":  "tf-test-dataproc-batch" + randomSuffix,
-		"kms_key_name":    kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
-		"prevent_destroy": false,
-		"random_suffix":   randomSuffix,
+		"bucket_name":    "tf-test-dataproc-bucket" + randomSuffix,
+		"dataproc_batch": "tf-test-dataproc-batch" + randomSuffix,
+		"kms_key_name":   kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us-east1", "tf-bootstrap-dataproc-batch-key1").CryptoKey.Name,
+		"random_suffix":  randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -279,8 +275,6 @@ func TestAccDataprocBatch_dataprocBatchSparksqlExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-sparksql-test-network", "dataproc-sparksql-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}
@@ -343,8 +337,6 @@ func TestAccDataprocBatch_dataprocBatchPysparkExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-pyspark-test-network", "dataproc-pyspark-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}
@@ -411,8 +403,6 @@ func TestAccDataprocBatch_dataprocBatchSparkrExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-pyspark-test-network", "dataproc-pyspark-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}
@@ -475,8 +465,6 @@ func TestAccDataprocBatch_dataprocBatchAutotuningExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"project_name":    envvar.GetTestProjectFromEnv(),
-		"prevent_destroy": false,
 		"subnetwork_name": BootstrapSubnetWithFirewallForDataprocBatches(t, "dataproc-autotuning-test-network", "dataproc-autotuning-test-subnetwork"),
 		"random_suffix":   randomSuffix,
 	}

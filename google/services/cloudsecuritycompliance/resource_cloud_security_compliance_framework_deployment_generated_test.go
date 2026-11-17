@@ -606,7 +606,6 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":            envvar.GetTestOrgFromEnv(t),
 		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
 		"deployment_name":   "tf-test-example-deployment" + randomSuffix,
 		"framework_name":    "tf-test-example-framework" + randomSuffix,
@@ -614,7 +613,6 @@ func TestAccCloudSecurityComplianceFrameworkDeployment_cloudsecuritycomplianceFr
 	}
 
 	context_1 := map[string]interface{}{
-		"org_id":            envvar.GetTestOrgFromEnv(t),
 		"cloudcontrol_name": "tf-test-example-cloudcontrol" + randomSuffix,
 		"deployment_name":   "tf-test-example-deployment" + randomSuffix,
 		"framework_name":    "tf-test-example-framework" + randomSuffix,

@@ -178,10 +178,6 @@ func TestAccDatastreamPrivateConnection_datastreamPrivateConnectionPscInterfaceE
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"billing_account":         envvar.GetTestBillingAccountFromEnv(t),
-		"org_id":                  envvar.GetTestOrgFromEnv(t),
-		"project":                 envvar.GetTestProjectFromEnv(),
-		"project_number":          envvar.GetTestProjectNumberFromEnv(),
 		"network_attachment_name": "tf-test-my-network-attachment" + randomSuffix,
 		"network_name":            "tf-test-my-network" + randomSuffix,
 		"private_connection_id":   "tf-test-my-connection" + randomSuffix,

@@ -217,12 +217,7 @@ func TestAccNetworkConnectivitySpoke_networkConnectivitySpokeRouterApplianceBasi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"hub_name":        "tf-test-basic-hub1" + randomSuffix,
-		"instance_name":   "tf-test-basic-instance" + randomSuffix,
-		"network_name":    "tf-test-basic-network" + randomSuffix,
-		"spoke_name":      "tf-test-basic-spoke" + randomSuffix,
-		"subnetwork_name": "tf-test-basic-subnetwork" + randomSuffix,
-		"random_suffix":   randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

@@ -61,7 +61,6 @@ func TestAccChronicleBigQueryExport_chronicleBigqueryExportBasicExample(t *testi
 
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"project_name":  envvar.GetTestProjectFromEnv(),
 		"location":      "us",
 		"random_suffix": randomSuffix,
 	}
@@ -110,7 +109,6 @@ func TestAccChronicleBigQueryExport_chronicleBigqueryExportFullExample(t *testin
 
 	context := map[string]interface{}{
 		"chronicle_id":  envvar.GetTestChronicleInstanceIdFromEnv(t),
-		"project_name":  envvar.GetTestProjectFromEnv(),
 		"location":      "us",
 		"random_suffix": randomSuffix,
 	}

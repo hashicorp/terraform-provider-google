@@ -52,7 +52,6 @@ func TestAccIapAgentRegistryAgentIamBindingGenerated(t *testing.T) {
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -100,7 +99,6 @@ func TestAccIapAgentRegistryAgentIamMemberGenerated(t *testing.T) {
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -146,7 +144,6 @@ func TestAccIapAgentRegistryAgentIamPolicyGenerated(t *testing.T) {
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -194,7 +191,6 @@ func TestAccIapAgentRegistryAgentIamBindingGenerated_withCondition(t *testing.T)
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -234,7 +230,6 @@ func TestAccIapAgentRegistryAgentIamBindingGenerated_withAndWithoutCondition(t *
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -284,7 +279,6 @@ func TestAccIapAgentRegistryAgentIamMemberGenerated_withCondition(t *testing.T) 
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -324,7 +318,6 @@ func TestAccIapAgentRegistryAgentIamMemberGenerated_withAndWithoutCondition(t *t
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",
@@ -374,7 +367,6 @@ func TestAccIapAgentRegistryAgentIamPolicyGenerated_withCondition(t *testing.T) 
 		"role":          "roles/iap.egressor",
 		"org_id":        envvar.GetTestOrgFromEnv(t),
 
-		"agent_id":                "tf-test-agent-id" + randomSuffix,
 		"condition_title":         "expires_after_2019_12_31",
 		"condition_expr":          `request.time < timestamp(\"2020-01-01T00:00:00Z\")`,
 		"condition_desc":          "Expiring at midnight of 2019-12-31",

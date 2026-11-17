@@ -209,13 +209,12 @@ func TestAccCESTool_cesToolDataStoreToolEngineSourceBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"app_display_name":  "tf-test-my-app" + randomSuffix,
-		"app_id":            "tf-test-app-id" + randomSuffix,
-		"data_store_id":     "tf_test_tool_data_store_id" + randomSuffix,
-		"engine_id":         "tf_test_tool_engine_id" + randomSuffix,
-		"tool_display_name": "tf_test_ces_tool_data_store_tool_engine_source_basic" + randomSuffix,
-		"tool_id":           "tf_test_ces_tool_basic2" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"data_store_id":    "tf_test_tool_data_store_id" + randomSuffix,
+		"engine_id":        "tf_test_tool_engine_id" + randomSuffix,
+		"tool_id":          "tf_test_ces_tool_basic2" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -349,11 +348,10 @@ func TestAccCESTool_cesToolGoogleSearchToolBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"app_display_name":  "tf-test-my-app" + randomSuffix,
-		"app_id":            "tf-test-app-id" + randomSuffix,
-		"tool_display_name": "tf_test_ces_tool_google_search_tool_basic" + randomSuffix,
-		"tool_id":           "tf_test_ces_tool_basic3" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"tool_id":          "tf_test_ces_tool_basic3" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -412,11 +410,10 @@ func TestAccCESTool_cesToolPythonFunctionBasicExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"app_display_name":  "tf-test-my-app" + randomSuffix,
-		"app_id":            "tf-test-app-id" + randomSuffix,
-		"tool_display_name": "tf_test_ces_tool_python_function_basic" + randomSuffix,
-		"tool_id":           "tf_test_ces_tool_basic4" + randomSuffix,
-		"random_suffix":     randomSuffix,
+		"app_display_name": "tf-test-my-app" + randomSuffix,
+		"app_id":           "tf-test-app-id" + randomSuffix,
+		"tool_id":          "tf_test_ces_tool_basic4" + randomSuffix,
+		"random_suffix":    randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

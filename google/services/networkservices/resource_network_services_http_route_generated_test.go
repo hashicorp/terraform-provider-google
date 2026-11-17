@@ -335,7 +335,6 @@ func TestAccNetworkServicesHttpRoute_networkServicesHttpRouteMeshBasicExample(t 
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"mesh_name":     "tf-test-my-mesh" + randomSuffix,
 		"resource_name": "tf-test-my-http-route" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}

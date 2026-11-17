@@ -63,8 +63,6 @@ func TestAccManagedKafkaCluster_managedkafkaClusterBasicExample(t *testing.T) {
 
 	context := map[string]interface{}{
 		"cluster_id":    "tf-test-my-cluster" + randomSuffix,
-		"key_name":      "tf-test-example-key" + randomSuffix,
-		"keyring_name":  "tf-test-example-keyring" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
 

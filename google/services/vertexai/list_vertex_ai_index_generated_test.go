@@ -31,7 +31,6 @@ import (
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
-	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/vertexai"
 )
@@ -48,11 +47,10 @@ func TestAccVertexAIIndexListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
-		"project":       envvar.GetTestProjectFromEnv(),
 		"bucket_name":   "tf-test-vertex-ai-index-test" + randomSuffix,
 		"display_name":  "tf-test-test-index" + randomSuffix,
-		"kms_key_name":  kms.BootstrapKMSKeyInLocation(t, "us-central1").CryptoKey.Name,
-		"region":        "us-central1",
+		"region":        envvar.GetTestRegionFromEnv(),
+		"project":       envvar.GetTestProjectFromEnv(),
 		"random_suffix": randomSuffix,
 	}
 

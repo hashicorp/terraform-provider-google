@@ -50,10 +50,9 @@ func TestAccBiglakeHiveHiveDatabaseIamBindingGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"bucket_name": "tf-test-example-bucket" + randomSuffix,
-		"description": "hive database description",
-		"parameters":  "{\n    key1 = \"value1\"\n    key2 = \"value2\"\n}\n",
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
+		"description":   "hive database description",
+		"parameters":    "{\n    key1 = \"value1\"\n    key2 = \"value2\"\n}\n",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -91,10 +90,9 @@ func TestAccBiglakeHiveHiveDatabaseIamMemberGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"bucket_name": "tf-test-example-bucket" + randomSuffix,
-		"description": "hive database description",
-		"parameters":  "{\n    key1 = \"value1\"\n    key2 = \"value2\"\n}\n",
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
+		"description":   "hive database description",
+		"parameters":    "{\n    key1 = \"value1\"\n    key2 = \"value2\"\n}\n",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -130,10 +128,9 @@ func TestAccBiglakeHiveHiveDatabaseIamPolicyGenerated(t *testing.T) {
 	context := map[string]interface{}{
 		"random_suffix": randomSuffix,
 		"role":          "roles/biglake.editor",
-
-		"bucket_name": "tf-test-example-bucket" + randomSuffix,
-		"description": "hive database description",
-		"parameters":  "{\n    key1 = \"value1\"\n    key2 = \"value2\"\n}\n",
+		"bucket_name":   "tf-test-example-bucket" + randomSuffix,
+		"description":   "hive database description",
+		"parameters":    "{\n    key1 = \"value1\"\n    key2 = \"value2\"\n}\n",
 	}
 
 	acctest.VcrTest(t, resource.TestCase{

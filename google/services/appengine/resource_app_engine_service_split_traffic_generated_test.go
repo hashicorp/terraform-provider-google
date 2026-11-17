@@ -61,12 +61,9 @@ func TestAccAppEngineServiceSplitTraffic_appEngineServiceSplitTrafficExample(t *
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"org_id":               envvar.GetTestOrgFromEnv(t),
-		"bucket_name":          "tf-test-appengine-static-content" + randomSuffix,
-		"service_id":           "default" + randomSuffix,
-		"service_name":         "tf-test-liveapp" + randomSuffix,
-		"split.allocations.v1": "1" + randomSuffix,
-		"random_suffix":        randomSuffix,
+		"bucket_name":   "tf-test-appengine-static-content" + randomSuffix,
+		"service_name":  "tf-test-liveapp" + randomSuffix,
+		"random_suffix": randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
