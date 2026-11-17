@@ -1319,6 +1319,7 @@ FEATURES:
 * **New Data Source:** `google_backup_dr_backup_vault` ([#20468](https://github.com/hashicorp/terraform-provider-google/pull/20468))
 * **New Data Source:** `google_composer_user_workloads_config_map` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Data Source:** `google_composer_user_workloads_secret` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
+* **New Resource:** `google_backup_dr_backup_vault` (GA) ([#20377](https://github.com/hashicorp/terraform-provider-google/pull/20377))
 * **New Resource:** `google_composer_user_workloads_config_map` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Resource:** `google_composer_user_workloads_secret` (GA) ([#20478](https://github.com/hashicorp/terraform-provider-google/pull/20478))
 * **New Resource:** `google_gemini_code_repository_index` ([#20474](https://github.com/hashicorp/terraform-provider-google/pull/20474))
@@ -1326,11 +1327,11 @@ FEATURES:
 * **New Resource:** `google_network_security_mirroring_deployment_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
 * **New Resource:** `google_network_security_mirroring_endpoint_group_association` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
 * **New Resource:** `google_network_security_mirroring_endpoint_group` ([#20489](https://github.com/hashicorp/terraform-provider-google/pull/20489))
+* **New Resource:** `google_parallelstore_instance` (GA) ([#20337](https://github.com/hashicorp/terraform-provider-google/pull/20337))
 
 IMPROVEMENTS:
 * accesscontextmanager: added `etag` to `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` ([#20455](https://github.com/hashicorp/terraform-provider-google/pull/20455))
 * alloydb: increased default timeout on `google_alloydb_cluster` to 120m from 30m ([#20547](https://github.com/hashicorp/terraform-provider-google/pull/20547))
-* backupdr: promoted `google_backup_dr_backup_vault` resource to GA ([#20377](https://github.com/hashicorp/terraform-provider-google/pull/20377))
 * bigtable: added `row_affinity` field to `google_bigtable_app_profile` resource ([#20435](https://github.com/hashicorp/terraform-provider-google/pull/20435))
 * cloudbuild: added `private_service_connect` field to `google_cloudbuild_worker_pool` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
 * clouddeploy: added `associated_entities` field to `google_clouddeploy_target` resource ([#20561](https://github.com/hashicorp/terraform-provider-google/pull/20561))
@@ -1364,7 +1365,6 @@ IMPROVEMENTS:
 * oracledatabase: added `deletion_protection` field to `google_oracle_database_cloud_exadata_infrastructure` ([#20485](https://github.com/hashicorp/terraform-provider-google/pull/20485))
 * oracledatabase: added `deletion_protection` field to `google_oracle_database_cloud_vm_cluster ` ([#20392](https://github.com/hashicorp/terraform-provider-google/pull/20392))
 * parallelstore: added `deployment_type` to `google_parallelstore_instance` ([#20457](https://github.com/hashicorp/terraform-provider-google/pull/20457))
-* parallelstore: promoted `google_parallelstore_instance` resource to GA ([#20337](https://github.com/hashicorp/terraform-provider-google/pull/20337))
 * redis: added `cross_cluster_replication_config` field to `google_redis_cluster` resource ([#20373](https://github.com/hashicorp/terraform-provider-google/pull/20373))
 * resourcemanager: made `google_service_account` `email` and `member` fields available during plan ([#20510](https://github.com/hashicorp/terraform-provider-google/pull/20510))
 
