@@ -1126,6 +1126,7 @@ func ResourceContainerCluster() *schema.Resource {
 				Optional:    true,
 				ForceNew:    true,
 				Description: `Whether to enable Cloud TPU resources in this cluster.`,
+				Deprecated:  "`enable_tpu` is deprecated and will be removed in a future major release. Configure TPUs using `google_container_node_pool` instead. See https://docs.cloud.google.com/kubernetes-engine/docs/how-to/tpus#terraform",
 			},
 
 			"enable_legacy_abac": {

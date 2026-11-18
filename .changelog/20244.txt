@@ -1,0 +1,3 @@
+```release-note:deprecation
+container: deprecated `enable_tpu` and `tpu_config` on `google_container_cluster`. Configure TPUs using `google_container_node_pool` instead
+```

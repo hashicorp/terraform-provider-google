@@ -251,11 +251,13 @@ for more information.
 * `enable_k8s_beta_apis` - (Optional) Configuration for Kubernetes Beta APIs.
     Structure is [documented below](#nested_enable_k8s_beta_apis).
 
-* `enable_tpu` - (Optional) Whether to enable Cloud TPU resources in this cluster.
+* `enable_tpu` - (Optional, Deprecated) Whether to enable Cloud TPU resources in this cluster.
     See the [official documentation](https://cloud.google.com/tpu/docs/kubernetes-engine-setup).
+    `enable_tpu` is deprecated and will be removed in a future major release. Configure TPUs using `google_container_node_pool` instead. See https://docs.cloud.google.com/kubernetes-engine/docs/how-to/tpus#terraform
 
-* `tpu_config` - (Optional, [Beta](../guides/provider_versions.html.markdown)) Configuration for Cloud TPU in this cluster.
+* `tpu_config` - (Optional, [Beta](../guides/provider_versions.html.markdown), Deprecated) Configuration for Cloud TPU in this cluster.
     Structure is [documented below](#nested_tpu_config).
+    `tpu_config` is deprecated and will be removed in a future major release. Configure TPUs using `google_container_node_pool` instead. See https://docs.cloud.google.com/kubernetes-engine/docs/how-to/tpus#terraform
 
 * `enable_legacy_abac` - (Optional) Whether the ABAC authorizer is enabled for this cluster.
     When enabled, identities in the system, including service accounts, nodes, and controllers,
