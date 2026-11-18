@@ -159,12 +159,14 @@ func ResourceBigtableMemoryLayer() *schema.Resource {
 			"memory_config": {
 				Type:        schema.TypeList,
 				Computed:    true,
+				Deprecated:  "`memory_config` is deprecated and will be removed in a future major release. `storage_size_gib` is being removed from the Bigtable API and `memory_config` contains no other fields.",
 				Description: `The memory configuration for the cluster.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"storage_size_gib": {
 							Type:        schema.TypeInt,
 							Computed:    true,
+							Deprecated:  "`storage_size_gib` is deprecated and will be removed in a future major release. This field is no longer populated from the API.",
 							Description: `Reporting the current size of the memory layer in GiB.`,
 						},
 					},

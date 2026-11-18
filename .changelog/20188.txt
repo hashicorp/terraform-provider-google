@@ -1,0 +1,3 @@
+```release-note:deprecation
+bigtable: deprecated `memory_config` and `memory_config.storage_size_gib` on `google_bigtable_memory_layer`
+```

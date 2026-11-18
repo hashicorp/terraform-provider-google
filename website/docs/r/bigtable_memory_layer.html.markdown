@@ -118,15 +118,20 @@ In addition to the arguments listed above, the following computed attributes are
   The current state of the memory layer.
 
 * `memory_config` -
+  (Deprecated)
   The memory configuration for the cluster.
   Structure is [documented below](#nested_memory_config).
+
+  ~> **Warning:** `memory_config` is deprecated and will be removed in a future major release. `storage_size_gib` is being removed from the Bigtable API and `memory_config` contains no other fields.
 
 
 <a name="nested_memory_config"></a>The `memory_config` block contains:
 
 * `storage_size_gib` -
-  (Output)
+  (Output, Deprecated)
   Reporting the current size of the memory layer in GiB.
+
+  ~> **Warning:** `storage_size_gib` is deprecated and will be removed in a future major release. This field is no longer populated from the API.
 
 ## Timeouts
 
