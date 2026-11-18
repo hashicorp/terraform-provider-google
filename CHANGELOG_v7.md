@@ -1426,6 +1426,8 @@ FEATURES:
 * **New Resource:** `google_iam_workforce_pool_provider_scim_token` ([#25270](https://github.com/hashicorp/terraform-provider-google/pull/25270))
 * **New Resource:** `google_network_services_lb_edge_extension` ([#25299](https://github.com/hashicorp/terraform-provider-google/pull/25299))
 * **New Resource:** `google_network_services_multicast_consumer_association` ([#25321](https://github.com/hashicorp/terraform-provider-google/pull/25321))
+* **New Resource:** `google_network_services_multicast_domain_activation` ([#25176](https://github.com/hashicorp/terraform-provider-google/pull/25176))
+* **New Resource:** `google_network_services_multicast_domain_group` ([#25160](https://github.com/hashicorp/terraform-provider-google/pull/25160))
 * **New Resource:** `google_network_services_multicast_group_range_activation` ([#25386](https://github.com/hashicorp/terraform-provider-google/pull/25386))
 * **New Resource:** `google_network_services_multicast_group_range` ([#25353](https://github.com/hashicorp/terraform-provider-google/pull/25353))
 * **New Resource:** `google_network_services_multicast_producer_association` ([#25291](https://github.com/hashicorp/terraform-provider-google/pull/25291))
@@ -1470,6 +1472,7 @@ IMPROVEMENTS:
 BUG FIXES:
 * bigquery: fixed the permadiff when email field values contain non-lower-case characters in `access` in `google_bigquery_dataset` ([#25317](https://github.com/hashicorp/terraform-provider-google/pull/25317))
 * bigquery: fixed the permadiff when table schema is unchanged for a `google_bigquery_table` with row access policies ([#25256](https://github.com/hashicorp/terraform-provider-google/pull/25256))
+* ces: fixed conflicting required and output tags in CES tool ([#25156](https://github.com/hashicorp/terraform-provider-google/pull/25156))
 * cloudrunv2: fixed permadiff if `scaling` field is unset on resource `google_cloud_run_v2_service` ([#25310](https://github.com/hashicorp/terraform-provider-google/pull/25310))
 * compute: fixed an issue where the `bgp_always_compare_med` field could not be unset in in `google_compute_network`. It can now be unset by configuring the new field `delete_bgp_always_compare_med` to a value of `true`. ([#25288](https://github.com/hashicorp/terraform-provider-google/pull/25288))
 * compute: fixed crashes when no `network_endpoints` block specified in `google_compute_network_endpoints` resource or no network endpoints exist ([#25220](https://github.com/hashicorp/terraform-provider-google/pull/25220))
@@ -1481,6 +1484,7 @@ BUG FIXES:
 * logging: fixed an issue with `google_logging_*_sink.include_children` fields not being updatable to true ([#25247](https://github.com/hashicorp/terraform-provider-google/pull/25247))
 * memorystore: fixed an issue where a permadiff on `desired_auto_created_endpoints` caused the `google_memorystore_instance` resource to recreated. ([#25278](https://github.com/hashicorp/terraform-provider-google/pull/25278))
 * spanner: prevented recreation when `kms_key_name` and `kms_key_names` are same for `google_spanner_database` ([#25215](https://github.com/hashicorp/terraform-provider-google/pull/25215))
+* sql: fixed a crash when set `name = ""` in `google_sql_database_instance` datasource ([#25161](https://github.com/hashicorp/terraform-provider-google/pull/25161))
 
 ## 7.12.0 (November 18, 2025)
 
