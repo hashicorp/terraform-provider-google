@@ -24,6 +24,7 @@ fields:
     - api_field: overlaps
     - api_field: peering
     - api_field: prefixLength
+    - api_field: purpose
     - api_field: targetCidrRange
     - field: terraform_labels
       provider_only: true
