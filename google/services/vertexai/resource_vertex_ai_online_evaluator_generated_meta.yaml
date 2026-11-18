@@ -16,6 +16,7 @@ fields:
     - api_field: cloudObservability.sessionScope.filter.modelCallErrors.value
     - api_field: cloudObservability.sessionScope.filter.modelCalls.comparisonOperator
     - api_field: cloudObservability.sessionScope.filter.modelCalls.value
+    - api_field: cloudObservability.sessionScope.filter.serviceVersion.values
     - api_field: cloudObservability.sessionScope.filter.toolCallErrors.comparisonOperator
     - api_field: cloudObservability.sessionScope.filter.toolCallErrors.value
     - api_field: cloudObservability.sessionScope.filter.toolCalls.comparisonOperator
@@ -27,6 +28,7 @@ fields:
     - api_field: cloudObservability.sessionScope.inactivityTrigger.threshold
     - api_field: cloudObservability.traceScope.filter.duration.comparisonOperator
     - api_field: cloudObservability.traceScope.filter.duration.value
+    - api_field: cloudObservability.traceScope.filter.serviceVersion.values
     - api_field: cloudObservability.traceScope.filter.totalTokenUsage.comparisonOperator
     - api_field: cloudObservability.traceScope.filter.totalTokenUsage.value
     - api_field: cloudObservability.traceView

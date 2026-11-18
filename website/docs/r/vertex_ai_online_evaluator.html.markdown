@@ -190,6 +190,11 @@ resource "google_vertex_ai_online_evaluator" "evaluator" {
           value               = 0
         }
       }
+      filter {
+        service_version {
+          values = ["v1"]
+        }
+      }
     }
   }
 
@@ -343,6 +348,14 @@ The following arguments are supported:
   Filter on the total token usage within a trace.
   Structure is [documented below](#nested_cloud_observability_trace_scope_filter_total_token_usage).
 
+* `service_version` -
+  (Optional)
+  Filter on the version that served a trace (`service.version`
+  OTel resource attribute). At most one is allowed. On Vertex AI
+  Agent Engine, this is the runtime revision id, currently set only
+  for agents created via v1beta1.
+  Structure is [documented below](#nested_cloud_observability_trace_scope_filter_service_version).
+
 
 <a name="nested_cloud_observability_trace_scope_filter_duration"></a>The `duration` block supports:
 
@@ -367,6 +380,13 @@ The following arguments are supported:
 * `value` -
   (Required)
   The value to compare against.
+
+<a name="nested_cloud_observability_trace_scope_filter_service_version"></a>The `service_version` block supports:
+
+* `values` -
+  (Required)
+  The values to match exactly (case-sensitive). Requires 1 to 20
+  values, each at most 128 characters long.
 
 <a name="nested_cloud_observability_session_scope"></a>The `session_scope` block supports:
 
@@ -427,6 +447,14 @@ The following arguments are supported:
   (Optional)
   Filter on the duration of a session (in seconds).
   Structure is [documented below](#nested_cloud_observability_session_scope_filter_duration).
+
+* `service_version` -
+  (Optional)
+  Filter on the versions that served a session (`service.version`
+  OTel resource attribute); matches if any of them is listed. At most
+  one is allowed. On Vertex AI Agent Engine, this is the runtime
+  revision id, currently set only for agents created via v1beta1.
+  Structure is [documented below](#nested_cloud_observability_session_scope_filter_service_version).
 
 
 <a name="nested_cloud_observability_session_scope_filter_total_token_usage"></a>The `total_token_usage` block supports:
@@ -512,6 +540,13 @@ The following arguments are supported:
 * `value` -
   (Required)
   The value to compare against.
+
+<a name="nested_cloud_observability_session_scope_filter_service_version"></a>The `service_version` block supports:
+
+* `values` -
+  (Required)
+  The values to match exactly (case-sensitive). Requires 1 to 20
+  values, each at most 128 characters long.
 
 <a name="nested_metric_sources"></a>The `metric_sources` block supports:
 
