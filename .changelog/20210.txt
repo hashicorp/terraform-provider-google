@@ -1,0 +1,7 @@
+```release-note:new-resource
+`google_memorystore_auth_token`
+```
+
+```release-note:new-datasource
+`google_memorystore_auth_token`
+```
