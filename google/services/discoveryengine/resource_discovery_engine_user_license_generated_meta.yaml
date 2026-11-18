@@ -1,0 +1,31 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_discovery_engine_user_license
+generation_type: mmv1
+source_file: products/discoveryengine/UserLicense.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: UserLicense
+fields:
+    - api_field: userLicenses.createTime
+      field: create_time
+    - field: delete_unassigned_user_licenses
+      provider_only: true
+    - api_field: userLicenses.lastLoginTime
+      field: last_login_time
+    - api_field: userLicenses.licenseAssignmentState
+      field: license_assignment_state
+    - api_field: userLicenses.licenseConfig
+      field: license_config
+    - field: location
+      provider_only: true
+    - api_field: userLicenses.updateTime
+      field: update_time
+    - api_field: userLicenses.userPrincipal
+      field: user_principal
+    - api_field: userLicenses.userProfile
+      field: user_profile
+    - field: user_store_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
