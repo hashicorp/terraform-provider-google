@@ -498,6 +498,7 @@ FEATURES:
 * **New Data Source:** `google_oracle_database_goldengate_deployment_versions` ([#27771](https://github.com/hashicorp/terraform-provider-google/pull/27771))
 * **New Data Source:** `google_storage_control_project_intelligence_finding` ([#27764](https://github.com/hashicorp/terraform-provider-google/pull/27764))
 * **New Data Source:** `google_storage_control_project_intelligence_findings` ([#27764](https://github.com/hashicorp/terraform-provider-google/pull/27764))
+* **New Resource:** `google_apigee_environment_debugmask` ([#27719](https://github.com/hashicorp/terraform-provider-google/pull/27719))
 * **New Resource:** `google_chronicle_parser` ([#27801](https://github.com/hashicorp/terraform-provider-google/pull/27801))
 * **New Resource:** `google_migration_center_import_data_file` ([#27721](https://github.com/hashicorp/terraform-provider-google/pull/27721))
 * **New Resource:** `google_network_services_agent_gateway` ([#27803](https://github.com/hashicorp/terraform-provider-google/pull/27803))
@@ -509,7 +510,6 @@ FEATURES:
 * **New List Resource:** `google_pubsub_subscription` ([#27758](https://github.com/hashicorp/terraform-provider-google/pull/27758))
 
 IMPROVEMENTS:
-* apigee: added new resource `google_apigee_environment_debugmask` for managing Apigee environment debug masks ([#27719](https://github.com/hashicorp/terraform-provider-google/pull/27719))
 * backupdr: added support for `use_project_service_account` flag in `google_backup_dr_restore_workload` disk and compute restores ([#27797](https://github.com/hashicorp/terraform-provider-google/pull/27797))
 * cloudrunv2: added `http_get.http_headers.name` field to container startup probe and liveness probe in `google_cloud_run_v2_worker_pool` resource ([#27800](https://github.com/hashicorp/terraform-provider-google/pull/27800))
 * cloudrunv2: added `template.client` and `template.client_version` fields to `google_cloud_run_v2_worker_pool` resource ([#27757](https://github.com/hashicorp/terraform-provider-google/pull/27757))
@@ -842,8 +842,8 @@ NOTES:
 
 FEATURES:
 * **New Data Source:** `google_firebase_admin_sdk_config` ([#26901](https://github.com/hashicorp/terraform-provider-google/pull/26901))
-* **New Resource:** `google_chronicle_datatable_row` ([#26960](https://github.com/hashicorp/terraform-provider-google/pull/26960))
-* **New Resource:** `google_chronicle_datatable` ([#26895](https://github.com/hashicorp/terraform-provider-google/pull/26895))
+* **New Resource:** `google_chronicle_data_table_row` ([#26960](https://github.com/hashicorp/terraform-provider-google/pull/26960))
+* **New Resource:** `google_chronicle_data_table` ([#26895](https://github.com/hashicorp/terraform-provider-google/pull/26895))
 * **New Resource:** `google_dataform_folder` ([#26881](https://github.com/hashicorp/terraform-provider-google/pull/26881))
 * **New Resource:** `google_dataform_team_folder` ([#26881](https://github.com/hashicorp/terraform-provider-google/pull/26881))
 * **New Resource:** `google_firebase_storage_default_bucket` ([#26965](https://github.com/hashicorp/terraform-provider-google/pull/26965))
@@ -959,7 +959,7 @@ BREAKING CHANGES:
 FEATURES:
 * **New Data Source:** `google_network_security_address_groups` ([#26562](https://github.com/hashicorp/terraform-provider-google/pull/26562))
 * **New Data Source:** `google_iam_workload_identity_pool_iam_policy` ([#26598](https://github.com/hashicorp/terraform-provider-google/pull/26598))
-* **New Resource:** `google_bigqueryreservation_reservation_group` ([#26560](https://github.com/hashicorp/terraform-provider-google/pull/26560))
+* **New Resource:** `google_bigquery_reservation_group` ([#26560](https://github.com/hashicorp/terraform-provider-google/pull/26560))
 * **New Resource:** `google_compute_region_composite_health_check` ([#26591](https://github.com/hashicorp/terraform-provider-google/pull/26591))
 * **New Resource:** `google_compute_region_health_aggregation_policy` ([#26591](https://github.com/hashicorp/terraform-provider-google/pull/26591))
 * **New Resource:** `google_compute_region_health_source` ([#26591](https://github.com/hashicorp/terraform-provider-google/pull/26591))
