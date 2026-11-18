@@ -61,7 +61,7 @@ The following arguments are supported:
 
 * `primary_disk` - (Required) The primary disk (source of replication).
 
-* `secondary_disk` - (Required) The secondary disk (target of replication). You can specify only one value. Structure is documented below.
+* `secondary_disk` - (Required) The secondary disk (target of replication). You can specify only one value. Structure is [documented below](#nested_secondary_disk).
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to "DELETE".
     When a 'terraform destroy' or 'terraform apply' would delete the resource,
@@ -70,7 +70,7 @@ The following arguments are supported:
     management without updating or deleting the resource in the API.
     When set to "DELETE", deleting the resource is allowed.
 
-The `secondary_disk` block includes:
+<a name="nested_secondary_disk"></a>The `secondary_disk` block supports:
 
 * `disk` - (Required) The secondary disk.
 
