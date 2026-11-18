@@ -66,6 +66,7 @@ The next step is provide some input values that the configuration needs to fully
 | credentialsGa | USE SECURE TOKENS TO ENTER THIS VALUE. Used to set the [GOOGLE_CREDENTIALS](https://github.com/GoogleCloudPlatform/magic-modules/blob/94a3f91d75ee823c521a0d8d3984a1493fa0926a/mmv1/third_party/terraform/envvar/envvar_utils.go#L15) environment variable in acceptance tests - GA nightly test project specific |
 | credentialsBeta | USE SECURE TOKENS TO ENTER THIS VALUE. Used to set the [GOOGLE_CREDENTIALS](https://github.com/GoogleCloudPlatform/magic-modules/blob/94a3f91d75ee823c521a0d8d3984a1493fa0926a/mmv1/third_party/terraform/envvar/envvar_utils.go#L15) environment variable in acceptance tests - Beta nightly test project specific |
 | credentialsVcr | USE SECURE TOKENS TO ENTER THIS VALUE. Used to set the [GOOGLE_CREDENTIALS](https://github.com/GoogleCloudPlatform/magic-modules/blob/94a3f91d75ee823c521a0d8d3984a1493fa0926a/mmv1/third_party/terraform/envvar/envvar_utils.go#L15) environment variable in acceptance tests - VCR test project specific |
+| credentialsGCS | USE SECURE TOKENS TO ENTER THIS VALUE. Used to upload debug logs to VCS |
 
 
 <br/>
