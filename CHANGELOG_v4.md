@@ -448,7 +448,7 @@ BUG FIXES:
 
 FEATURES:
 * **New Resource:** `google_compute_network_endpoints` ([#14869](https://github.com/hashicorp/terraform-provider-google/pull/14869))
-* **New Resource:** `vertex_ai_index_endpoint` ([#14842](https://github.com/hashicorp/terraform-provider-google/pull/14842))
+* **New Resource:** `google_vertex_ai_index_endpoint` ([#14842](https://github.com/hashicorp/terraform-provider-google/pull/14842))
 
 IMPROVEMENTS:
 * bigtable: added 20 minutes timeout support to `google_bigtable_gc_policy` ([#14861](https://github.com/hashicorp/terraform-provider-google/pull/14861))
@@ -931,7 +931,7 @@ DEPRECATIONS:
 
 FEATURES:
 * **New Resource:** `google_iam_access_boundary_policy` ([#13565](https://github.com/hashicorp/terraform-provider-google/pull/13565))
-* **New Resource:** `google_tags_location_tag_bindings` ([#13524](https://github.com/hashicorp/terraform-provider-google/pull/13524))
+* **New Resource:** `google_tags_location_tag_binding` ([#13524](https://github.com/hashicorp/terraform-provider-google/pull/13524))
 
 IMPROVEMENTS:
 * cloudbuild: added `github_enterprise_config` fields to `google_cloudbuild_trigger` resource. ([#13518](https://github.com/hashicorp/terraform-provider-google/pull/13518))
@@ -1178,7 +1178,6 @@ FEATURES:
 * **New Resource:** `google_firebase_apple_app` ([#13047](https://github.com/hashicorp/terraform-provider-google/pull/13047))
 * **New Resource:** `google_firebase_hosting_channel` ([#13053](https://github.com/hashicorp/terraform-provider-google/pull/13053))
 * **New Resource:** `google_firebase_hosting_site` ([#12960](https://github.com/hashicorp/terraform-provider-google/pull/12960))
-* **New Resource:** `google_kms_crypto_key_versions` ([#12926](https://github.com/hashicorp/terraform-provider-google/pull/12926))
 * **New Resource:** `google_storage_transfer_agent_pool` ([#12945](https://github.com/hashicorp/terraform-provider-google/pull/12945))
 * **New Resource:** `google_identity_platform_project_default_config` ([#12977](https://github.com/hashicorp/terraform-provider-google/pull/12977))
 
@@ -1250,7 +1249,7 @@ FEATURES:
 * **New Resource:** `google_bigquery_analytics_hub_listing_iam` ([#12845](https://github.com/hashicorp/terraform-provider-google/pull/12845))
 * **New Resource:** `google_bigquery_analytics_hub_listing` ([#12845](https://github.com/hashicorp/terraform-provider-google/pull/12845))
 * **New Resource:** `google_iam_workforce_pool` ([#12863](https://github.com/hashicorp/terraform-provider-google/pull/12863))
-* **New Resource:** `google_monitoring_generic_service` ([#12796](https://github.com/hashicorp/terraform-provider-google/pull/12796))
+* **New Resource:** `google_monitoring_service` ([#12796](https://github.com/hashicorp/terraform-provider-google/pull/12796))
 * **New Resource:** `google_scc_source_iam_binding` ([#12840](https://github.com/hashicorp/terraform-provider-google/pull/12840))
 * **New Resource:** `google_scc_source_iam_member` ([#12840](https://github.com/hashicorp/terraform-provider-google/pull/12840))
 * **New Resource:** `google_scc_source_iam_policy` ([#12840](https://github.com/hashicorp/terraform-provider-google/pull/12840))
@@ -1530,8 +1529,8 @@ BUG FIXES:
 
 FEATURES:
 * **New Data Source:** `google_service_account_jwt` ([#12107](https://github.com/hashicorp/terraform-provider-google/pull/12107))
-* **New Resource:** `google_certificate_map_entry` ([#12127](https://github.com/hashicorp/terraform-provider-google/pull/12127))
-* **New Resource:** `google_certificate_map` ([#12127](https://github.com/hashicorp/terraform-provider-google/pull/12127))
+* **New Resource:** `google_certificate_manager_certificate_map_entry` ([#12127](https://github.com/hashicorp/terraform-provider-google/pull/12127))
+* **New Resource:** `google_certificate_manager_certificate_map` ([#12127](https://github.com/hashicorp/terraform-provider-google/pull/12127))
 
 IMPROVEMENTS:
 * billingbudget: made `thresholdRules` optional in `google_billing_budget` ([#12087](https://github.com/hashicorp/terraform-provider-google/pull/12087))
@@ -1637,8 +1636,8 @@ FEATURES:
 * **New Resource:** `google_cloudfunctions2_function_iam_binding` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
 * **New Resource:** `google_cloudfunctions2_function_iam_member` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
 * **New Resource:** `google_cloudfunctions2_function_iam_policy` ([#11853](https://github.com/hashicorp/terraform-provider-google/pull/11853))
-* **New Resource:** `google_documentai_processor` ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
-* **New Resource:** `google_documentai_processor_default_version` ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+* **New Resource:** `google_document_ai_processor` ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
+* **New Resource:** `google_document_ai_processor_default_version` ([#11879](https://github.com/hashicorp/terraform-provider-google/pull/11879))
 
 IMPROVEMENTS:
 * accesscontextmanager: Added `external_resources` to `egress_to` in `google_access_context_manager_service_perimeter` and `google_access_context_manager_service_perimeters` resource ([#11857](https://github.com/hashicorp/terraform-provider-google/pull/11857))
@@ -1875,7 +1874,7 @@ BUG FIXES:
 ## 4.14.0 (March 14, 2022)
 
 FEATURES:
-* **New Resource:** `google_bigqueryreservation_assignment` ([#11215](https://github.com/hashicorp/terraform-provider-google/pull/11215))
+* **New Resource:** `google_bigquery_reservation_assignment` ([#11215](https://github.com/hashicorp/terraform-provider-google/pull/11215))
 * **New Resource:** `google_apikeys_key` ([#11249](https://github.com/hashicorp/terraform-provider-google/pull/11249))
 
 IMPROVEMENTS:

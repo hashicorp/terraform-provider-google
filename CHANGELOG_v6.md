@@ -37,7 +37,7 @@ BREAKING CHANGES:
 FEATURES:
 * **New Data Source:** `google_artifact_registry_tag` ([#23994](https://github.com/hashicorp/terraform-provider-google/pull/23994))
 * **New Data Source:** `google_artifact_registry_tags` ([#23969](https://github.com/hashicorp/terraform-provider-google/pull/23969))
-* **New Resource:** `google_dialogflow_convesation_profile` ([#23996](https://github.com/hashicorp/terraform-provider-google/pull/23996))
+* **New Resource:** `google_dialogflow_conversation_profile` ([#23996](https://github.com/hashicorp/terraform-provider-google/pull/23996))
 
 IMPROVEMENTS:
 * apikeys: added `service_account_email` to `google_apikeys_key` ([#24001](https://github.com/hashicorp/terraform-provider-google/pull/24001))
@@ -62,7 +62,7 @@ FEATURES:
 * **New Data Source:** `google_artifact_registry_repositories` ([#23906](https://github.com/hashicorp/terraform-provider-google/pull/23906))
 * **New Data Source:** `google_artifact_registry_version` ([#23868](https://github.com/hashicorp/terraform-provider-google/pull/23868))
 * **New Resource:** `google_dialogflow_cx_playbook` (initial basic support, full features to follow in a later release) ([#23895](https://github.com/hashicorp/terraform-provider-google/pull/23895))
-* **New Resource:** `google_vertexai_rag_engine_config` ([#23889](https://github.com/hashicorp/terraform-provider-google/pull/23889))
+* **New Resource:** `google_vertex_ai_rag_engine_config` ([#23889](https://github.com/hashicorp/terraform-provider-google/pull/23889))
 
 IMPROVEMENTS:
 * backupdr: added `log_retention_days` field to `google_backup_dr_backup_plan` resource ([#23846](https://github.com/hashicorp/terraform-provider-google/pull/23846))

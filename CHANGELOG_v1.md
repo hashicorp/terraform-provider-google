@@ -10,6 +10,7 @@ FEATURES:
 * **New Resource**: `google_monitoring_notification_channel` ([#2452](https://github.com/terraform-providers/terraform-provider-google/issues/2452))
 * **New Resource**: `google_compute_router_nat` ([#2576](https://github.com/terraform-providers/terraform-provider-google/issues/2576))
 * **New Resource**: `google_monitoring_group` ([#2451](https://github.com/terraform-providers/terraform-provider-google/issues/2451))
+* **New Resource**: `google_monitoring_uptime_check_config` ([#2502](https://github.com/terraform-providers/terraform-provider-google/issues/2502))
 * **New Resource**: `google_billing_account_iam_binding`, `google_billing_account_iam_member`, `google_billing_account_iam_policy` for managing Billing Account IAM policies, including managing Billing Account users. ([#2143](https://github.com/terraform-providers/terraform-provider-google/issues/2143))
 * **New Datasource**: `google_iam_role` datasource to be able to read an IAM role's permissions. ([#2482](https://github.com/terraform-providers/terraform-provider-google/issues/2482))
 
@@ -57,6 +58,7 @@ FEATURES:
 * **New Resource**: `google_compute_interconnect_attachment` ([#1140](https://github.com/terraform-providers/terraform-provider-google/issues/1140))
 * **New Resource**: `google_filestore_instance` ([#2088](https://github.com/terraform-providers/terraform-provider-google/issues/2088))
 * **New Resource**: `google_app_engine_application` ([#2147](https://github.com/terraform-providers/terraform-provider-google/issues/2147))
+* **New Resource**: `google_monitoring_alert_policy` ([#2120](https://github.com/terraform-providers/terraform-provider-google/issues/2120))
 
 ENHANCEMENTS:
 * container: Add `enable_tpu` flag to google_container_cluster ([#1974](https://github.com/terraform-providers/terraform-provider-google/issues/1974))
@@ -152,7 +154,7 @@ BUG FIXES:
 ## 1.16.0 (July 12, 2018)
 
 FEATURES:
-* **New Resource**: `compute_instance_from_template` ([#1652](https://github.com/terraform-providers/terraform-provider-google/issues/1652))
+* **New Resource**: `google_compute_instance_from_template` ([#1652](https://github.com/terraform-providers/terraform-provider-google/issues/1652))
 
 IMPROVEMENTS:
 * compute: Autogenerate `google_compute_forwarding_rule`, adding labels, service labels, and service name attribute.
@@ -521,8 +523,9 @@ FEATURES:
 * **New Resource:** `google_kms_key_ring_iam_member` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
 * **New Resource:** `google_kms_crypto_key_iam_binding` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
 * **New Resource:** `google_kms_crypto_key_iam_member` ([#781](https://github.com/terraform-providers/terraform-provider-google/issues/781))
-* **New Resource:** `google_project_custom_iam_role` ([#709](https://github.com/terraform-providers/terraform-provider-google/issues/709))
-* **New Resource:** `google_organization_custom_iam_role` ([#735](https://github.com/terraform-providers/terraform-provider-google/issues/735))
+* **New Resource:** `google_project_iam_custom_role` ([#709](https://github.com/terraform-providers/terraform-provider-google/issues/709))
+* **New Resource:** `google_organization_iam_custom_role` ([#735](https://github.com/terraform-providers/terraform-provider-google/issues/735))
+* **New Resource:** `google_kms_crypto_key` ([#692](https://github.com/terraform-providers/terraform-provider-google/issues/692))
 * **New Resource:** `google_organization_iam_binding` ([#775](https://github.com/terraform-providers/terraform-provider-google/issues/775))
 * **New Resource:** `google_organization_iam_member` ([#775](https://github.com/terraform-providers/terraform-provider-google/issues/775))
 * **New Resource:** `google_dataproc_job` ([#253](https://github.com/terraform-providers/terraform-provider-google/issues/253))
@@ -544,7 +547,6 @@ IMPROVEMENTS:
 * container: Add support for `google_container_node_pool` management ([#669](https://github.com/terraform-providers/terraform-provider-google/issues/669))
 * container: Add container cluster network policy ([#630](https://github.com/terraform-providers/terraform-provider-google/issues/630))
 * container: add support for ip aliasing in `google_container_cluster` ([#654](https://github.com/terraform-providers/terraform-provider-google/issues/654))
-* kms: Adds support for creating KMS CryptoKeys resources ([#692](https://github.com/terraform-providers/terraform-provider-google/issues/692))
 * project: Add validation for `account_id` in `google_service_account` ([#793](https://github.com/terraform-providers/terraform-provider-google/issues/793))
 * storage: Detect file changes in `google_storage_bucket_object` when using source field ([#789](https://github.com/terraform-providers/terraform-provider-google/issues/789))
 * all: Consistently store the project and region fields value in state. ([#784](https://github.com/terraform-providers/terraform-provider-google/issues/784))
@@ -617,7 +619,8 @@ FEATURES:
 * **New Resource:** `google_organization_policy` ([#523](https://github.com/terraform-providers/terraform-provider-google/pull/523))
 * **New Resource:** `google_compute_target_tcp_proxy` ([#528](https://github.com/terraform-providers/terraform-provider-google/pull/528))
 * **New Resource:** `google_compute_region_autoscaler` ([#544](https://github.com/terraform-providers/terraform-provider-google/pull/544))
-* **New Resources:** `google_compute_shared_vpc_host_project` and `google_compute_shared_vpc_service_project` ([#544](https://github.com/terraform-providers/terraform-provider-google/pull/572))
+* **New Resource:** `google_compute_shared_vpc_host_project` ([#572](https://github.com/terraform-providers/terraform-provider-google/pull/572))
+* **New Resource:** `google_compute_shared_vpc_service_project` ([#572](https://github.com/terraform-providers/terraform-provider-google/pull/572))
 
 IMPROVEMENTS:
 * compute: Generate network link without calling network API in `google_compute_subnetwork` ([#527](https://github.com/terraform-providers/terraform-provider-google/issues/527))

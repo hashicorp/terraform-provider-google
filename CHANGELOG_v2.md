@@ -149,7 +149,8 @@ KNOWN ISSUES:
 FEATURES:
 * **New Resource**: `google_compute_region_url_map` is now available. To support this, the `protocol` for `google_compute_region_backend_service` can now be set to `HTTP`, `HTTPS`, `HTTP2`, and `SSL`. ([#4496](https://github.com/terraform-providers/terraform-provider-google/issues/4496))
 * **New Resource**: Adds `google_runtimeconfig_config_iam_*` resources ([#4454](https://github.com/terraform-providers/terraform-provider-google/issues/4454))
-* **New Resource**: Added `google_compute_resource_policy` and `google_compute_disk_resource_policy_attachment` to manage `google_compute_disk` resource policies as fine-grained resources ([#4409](https://github.com/terraform-providers/terraform-provider-google/issues/4409))
+* **New Resource**: `google_compute_resource_policy` to manage `google_compute_disk` resource policies as fine-grained resources ([#4409](https://github.com/terraform-providers/terraform-provider-google/issues/4409))
+* **New Resource**: `google_compute_disk_resource_policy_attachment` to manage `google_compute_disk` resource policies as fine-grained resources ([#4409](https://github.com/terraform-providers/terraform-provider-google/issues/4409))
 
 ENHANCEMENTS:
 * composer: Add `python_version` and ability to set `image_version` in `google_composer_environment` in the GA provider ([#4465](https://github.com/terraform-providers/terraform-provider-google/issues/4465))
@@ -208,6 +209,7 @@ FEATURES:
 * **New Resource**: `google_bigtable_app_profile` is now available. ([#4126](https://github.com/terraform-providers/terraform-provider-google/issues/4126))
 * **New Resource**: `google_ml_engine_model` ([#4053](https://github.com/terraform-providers/terraform-provider-google/issues/4053))
 * **New Resource**: `google_dataproc_autoscaling_policy` ([#2220](https://github.com/terraform-providers/terraform-provider-google/issues/2220))
+* **New Resource**: `google_app_engine_standard_app_version` ([#4336](https://github.com/terraform-providers/terraform-provider-google/pull/4336))
 * **New Data Source**: `google_kms_secret_ciphertext` ([#4204](https://github.com/terraform-providers/terraform-provider-google/issues/4204))
 
 ENHANCEMENTS:
@@ -235,10 +237,10 @@ KNOWN ISSUES:
 FEATURES:
 * **New Resource**: added the `google_vpc_access_connector` resource and the `vpc_connector` option on the `google_cloudfunctions_function` resource. ([#4189](https://github.com/terraform-providers/terraform-provider-google/issues/4189))
 * **New Resource**: Add `google_scc_source` resource for managing Cloud Security Command Center sources in Terraform ([#4236](https://github.com/terraform-providers/terraform-provider-google/issues/4236))
+* **New Resource**: `google_bigquery_data_transfer_config` (which include scheduled queries). ([#4102](https://github.com/terraform-providers/terraform-provider-google/issues/4102))
 * **New Data Source**: `google_compute_network_endpoint_group` ([#4173](https://github.com/terraform-providers/terraform-provider-google/issues/4173))
 
 ENHANCEMENTS:
-* bigquery: Added support for `google_bigquery_data_transfer_config` (which include scheduled queries). ([#4102](https://github.com/terraform-providers/terraform-provider-google/issues/4102))
 * bigtable: `google_bigtable_instance` max number of `cluster` blocks is now 4 ([#4156](https://github.com/terraform-providers/terraform-provider-google/issues/4156))
 * binary_authorization: Added `globalPolicyEvaluationMode` to `google_binary_authorization_policy`. ([#4124](https://github.com/terraform-providers/terraform-provider-google/issues/4124))
 * cloudfunctions: Allow partial URIs in google_cloudfunctions_function event_trigger.resource ([#4201](https://github.com/terraform-providers/terraform-provider-google/issues/4201))
@@ -340,8 +342,9 @@ BUG FIXES:
 
 FEATURES:
 * **Custom Endpoint Support**: The Google provider supports custom endpoints, allowing you to use GCP-like APIs such as emulators. See the [Provider Reference](https://www.terraform.io/docs/providers/google/provider_reference.html) for details. ([#3787](https://github.com/terraform-providers/terraform-provider-google/issues/3787))
-* **New Resource** Network endpoint groups (`google_compute_network_endpoint_group`) and fine-grained resource endpoints (`google_compute_network_endpoint`) are now available. ([#3832](https://github.com/terraform-providers/terraform-provider-google/issues/3832))
-* **New Resource** `google_service_networking_connection` is now available (previously beta-only)
+* **New Resource**: `google_compute_network_endpoint_group` (network endpoint groups) is now available. ([#3832](https://github.com/terraform-providers/terraform-provider-google/issues/3832))
+* **New Resource**: `google_compute_network_endpoint` (fine-grained resource endpoints) is now available. ([#3832](https://github.com/terraform-providers/terraform-provider-google/issues/3832))
+* **New Resource** `google_service_networking_connection` is now available (previously beta-only) ([#3834](https://github.com/terraform-providers/terraform-provider-google/pull/3834))
 
 
 ENHANCEMENTS:
@@ -450,6 +453,7 @@ FEATURES:
 * **New Resource**: `google_filestore_instance` is now available at GA. ([#3522](https://github.com/terraform-providers/terraform-provider-google/issues/3522))
 * **New Resource**: `google_firestore_index` is now available to configure composite indexes on Firestore. ([#3484](https://github.com/terraform-providers/terraform-provider-google/issues/3484))
 * **New Resource**: `google_logging_metric` is now available to configure Stackdriver logs-based metrics. ([#1702](https://github.com/GoogleCloudPlatform/magic-modules/pull/1702))
+* **New Resource**: `google_compute_target_instance` ([#3505](https://github.com/terraform-providers/terraform-provider-google/pull/3505))
 * **New Resources**: `google_compute_subnetwork_iam_binding`, `google_compute_subnetwork_iam_member`, and `google_compute_subnetwork_iam_policy` are now available at GA. ([#3541](https://github.com/terraform-providers/terraform-provider-google/issues/3541))
 
 ENHANCEMENTS:

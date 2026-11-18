@@ -711,9 +711,9 @@ BUG FIXES:
 FEATURES:
 * **New Data Source:** `google_compute_instance_template` ([#8137](https://github.com/hashicorp/terraform-provider-google/pull/8137))
 * **New Resource:** `google_apigee_organization` ([#8178](https://github.com/hashicorp/terraform-provider-google/pull/8178))
+* **New Resource:** `google_access_context_manager_gcp_user_access_binding` ([#8168](https://github.com/hashicorp/terraform-provider-google/pull/8168))
 
 IMPROVEMENTS:
-* accesscontextmanager: added support for `google_access_context_manager_gcp_user_access_binding` ([#8168](https://github.com/hashicorp/terraform-provider-google/pull/8168))
 * cloudbuild: promoted `github` fields in `google_cloud_build_trigger` to GA ([#8167](https://github.com/hashicorp/terraform-provider-google/pull/8167))
 * memcached: fixed an issue where `google_memcached_instance` resource was not inferring the region from the provider. ([More info](https://github.com/hashicorp/terraform-provider-google/issues/8027))
 * serviceaccount: added a `keepers` field to `google_service_account_key` that recreates the field when it is modified ([#8097](https://github.com/hashicorp/terraform-provider-google/pull/8097))
@@ -783,6 +783,7 @@ FEATURES:
 * **New Resource:** `google_firestore_document` ([#7932](https://github.com/hashicorp/terraform-provider-google/pull/7932))
 * **New Resource:** `google_notebooks_instance` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
 * **New Resource:** `google_notebooks_environment` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
+* **New Resource:** `google_notebooks_location` ([#7933](https://github.com/hashicorp/terraform-provider-google/pull/7933))
 
 IMPROVEMENTS:
 * compute: added CDN features to `google_compute_region_backend_service`. ([#7941](https://github.com/hashicorp/terraform-provider-google/pull/7941))
@@ -937,7 +938,7 @@ NOTES:
 
 FEATURES:
 * **New Data Source:** `google_spanner_instance` ([#7537](https://github.com/hashicorp/terraform-provider-google/pull/7537))
-* **New Resource:** `access_context_manager_access_level_condition` ([#7524](https://github.com/hashicorp/terraform-provider-google/pull/7524))
+* **New Resource:** `google_access_context_manager_access_level_condition` ([#7524](https://github.com/hashicorp/terraform-provider-google/pull/7524))
 * **New Resource:** `google_bigquery_routine` ([#7579](https://github.com/hashicorp/terraform-provider-google/pull/7579))
 
 IMPROVEMENTS:
@@ -1293,8 +1294,8 @@ BUG FIXES:
 
 FEATURES:
 * **New Data Source:** `google_redis_instance` ([#6649](https://github.com/terraform-providers/terraform-provider-google/pull/6649))
-* **New Resource:** `google_notebook_environment` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
-* **New Resource:** `google_notebook_instance` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
+* **New Resource:** `google_notebooks_environment` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
+* **New Resource:** `google_notebooks_instance` ([#6639](https://github.com/terraform-providers/terraform-provider-google/pull/6639))
 
 IMPROVEMENTS:
 * appengine: Enabled provisioning Firestore on a new project by adding the option to specify `database_type` in `google_app_engine_application` ([#6629](https://github.com/terraform-providers/terraform-provider-google/pull/6629))
@@ -1350,7 +1351,7 @@ BUG FIXES:
 
 FEATURES:
 * **New Resource:** `google_data_catalog_tag_template` ([#6485](https://github.com/terraform-providers/terraform-provider-google/pull/6485))
-* **New Resource:** `google_container_analysis_occurence` ([#6474](https://github.com/terraform-providers/terraform-provider-google/pull/6474))
+* **New Resource:** `google_container_analysis_occurrence` ([#6474](https://github.com/terraform-providers/terraform-provider-google/pull/6474))
 
 IMPROVEMENTS:
 * appengine: added `inbound_services` to `StandardAppVersion` resource ([#6514](https://github.com/terraform-providers/terraform-provider-google/pull/6514))
@@ -1601,7 +1602,7 @@ FEATURES:
 * **New Resource:** `google_service_usage_consumer_quota_override` ([#5966](https://github.com/terraform-providers/terraform-provider-google/pull/5966))
 * **New Resource:** `google_iap_brand` ([#5881](https://github.com/terraform-providers/terraform-provider-google/pull/5881))
 * **New Resource:** `google_iap_client` ([#5881](https://github.com/terraform-providers/terraform-provider-google/pull/5881))
-* **New Resource:** `google_appengine_flexible_app_version` ([#5882](https://github.com/terraform-providers/terraform-provider-google/pull/5882))
+* **New Resource:** `google_app_engine_flexible_app_version` ([#5882](https://github.com/terraform-providers/terraform-provider-google/pull/5882))
 
 IMPROVEMENTS:
 * accesscontextmanager: Added `regions` field to `google_access_context_manager_access_level` ([#5961](https://github.com/terraform-providers/terraform-provider-google/pull/5961))
@@ -1741,8 +1742,8 @@ BREAKING CHANGES:
 FEATURES:
 * **New Data Source:** `secret_manager_secret_version` ([#5562](https://github.com/terraform-providers/terraform-provider-google/pull/5562))
 * **New Resource:** `google_access_context_manager_service_perimeter_resource` ([#5574](https://github.com/terraform-providers/terraform-provider-google/pull/5574))
-* **New Resource:** `secret_manager_secret_version` ([#5562](https://github.com/terraform-providers/terraform-provider-google/pull/5562))
-* **New Resource:** `secret_manager_secret` ([#5562](https://github.com/terraform-providers/terraform-provider-google/pull/5562))
+* **New Resource:** `google_secret_manager_secret_version` ([#5562](https://github.com/terraform-providers/terraform-provider-google/pull/5562))
+* **New Resource:** `google_secret_manager_secret` ([#5562](https://github.com/terraform-providers/terraform-provider-google/pull/5562))
 * **New Resource:** `google_dialogflow_agent` ([#5559](https://github.com/terraform-providers/terraform-provider-google/pull/5559))
 
 IMPROVEMENTS:
