@@ -272,6 +272,16 @@ If both ipCidrRange and prefixLength are set, there is an error if the range siz
 NOTE: For IPv6 this field only works if ip_cidr_range is set as well, and both fields must match. In other words, with IPv6 this field only works as
 a redundant parameter.`,
 			},
+			"purpose": {
+				Type:         schema.TypeString,
+				Computed:     true,
+				Optional:     true,
+				ForceNew:     true,
+				ValidateFunc: verify.ValidateEnum([]string{"VPC_SUBNET", "INTERNAL_ADDRESS", ""}),
+				Description: `The purpose of this internal range. Defines the intended use of the range
+and any restrictions associated with it. If not specified, it defaults to
+VPC_SUBNET. Possible values: ["VPC_SUBNET", "INTERNAL_ADDRESS"]`,
+			},
 			"target_cidr_range": {
 				Type:     schema.TypeList,
 				Optional: true,
@@ -406,6 +416,12 @@ func resourceNetworkConnectivityv1InternalRangeCreate(d *schema.ResourceData, me
 		return err
 	} else if v, ok := d.GetOkExists("immutable"); !tpgresource.IsEmptyValue(reflect.ValueOf(immutableProp)) && (ok || !reflect.DeepEqual(v, immutableProp)) {
 		obj["immutable"] = immutableProp
+	}
+	purposeProp, err := expandNetworkConnectivityv1InternalRangePurpose(d.Get("purpose"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("purpose"); !tpgresource.IsEmptyValue(reflect.ValueOf(purposeProp)) && (ok || !reflect.DeepEqual(v, purposeProp)) {
+		obj["purpose"] = purposeProp
 	}
 	effectiveLabelsProp, err := expandNetworkConnectivityv1InternalRangeEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -998,6 +1014,10 @@ func flattenNetworkConnectivityv1InternalRangeImmutable(v interface{}, d *schema
 	return v
 }
 
+func flattenNetworkConnectivityv1InternalRangePurpose(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkConnectivityv1InternalRangeTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1131,6 +1151,10 @@ func expandNetworkConnectivityv1InternalRangeImmutable(v interface{}, d tpgresou
 	return v, nil
 }
 
+func expandNetworkConnectivityv1InternalRangePurpose(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandNetworkConnectivityv1InternalRangeEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1185,6 +1209,9 @@ func ResourceNetworkConnectivityv1InternalRangeFlatten(d *schema.ResourceData, m
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err = d.Set("immutable", flattenNetworkConnectivityv1InternalRangeImmutable(res["immutable"], d, config)); err != nil {
+		return fmt.Errorf("Error reading InternalRange: %s", err)
+	}
+	if err = d.Set("purpose", flattenNetworkConnectivityv1InternalRangePurpose(res["purpose"], d, config)); err != nil {
 		return fmt.Errorf("Error reading InternalRange: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenNetworkConnectivityv1InternalRangeTerraformLabels(res["labels"], d, config)); err != nil {

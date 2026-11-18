@@ -478,6 +478,60 @@ resource "google_compute_network" "default" {
 `, context)
 }
 
+func TestAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesInternalAddressExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"internal_range_name": "tf-test-internal-address" + randomSuffix,
+		"network_name":        "tf-test-internal-ranges" + randomSuffix,
+		"random_suffix":       randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesInternalAddressExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_internal_range.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "name", "network", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_connectivity_internal_range.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivityv1InternalRange_networkConnectivityInternalRangesInternalAddressExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_internal_range" "default" {
+  name          = "%{internal_range_name}"
+  description   = "Test internal range for internal address allocation"
+  network       = google_compute_network.default.id
+  usage         = "FOR_VPC"
+  peering       = "FOR_SELF"
+  purpose       = "INTERNAL_ADDRESS"
+  ip_cidr_range = "10.0.0.0/24"
+}
+
+resource "google_compute_network" "default" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
+}
+`, context)
+}
+
 func testAccCheckNetworkConnectivityv1InternalRangeDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
