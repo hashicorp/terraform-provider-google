@@ -19,6 +19,8 @@ fields:
     - field: effective_labels
       provider_only: true
     - api_field: encryptionSpec.cryptoKeyName
+    - field: force_destroy
+      provider_only: true
     - api_field: labels
     - field: location
       provider_only: true

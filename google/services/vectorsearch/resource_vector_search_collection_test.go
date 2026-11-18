@@ -154,3 +154,90 @@ EOF
 }
 `, context)
 }
+
+func TestAccVectorSearchCollection_forceDestroy(t *testing.T) {
+	t.Parallel()
+
+	suffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckVectorSearchCollectionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccVectorSearchCollection_forceDestroy(map[string]interface{}{
+					"random_suffix": suffix,
+					"force_destroy": false,
+				}),
+			},
+			{
+				ResourceName:            "google_vector_search_collection.example-collection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection_id", "force_destroy", "location"},
+			},
+			{
+				Config: testAccVectorSearchCollection_forceDestroy(map[string]interface{}{
+					"random_suffix": suffix,
+					"force_destroy": true,
+				}),
+			},
+			{
+				ResourceName:            "google_vector_search_collection.example-collection",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"collection_id", "force_destroy", "location"},
+			},
+		},
+	})
+}
+
+func testAccVectorSearchCollection_forceDestroy(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vector_search_collection" "example-collection" {
+  location      = "us-central1"
+  collection_id = "tf-test-example-collection-id%{random_suffix}"
+  force_destroy = %{force_destroy}
+
+  data_schema = <<EOF
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    }
+  }
+}
+EOF
+
+  vector_schema {
+    field_name = "dense_embedding"
+    dense_vector {
+      dimensions = 4
+    }
+  }
+}
+
+# The data object is abandoned on destroy, so the collection still holds it
+# when Terraform deletes the collection. That deletion only succeeds with
+# force_destroy.
+resource "google_vector_search_data_object" "example-data-object" {
+  location        = "us-central1"
+  collection_id   = google_vector_search_collection.example-collection.collection_id
+  data_object_id  = "tf-test-example-data-object-id%{random_suffix}"
+  deletion_policy = "ABANDON"
+
+  data = jsonencode({
+    title = "The Matrix"
+  })
+
+  vectors {
+    field_name = "dense_embedding"
+    dense {
+      values = [0.11, 0.22, 0.33, 0.44]
+    }
+  }
+}
+`, context)
+}

@@ -107,7 +107,7 @@ func ResourceVectorSearchCollection() *schema.Resource {
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(20 * time.Minute),
 			Update: schema.DefaultTimeout(20 * time.Minute),
-			Delete: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(90 * time.Minute),
 		},
 
 		CustomizeDiff: customdiff.All(
@@ -312,6 +312,12 @@ contain one or more references to fields in the DataObject, e.g.:
 				Computed:    true,
 				Description: `[Output only] Update time stamp`,
 			},
+			"force_destroy": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `If set to true, will allow deletion of the Collection even if it contains Indexes or DataObjects. These Indexes and DataObjects will also be deleted.`,
+				Default:     false,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -498,6 +504,11 @@ func resourceVectorSearchCollectionRead(d *schema.ResourceData, meta interface{}
 	log.Printf("[DEBUG] Finished reading VectorSearchCollection %q: %#v", d.Id(), res)
 
 	// Explicitly set virtual fields to default values if unset
+	if _, ok := d.GetOkExists("force_destroy"); !ok {
+		if err := d.Set("force_destroy", false); err != nil {
+			return fmt.Errorf("Error setting force_destroy: %s", err)
+		}
+	}
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
 		//prioritize config's value if present
 		if config.DeletionPolicy != "" {
@@ -732,6 +743,13 @@ func resourceVectorSearchCollectionDelete(d *schema.ResourceData, meta interface
 
 	headers := make(http.Header)
 
+	if v, ok := d.GetOk("force_destroy"); ok {
+		url, err = transport_tpg.AddQueryParams(url, map[string]string{"force": fmt.Sprintf("%v", v)})
+		if err != nil {
+			return err
+		}
+	}
+
 	log.Printf("[DEBUG] Deleting Collection %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    config,
@@ -775,6 +793,11 @@ func resourceVectorSearchCollectionImport(d *schema.ResourceData, meta interface
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
+	if err := d.Set("force_destroy", false); err != nil {
+		return nil, fmt.Errorf("Error setting force_destroy: %s", err)
+	}
 
 	return []*schema.ResourceData{d}, nil
 }
