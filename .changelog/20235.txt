@@ -1,0 +1,3 @@
+```release-note:enhancement
+vertexai: added `cloud_observability.trace_scope.filter.service_version` and `cloud_observability.session_scope.filter.service_version` fields to `google_vertex_ai_online_evaluator` resource
+```

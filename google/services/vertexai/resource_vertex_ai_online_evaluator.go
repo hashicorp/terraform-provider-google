@@ -278,6 +278,30 @@ GREATER.`,
 														},
 													},
 												},
+												"service_version": {
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													Description: `Filter on the versions that served a session ('service.version'
+OTel resource attribute); matches if any of them is listed. At most
+one is allowed. On Vertex AI Agent Engine, this is the runtime
+revision id, currently set only for agents created via v1beta1.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"values": {
+																Type:     schema.TypeList,
+																Required: true,
+																ForceNew: true,
+																Description: `The values to match exactly (case-sensitive). Requires 1 to 20
+values, each at most 128 characters long.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+															},
+														},
+													},
+												},
 												"tool_call_errors": {
 													Type:        schema.TypeList,
 													Optional:    true,
@@ -443,6 +467,30 @@ GREATER.`,
 																Required:    true,
 																ForceNew:    true,
 																Description: `The value to compare against.`,
+															},
+														},
+													},
+												},
+												"service_version": {
+													Type:     schema.TypeList,
+													Optional: true,
+													ForceNew: true,
+													Description: `Filter on the version that served a trace ('service.version'
+OTel resource attribute). At most one is allowed. On Vertex AI
+Agent Engine, this is the runtime revision id, currently set only
+for agents created via v1beta1.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"values": {
+																Type:     schema.TypeList,
+																Required: true,
+																ForceNew: true,
+																Description: `The values to match exactly (case-sensitive). Requires 1 to 20
+values, each at most 128 characters long.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
 															},
 														},
 													},
@@ -1217,6 +1265,7 @@ func flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilter(v interfac
 		transformed = append(transformed, map[string]interface{}{
 			"duration":          flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterDuration(original["duration"], d, config),
 			"total_token_usage": flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterTotalTokenUsage(original["totalTokenUsage"], d, config),
+			"service_version":   flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersion(original["serviceVersion"], d, config),
 		})
 	}
 	return transformed
@@ -1264,6 +1313,23 @@ func flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterTotalTokenU
 }
 
 func flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterTotalTokenUsageValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersionValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersionValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1320,6 +1386,7 @@ func flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilter(v interf
 			"tool_calls":        flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterToolCalls(original["toolCalls"], d, config),
 			"tool_call_errors":  flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterToolCallErrors(original["toolCallErrors"], d, config),
 			"duration":          flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterDuration(original["duration"], d, config),
+			"service_version":   flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersion(original["serviceVersion"], d, config),
 		})
 	}
 	return transformed
@@ -1482,6 +1549,23 @@ func flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterDurationC
 }
 
 func flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterDurationValue(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["values"] =
+		flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersionValues(original["values"], d, config)
+	return []interface{}{transformed}
+}
+func flattenVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersionValues(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1755,6 +1839,13 @@ func expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilter(v interface
 			transformed["totalTokenUsage"] = transformedTotalTokenUsage
 		}
 
+		transformedServiceVersion, err := expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersion(original["service_version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedServiceVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["serviceVersion"] = transformedServiceVersion
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1831,6 +1922,32 @@ func expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterTotalTokenUs
 }
 
 func expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterTotalTokenUsageValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersionValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIOnlineEvaluatorCloudObservabilityTraceScopeFilterServiceVersionValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -1949,6 +2066,13 @@ func expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilter(v interfa
 			return nil, err
 		} else if val := reflect.ValueOf(transformedDuration); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["duration"] = transformedDuration
+		}
+
+		transformedServiceVersion, err := expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersion(original["service_version"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedServiceVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["serviceVersion"] = transformedServiceVersion
 		}
 
 		req = append(req, transformed)
@@ -2212,6 +2336,32 @@ func expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterDurationCo
 }
 
 func expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterDurationValue(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedValues, err := expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersionValues(original["values"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedValues); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["values"] = transformedValues
+	}
+
+	return transformed, nil
+}
+
+func expandVertexAIOnlineEvaluatorCloudObservabilitySessionScopeFilterServiceVersionValues(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
