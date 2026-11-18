@@ -5669,7 +5669,7 @@ resource "google_container_node_pool" "np" {
   node_config {
     guest_accelerator {
       count = 0
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
     }
     machine_type = "n1-highmem-4"
   }
@@ -5697,12 +5697,12 @@ resource "google_container_node_pool" "np" {
   node_config {
     guest_accelerator {
       count = 0
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
     }
 
     guest_accelerator {
       count = %d
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
     }
     machine_type = "n1-highmem-4"
   }
@@ -5730,12 +5730,12 @@ resource "google_container_node_pool" "np" {
   node_config {
     guest_accelerator {
       count = 0
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
     }
 
     guest_accelerator {
       count = 1
-      type  = "nvidia-tesla-p100"
+      type  = "nvidia-tesla-t4"
     }
 
     guest_accelerator {
