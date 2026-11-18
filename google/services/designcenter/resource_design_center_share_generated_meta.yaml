@@ -1,0 +1,23 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_design_center_share
+generation_type: mmv1
+source_file: products/designcenter/Share.yaml
+api_service_name: designcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Share
+fields:
+    - field: catalog
+      provider_only: true
+    - api_field: createTime
+    - api_field: destinationSpace
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: share_id
+      provider_only: true
+    - field: space
+      provider_only: true
+    - api_field: state
+    - field: deletion_policy
+      provider_only: true
