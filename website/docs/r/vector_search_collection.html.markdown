@@ -210,6 +210,7 @@ The following arguments are supported:
 	When set to "ABANDON", the command will remove the resource from Terraform
 	management without updating or deleting the resource in the API.
 	When set to "DELETE", deleting the resource is allowed.
+* `force_destroy` - (Optional) If set to true, will allow deletion of the Collection even if it contains Indexes or DataObjects. These Indexes and DataObjects will also be deleted.
 
 
 <a name="nested_encryption_spec"></a>The `encryption_spec` block supports:
@@ -304,7 +305,7 @@ This resource provides the following
 
 - `create` - Default is 20 minutes.
 - `update` - Default is 20 minutes.
-- `delete` - Default is 20 minutes.
+- `delete` - Default is 90 minutes.
 
 ## Import
 
