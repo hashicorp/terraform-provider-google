@@ -347,7 +347,7 @@ func resourceSQLDatabaseRead(d *schema.ResourceData, meta interface{}) error {
 	instance := d.Get("instance").(string)
 	databaseInstance, err := NewClient(config, userAgent).Instances.Get(project, instance).Do()
 	if err != nil {
-		return err
+		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("SQL Database %q in instance %q", d.Id(), instance))
 	}
 	if databaseInstance.Settings != nil && databaseInstance.Settings.ActivationPolicy != "ALWAYS" {
 		identity, err := d.Identity()

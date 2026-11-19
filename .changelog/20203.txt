@@ -1,0 +1,3 @@
+```release-note:bug
+sql: fixed an issue where reading `google_sql_database`, `google_sql_user`, or `google_sql_ssl_cert` failed with a 404 or 403 error instead of removing the resource from state when the parent `google_sql_database_instance` was deleted outside Terraform
+```

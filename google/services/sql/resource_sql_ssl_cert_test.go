@@ -19,6 +19,7 @@ package sql_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -154,4 +155,57 @@ func testGoogleSqlClientCert_postgres(instance string) string {
 		instance = "${google_sql_database_instance.instance.name}"
 	}
 	`, instance)
+}
+
+func TestAccSqlClientCert_externalInstanceDeletion(t *testing.T) {
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlClientCertDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlClientCert_postgres15(instance),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlClientCertExists(t, "google_sql_ssl_cert.cert"),
+				),
+			},
+			{
+				PreConfig: func() {
+					config := acctest.GoogleProviderConfig(t)
+					op, err := sql.NewClient(config, config.UserAgent).Instances.Delete(config.Project, instance).Do()
+					if err != nil {
+						t.Fatalf("Error deleting instance %s: %s", instance, err)
+					}
+					err = sql.SqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.UserAgent, 20*time.Minute)
+					if err != nil {
+						t.Fatalf("Error waiting for instance deletion: %s", err)
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func testGoogleSqlClientCert_postgres15(instance string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+
+resource "google_sql_ssl_cert" "cert" {
+  common_name = "cert"
+  instance    = google_sql_database_instance.instance.name
+}
+`, instance)
 }
