@@ -1086,6 +1086,7 @@ func resourceBigQueryDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 
 	log.Printf("[DEBUG] Updating Dataset %q: %#v", d.Id(), obj)
 	headers := make(http.Header)
+	setBigQueryDatasetEtagHeader(headers, d.Get("etag").(string))
 
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
