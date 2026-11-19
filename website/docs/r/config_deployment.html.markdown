@@ -36,7 +36,7 @@ To get more information about Deployment, see:
 resource "google_config_deployment" "default" {
   name            = "my-deployment"
   location        = "us-central1"
-  service_account = "projects/<no value>/serviceAccounts/my-service-account@my-project.iam.gserviceaccount.com"
+  service_account = "projects/my-project/serviceAccounts/my-service-account@my-project.iam.gserviceaccount.com"
 
   terraform_blueprint {
     git_source {
@@ -47,7 +47,7 @@ resource "google_config_deployment" "default" {
     
     input_values {
       variable_name = "project_id"
-      input_value   = "<no value>"
+      input_value   = "my-project"
     }
     input_values {
       variable_name = "network_name"

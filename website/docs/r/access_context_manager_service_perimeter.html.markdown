@@ -96,16 +96,16 @@ resource "google_access_context_manager_service_perimeters" "secure-data-exchang
   parent = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}"
 
   service_perimeters {
-    name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/"
-    title  = ""
+    name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_storage"
+    title  = "restrict_storage"
     status {
       restricted_services = ["storage.googleapis.com"]
     }
   }
 
   service_perimeters {
-    name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/"
-    title  = ""
+    name   = "accessPolicies/${google_access_context_manager_access_policy.access-policy.name}/servicePerimeters/restrict_bigtable"
+    title  = "restrict_bigtable"
     status {
       restricted_services = ["bigtable.googleapis.com"]
       		vpcAccessibleServices = {
