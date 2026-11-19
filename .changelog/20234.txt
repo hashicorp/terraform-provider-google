@@ -1,0 +1,3 @@
+```release-note:enhancement
+agenticapplications: added `experimental_features_enabled` field to `google_agentic_applications_analyst_agent_persona` resource
+```

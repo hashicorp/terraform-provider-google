@@ -987,6 +987,12 @@ VISUALIZATION_MODE_ALWAYS`,
 				Optional:    true,
 				Description: `The description of the persona, shown to users.`,
 			},
+			"experimental_features_enabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: `Whether the persona gets experimental features before they are
+on by default.`,
+			},
 			"external_data_sources": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -1605,6 +1611,12 @@ func resourceAgenticApplicationsAnalystAgentPersonaCreate(d *schema.ResourceData
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	experimentalFeaturesEnabledProp, err := expandAgenticApplicationsAnalystAgentPersonaExperimentalFeaturesEnabled(d.Get("experimental_features_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("experimental_features_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(experimentalFeaturesEnabledProp)) && (ok || !reflect.DeepEqual(v, experimentalFeaturesEnabledProp)) {
+		obj["experimentalFeaturesEnabled"] = experimentalFeaturesEnabledProp
+	}
 	externalDataSourcesProp, err := expandAgenticApplicationsAnalystAgentPersonaExternalDataSources(d.Get("external_data_sources"), d, config)
 	if err != nil {
 		return err
@@ -1916,6 +1928,12 @@ func resourceAgenticApplicationsAnalystAgentPersonaUpdate(d *schema.ResourceData
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	experimentalFeaturesEnabledProp, err := expandAgenticApplicationsAnalystAgentPersonaExperimentalFeaturesEnabled(d.Get("experimental_features_enabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("experimental_features_enabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, experimentalFeaturesEnabledProp)) {
+		obj["experimentalFeaturesEnabled"] = experimentalFeaturesEnabledProp
+	}
 	externalDataSourcesProp, err := expandAgenticApplicationsAnalystAgentPersonaExternalDataSources(d.Get("external_data_sources"), d, config)
 	if err != nil {
 		return err
@@ -2009,6 +2027,10 @@ func resourceAgenticApplicationsAnalystAgentPersonaUpdate(d *schema.ResourceData
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("experimental_features_enabled") {
+		updateMask = append(updateMask, "experimentalFeaturesEnabled")
 	}
 
 	if d.HasChange("external_data_sources") {
@@ -3045,6 +3067,10 @@ func flattenAgenticApplicationsAnalystAgentPersonaDisplayDescription(v interface
 }
 
 func flattenAgenticApplicationsAnalystAgentPersonaDisplayName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenAgenticApplicationsAnalystAgentPersonaExperimentalFeaturesEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -5080,6 +5106,10 @@ func expandAgenticApplicationsAnalystAgentPersonaDisplayName(v interface{}, d tp
 	return v, nil
 }
 
+func expandAgenticApplicationsAnalystAgentPersonaExperimentalFeaturesEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandAgenticApplicationsAnalystAgentPersonaExternalDataSources(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -5993,6 +6023,9 @@ func ResourceAgenticApplicationsAnalystAgentPersonaFlatten(d *schema.ResourceDat
 		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
 	}
 	if err = d.Set("display_name", flattenAgenticApplicationsAnalystAgentPersonaDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
+	}
+	if err = d.Set("experimental_features_enabled", flattenAgenticApplicationsAnalystAgentPersonaExperimentalFeaturesEnabled(res["experimentalFeaturesEnabled"], d, config)); err != nil {
 		return fmt.Errorf("Error reading AnalystAgentPersona: %s", err)
 	}
 	if err = d.Set("external_data_sources", flattenAgenticApplicationsAnalystAgentPersonaExternalDataSources(res["externalDataSources"], d, config)); err != nil {
