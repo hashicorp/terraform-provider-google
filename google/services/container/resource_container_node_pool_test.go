@@ -1169,7 +1169,7 @@ func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, "1000 20000 100000", networkName, subnetworkName),
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, "4096 20000 100000", networkName, subnetworkName),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_node_pool.with_linux_node_config", plancheck.ResourceActionUpdate),
@@ -1183,7 +1183,7 @@ func TestAccContainerNodePool_withLinuxNodeConfig(t *testing.T) {
 			},
 			// Perform an update.
 			{
-				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, "1000 20000 200000", networkName, subnetworkName),
+				Config: testAccContainerNodePool_withLinuxNodeConfig(cluster, np, "4096 20000 200000", networkName, subnetworkName),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction("google_container_node_pool.with_linux_node_config", plancheck.ResourceActionUpdate),
