@@ -1,0 +1,20 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_oracle_database_autonomous_database_wallet
+generation_type: mmv1
+source_file: products/oracledatabase/AutonomousDatabaseWallet.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: AutonomousDatabase
+fields:
+    - api_field: archiveContent
+    - field: autonomous_database
+      provider_only: true
+    - api_field: password
+    - api_field: password
+      field: password_wo
+    - field: password_wo_version
+      provider_only: true
+    - api_field: type
+    - field: deletion_policy
+      provider_only: true
