@@ -203,6 +203,7 @@ resource "google_access_context_manager_service_perimeter" "test-access" {
 
 func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_updateTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	orgTarget := envvar.GetTestOrgTargetFromEnv(t)
 
 	policyTitle := acctest.RandString(t, 10)
 	perimeterTitle := "tf_test_perimeter"
@@ -227,7 +228,7 @@ func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_updateTest(t
 				},
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitle, projectNumber),
+				Config: testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step3(org, orgTarget, policyTitle, perimeterTitle, projectNumber),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction(
@@ -250,6 +251,12 @@ func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolic
 	return fmt.Sprintf(`
 %s
 
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
+}
+
 resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy" "test-access1" {
   perimeter = google_access_context_manager_service_perimeter.test-access.name
   title     = "dry run ingress policy update test"
@@ -266,13 +273,19 @@ resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy
     }
   }
 }
-`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
+`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle)
 }
 
 // step 2: change identity_type, swap to access_level source and roles
 func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step2(org, policyTitle, perimeterTitleName string) string {
 	return fmt.Sprintf(`
 %s
+
+resource "google_folder" "test-folder" {
+  parent              = "organizations/%s"
+  display_name        = "tf-test-%s"
+  deletion_protection = false
+}
 
 resource "google_access_context_manager_access_level" "update-test" {
   parent      = "accessPolicies/${google_access_context_manager_access_policy.test-access.name}"
@@ -300,11 +313,11 @@ resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy
     roles     = ["roles/bigquery.admin"]
   }
 }
-`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName))
+`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle)
 }
 
-// step 3: switch identity_type, add resource sources (project, folder, org), and operations
-func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitleName, projectNumber string) string {
+// step 3: switch identity_type, add resource sources and ingress_to resources (project, folder, org), and operations
+func testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_ingressPolicyUpdate_step3(org, orgTarget, policyTitle, perimeterTitleName, projectNumber string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -345,7 +358,7 @@ resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy
     }
   }
   ingress_to {
-    resources = ["*"]
+    resources = ["projects/%s", google_folder.test-folder.name, "organizations/%s"]
     operations {
       service_name = "bigquery.googleapis.com"
       method_selectors {
@@ -357,5 +370,5 @@ resource "google_access_context_manager_service_perimeter_dry_run_ingress_policy
     }
   }
 }
-`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, org)
+`, testAccAccessContextManagerServicePerimeterDryRunIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, orgTarget, projectNumber, orgTarget)
 }
