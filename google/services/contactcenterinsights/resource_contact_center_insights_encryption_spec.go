@@ -244,6 +244,11 @@ func resourceContactCenterInsightsEncryptionSpecCreate(d *schema.ResourceData, m
 		return fmt.Errorf("Error waiting to create EncryptionSpec: %s", err)
 	}
 
+	// This is useful if the resource in question doesn't have a perfectly consistent API
+	// That is, the Operation for Create might return before the Get operation shows the
+	// completed state of the resource.
+	time.Sleep(120 * config.SleepUnit)
+
 	log.Printf("[DEBUG] Finished creating EncryptionSpec %q: %#v", d.Id(), res)
 
 	identity, err := d.Identity()
@@ -359,9 +364,9 @@ func resourceContactCenterInsightsEncryptionSpecDelete(d *schema.ResourceData, m
 func resourceContactCenterInsightsEncryptionSpecImport(d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 	config := meta.(*transport_tpg.Config)
 	if err := tpgresource.ParseImportId([]string{
-		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/encryptionSpec/(?P<name>[^/]+)$",
-		"^(?P<project>[^/]+)/(?P<location>[^/]+)/(?P<name>[^/]+)$",
-		"^(?P<location>[^/]+)/(?P<name>[^/]+)$",
+		"^projects/(?P<project>[^/]+)/locations/(?P<location>[^/]+)/encryptionSpec$",
+		"^(?P<project>[^/]+)/(?P<location>[^/]+)$",
+		"^(?P<location>[^/]+)$",
 	}, d, config); err != nil {
 		return nil, err
 	}

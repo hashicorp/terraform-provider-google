@@ -1,0 +1,3 @@
+```release-note:bug
+contactcenterinsights: fixed an issue where importing `google_contact_center_insights_encryption_spec` failed due to invalid default import formats, and added a post-create wait so immediate reads do not miss `kms_key`
+```
