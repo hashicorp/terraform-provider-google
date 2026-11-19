@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/plancheck"
@@ -1293,4 +1294,59 @@ resource "google_sql_user" "user" {
   instance = google_sql_database_instance.instance.name
 }
 `, instance)
+}
+
+func TestAccSqlUser_externalInstanceDeletion(t *testing.T) {
+	t.Parallel()
+
+	instance := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlUserDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlUser_postgres15(instance, "password"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlUserExists(t, "google_sql_user.user"),
+				),
+			},
+			{
+				PreConfig: func() {
+					config := acctest.GoogleProviderConfig(t)
+					op, err := sql.NewClient(config, config.UserAgent).Instances.Delete(config.Project, instance).Do()
+					if err != nil {
+						t.Fatalf("Error deleting instance %s: %s", instance, err)
+					}
+					err = sql.SqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.UserAgent, 20*time.Minute)
+					if err != nil {
+						t.Fatalf("Error waiting for instance deletion: %s", err)
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func testGoogleSqlUser_postgres15(instance, password string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "POSTGRES_15"
+  deletion_protection = false
+
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+
+resource "google_sql_user" "user" {
+  name     = "admin"
+  instance = google_sql_database_instance.instance.name
+  password = "%s"
+}
+`, instance, password)
 }

@@ -19,6 +19,7 @@ package sql_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
@@ -295,3 +296,60 @@ resource "google_sql_database" "database" {
   collation = "latin1_swedish_ci"
 }
 `
+
+func TestAccSqlDatabase_externalInstanceDeletion(t *testing.T) {
+	t.Parallel()
+
+	var database sqladmin.Database
+
+	instanceName := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+	dbName := fmt.Sprintf("tf-test-%d", acctest.RandInt(t))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccSqlDatabaseDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleSqlDatabase_mysql80(instanceName, dbName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckGoogleSqlDatabaseExists(t, "google_sql_database.database", &database),
+				),
+			},
+			{
+				PreConfig: func() {
+					config := acctest.GoogleProviderConfig(t)
+					op, err := sql.NewClient(config, config.UserAgent).Instances.Delete(config.Project, instanceName).Do()
+					if err != nil {
+						t.Fatalf("Error deleting instance %s: %s", instanceName, err)
+					}
+					err = sql.SqlAdminOperationWaitTime(config, op, config.Project, "Delete Instance", config.UserAgent, 20*time.Minute)
+					if err != nil {
+						t.Fatalf("Error waiting for instance deletion: %s", err)
+					}
+				},
+				RefreshState:       true,
+				ExpectNonEmptyPlan: true,
+			},
+		},
+	})
+}
+
+func testGoogleSqlDatabase_mysql80(instanceName, dbName string) string {
+	return fmt.Sprintf(`
+resource "google_sql_database_instance" "instance" {
+  name                = "%s"
+  region              = "us-central1"
+  database_version    = "MYSQL_8_0"
+  deletion_protection = false
+  settings {
+    tier = "db-f1-micro"
+  }
+}
+
+resource "google_sql_database" "database" {
+  name     = "%s"
+  instance = google_sql_database_instance.instance.name
+}
+`, instanceName, dbName)
+}
