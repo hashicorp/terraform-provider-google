@@ -81,6 +81,7 @@ fields:
     - api_field: customerContext
     - api_field: displayDescription
     - api_field: displayName
+    - api_field: experimentalFeaturesEnabled
     - api_field: externalDataSources.airQuality
     - api_field: externalDataSources.bureauLaborStatistics
     - api_field: externalDataSources.coindesk

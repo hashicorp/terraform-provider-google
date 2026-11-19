@@ -365,6 +365,22 @@ resource "google_agentic_applications_analyst_agent_persona" "example" {
 }
 ```
 
+## Example Usage - Analyst Agent Persona Experimental Features
+
+
+```hcl
+resource "google_agentic_applications_analyst_agent_persona" "example" {
+  project                       = "1111111111111"
+  location                      = "us"
+  analyst_agent_persona_id      = "exp-features"
+  display_name                  = "Test Analyst Persona Experimental Features"
+  display_description           = "Sample analyst agent persona description"
+  model_description             = "Sample model description"
+  role                          = "ANALYST_ROLE_GENERIC_FINANCE_ANALYST"
+  experimental_features_enabled = true
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -402,6 +418,11 @@ The following arguments are supported:
 * `display_description` -
   (Optional)
   The description of the persona, shown to users.
+
+* `experimental_features_enabled` -
+  (Optional)
+  Whether the persona gets experimental features before they are
+  on by default.
 
 * `external_data_sources` -
   (Optional)
