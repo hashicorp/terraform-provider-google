@@ -193,6 +193,7 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
 
 func testAccAccessContextManagerServicePerimeterIngressPolicy_updateTest(t *testing.T) {
 	org := envvar.GetTestOrgFromEnv(t)
+	orgTarget := envvar.GetTestOrgTargetFromEnv(t)
 
 	policyTitle := acctest.RandString(t, 10)
 	perimeterTitle := "tf_test_perimeter"
@@ -217,7 +218,7 @@ func testAccAccessContextManagerServicePerimeterIngressPolicy_updateTest(t *test
 				},
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitle, projects[0].ProjectNumber),
+				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step3(org, orgTarget, policyTitle, perimeterTitle, projects[0].ProjectNumber),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction(
@@ -228,7 +229,7 @@ func testAccAccessContextManagerServicePerimeterIngressPolicy_updateTest(t *test
 				},
 			},
 			{
-				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step4(org, policyTitle, perimeterTitle, projects[1].ProjectNumber),
+				Config: testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step4(org, orgTarget, policyTitle, perimeterTitle, projects[1].ProjectNumber),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
 						plancheck.ExpectResourceAction(
@@ -305,7 +306,7 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
 }
 
 // step 3: omit identity_type, add identities, update access_level source and add resource source, update resources and roles
-func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step3(org, policyTitle, perimeterTitleName string, projectNumber int64) string {
+func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step3(org, orgTarget, policyTitle, perimeterTitleName string, projectNumber int64) string {
 	return fmt.Sprintf(`
 %s
 
@@ -362,11 +363,11 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
     roles     = ["roles/bigquery.dataViewer"]
   }
 }
-`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, org)
+`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, orgTarget)
 }
 
 // step 4: update identities, update resource source and omit access_level source, update resources, omit roles and add updated operations
-func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step4(org, policyTitle, perimeterTitleName string, projectNumber int64) string {
+func testAccAccessContextManagerServicePerimeterIngressPolicy_ingressPolicyUpdate_step4(org, orgTarget, policyTitle, perimeterTitleName string, projectNumber int64) string {
 	return fmt.Sprintf(`
 %s
 
@@ -410,7 +411,7 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
     }
   }
   ingress_to {
-    resources = ["projects/%d"]
+    resources = ["projects/%d", google_folder.test-folder.name, "organizations/%s"]
     operations {
       service_name = "bigquery.googleapis.com"
       method_selectors {
@@ -422,7 +423,7 @@ resource "google_access_context_manager_service_perimeter_ingress_policy" "test-
     }
   }
 }
-`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, projectNumber)
+`, testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName), org, policyTitle, projectNumber, projectNumber, orgTarget)
 }
 
 func testAccAccessContextManagerServicePerimeterIngressPolicy_destroy(org, policyTitle, perimeterTitleName string) string {
