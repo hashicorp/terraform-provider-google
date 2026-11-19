@@ -230,9 +230,11 @@ within a given matchRule have AND semantics. All predicates within a matchRule m
 													Elem: &schema.Resource{
 														Schema: map[string]*schema.Schema{
 															"full_path_match": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `For satisfying the matchRule condition, the path of the request must exactly match the value specified in fullPathMatch after removing any query parameters and anchor that may be part of the original URL.`,
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `For satisfying the matchRule condition, the path of the request must exactly match the value specified in fullPathMatch after removing any query parameters and anchor that may be part of the original URL.
+
+One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must be specified.`,
 															},
 															"header_match": {
 																Type:        schema.TypeList,
@@ -269,6 +271,23 @@ If set to true, the headerMatch is considered a match if the match criteria abov
 																			Optional:    true,
 																			Description: `A header with the contents of headerName must exist. The match takes place whether or not the request's header has a value.`,
 																		},
+																		"regex_match": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `The value of the header (not the header name) must match the regular
+expression specified in regexMatch.
+
+regexMatch must match the entire header value. The value must be between
+1 and 1024 characters (inclusive) and must conform to RE2 specifications.
+
+Capture groups cannot be nested or repeated, contain '.*', '.+', or '.?',
+or be combined with '.*', '.+', or '.?' in the same sequence. Repetitions
+cannot be nested. Character classes cannot contain '/' or non-ASCII
+characters.
+
+Only one of exactMatch, prefixMatch, suffixMatch, regexMatch, or
+presentMatch must be set.`,
+																		},
 																		"suffix_match": {
 																			Type:        schema.TypeString,
 																			Optional:    true,
@@ -278,10 +297,12 @@ If set to true, the headerMatch is considered a match if the match criteria abov
 																},
 															},
 															"ignore_case": {
-																Type:        schema.TypeBool,
-																Computed:    true,
-																Optional:    true,
-																Description: `Specifies that prefixMatch and fullPathMatch matches are case sensitive.`,
+																Type:     schema.TypeBool,
+																Computed: true,
+																Optional: true,
+																Description: `Specifies that prefixMatch and fullPathMatch matches are not case sensitive. The default value is false, which means that matches are case sensitive.
+
+ignoreCase cannot be set to true when regexMatch is specified.`,
 															},
 															"path_template_match": {
 																Type:     schema.TypeString,
@@ -294,12 +315,16 @@ of the original URL.
 pathTemplateMatch must be between 1 and 255 characters
 (inclusive).  The pattern specified by pathTemplateMatch may
 have at most 5 wildcard operators and at most 5 variable
-captures in total.`,
+captures in total.
+
+One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must be specified.`,
 															},
 															"prefix_match": {
-																Type:        schema.TypeString,
-																Optional:    true,
-																Description: `For satisfying the matchRule condition, the request's path must begin with the specified prefixMatch. prefixMatch must begin with a /.`,
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `For satisfying the matchRule condition, the request's path must begin with the specified prefixMatch. prefixMatch must begin with a /.
+
+One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must be specified.`,
 															},
 															"query_parameter_match": {
 																Type:        schema.TypeList,
@@ -326,6 +351,25 @@ captures in total.`,
 																		},
 																	},
 																},
+															},
+															"regex_match": {
+																Type:     schema.TypeString,
+																Optional: true,
+																Description: `For satisfying the matchRule condition, the path of the request must
+match the regular expression specified in regexMatch after removing any
+query parameters and anchors that may be part of the original URL.
+
+regexMatch must match the entire path. The value must be between 1 and
+1024 characters (inclusive), must conform to RE2 specifications, and can
+have at most 8 capture groups.
+
+Capture groups cannot be nested or repeated, contain '.*', '.+', or '.?',
+or be combined with '.*', '.+', or '.?' in the same sequence. Repetitions
+cannot be nested. Character classes cannot contain '/' or non-ASCII
+characters.
+
+One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must
+be specified.`,
 															},
 														},
 													},
@@ -886,9 +930,11 @@ This translates to the Access-Control-Allow-Origin response header.`,
 																			Description: `Prior to forwarding the request to the selected origin, the request's host header is replaced with contents of hostRewrite.`,
 																		},
 																		"path_prefix_rewrite": {
-																			Type:        schema.TypeString,
-																			Optional:    true,
-																			Description: `Prior to forwarding the request to the selected origin, the matching portion of the request's path is replaced by pathPrefixRewrite.`,
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `Prior to forwarding the request to the selected origin, the matching portion of the request's path is replaced by pathPrefixRewrite.
+
+Only one of pathPrefixRewrite, pathTemplateRewrite, and regexRewrite may be specified.`,
 																		},
 																		"path_template_rewrite": {
 																			Type:     schema.TypeString,
@@ -905,8 +951,27 @@ captured by the route's pathTemplate matchers.
 pathTemplateRewrite may only be used when all of a route's
 MatchRules specify pathTemplate.
 
-Only one of pathPrefixRewrite and pathTemplateRewrite may be
-specified.`,
+Only one of pathPrefixRewrite, pathTemplateRewrite, and
+regexRewrite may be specified.`,
+																		},
+																		"regex_rewrite": {
+																			Type:     schema.TypeString,
+																			Optional: true,
+																			Description: `Prior to forwarding the request to the selected origin, if the
+request matched a regexMatch, the matching portion of the
+request's path is rewritten using the pattern specified by
+regexRewrite.
+
+regexRewrite must be between 1 and 1024 characters (inclusive),
+must start with a '/', must conform to RE2 rewrite specifications,
+and must reference every capture group defined in the route's
+regexMatch, and no others.
+
+regexRewrite may only be used when all of a route's matchRules
+specify regexMatch.
+
+Only one of pathPrefixRewrite, pathTemplateRewrite, and
+regexRewrite may be specified.`,
 																		},
 																	},
 																},
@@ -1838,6 +1903,7 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(
 			"prefix_match":          flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePrefixMatch(original["prefixMatch"], d, config),
 			"path_template_match":   flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePathTemplateMatch(original["pathTemplateMatch"], d, config),
 			"full_path_match":       flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleFullPathMatch(original["fullPathMatch"], d, config),
+			"regex_match":           flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleRegexMatch(original["regexMatch"], d, config),
 		})
 	}
 	return transformed
@@ -1865,6 +1931,7 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleH
 			"exact_match":   flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchExactMatch(original["exactMatch"], d, config),
 			"prefix_match":  flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchPrefixMatch(original["prefixMatch"], d, config),
 			"suffix_match":  flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchSuffixMatch(original["suffixMatch"], d, config),
+			"regex_match":   flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchRegexMatch(original["regexMatch"], d, config),
 			"invert_match":  flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchInvertMatch(original["invertMatch"], d, config),
 		})
 	}
@@ -1887,6 +1954,10 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleH
 }
 
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchSuffixMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchRegexMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1936,6 +2007,10 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleP
 }
 
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleFullPathMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleRegexMatch(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2309,6 +2384,8 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActio
 		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteHostRewrite(original["hostRewrite"], d, config)
 	transformed["path_template_rewrite"] =
 		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathTemplateRewrite(original["pathTemplateRewrite"], d, config)
+	transformed["regex_rewrite"] =
+		flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteRegexRewrite(original["regexRewrite"], d, config)
 	return []interface{}{transformed}
 }
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathPrefixRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -2320,6 +2397,10 @@ func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActio
 }
 
 func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathTemplateRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteRegexRewrite(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2765,6 +2846,13 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRule(v
 			transformed["fullPathMatch"] = transformedFullPathMatch
 		}
 
+		transformedRegexMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleRegexMatch(original["regex_match"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRegexMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["regexMatch"] = transformedRegexMatch
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -2822,6 +2910,13 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHe
 			transformed["suffixMatch"] = transformedSuffixMatch
 		}
 
+		transformedRegexMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchRegexMatch(original["regex_match"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRegexMatch); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["regexMatch"] = transformedRegexMatch
+		}
+
 		transformedInvertMatch, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchInvertMatch(original["invert_match"], d, config)
 		if err != nil {
 			return nil, err
@@ -2851,6 +2946,10 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHe
 }
 
 func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchSuffixMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleHeaderMatchRegexMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -2918,6 +3017,10 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRulePa
 }
 
 func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleFullPathMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleMatchRuleRegexMatch(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -3567,6 +3670,13 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 		transformed["pathTemplateRewrite"] = transformedPathTemplateRewrite
 	}
 
+	transformedRegexRewrite, err := expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteRegexRewrite(original["regex_rewrite"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedRegexRewrite); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["regexRewrite"] = transformedRegexRewrite
+	}
+
 	return transformed, nil
 }
 
@@ -3579,6 +3689,10 @@ func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteAction
 }
 
 func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewritePathTemplateRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesEdgeCacheServiceRoutingPathMatcherRouteRuleRouteActionUrlRewriteRegexRewrite(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

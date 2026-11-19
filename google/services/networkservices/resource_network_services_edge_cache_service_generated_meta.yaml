@@ -62,6 +62,8 @@ fields:
       field: routing.path_matcher.route_rule.match_rule.header_match.prefix_match
     - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.presentMatch
       field: routing.path_matcher.route_rule.match_rule.header_match.present_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.regexMatch
+      field: routing.path_matcher.route_rule.match_rule.header_match.regex_match
     - api_field: routing.pathMatchers.routeRules.matchRules.headerMatches.suffixMatch
       field: routing.path_matcher.route_rule.match_rule.header_match.suffix_match
     - api_field: routing.pathMatchers.routeRules.matchRules.ignoreCase
@@ -76,6 +78,8 @@ fields:
       field: routing.path_matcher.route_rule.match_rule.query_parameter_match.name
     - api_field: routing.pathMatchers.routeRules.matchRules.queryParameterMatches.presentMatch
       field: routing.path_matcher.route_rule.match_rule.query_parameter_match.present_match
+    - api_field: routing.pathMatchers.routeRules.matchRules.regexMatch
+      field: routing.path_matcher.route_rule.match_rule.regex_match
     - api_field: routing.pathMatchers.routeRules.origin
       field: routing.path_matcher.route_rule.origin
     - api_field: routing.pathMatchers.routeRules.priority
@@ -148,6 +152,8 @@ fields:
       field: routing.path_matcher.route_rule.route_action.url_rewrite.path_prefix_rewrite
     - api_field: routing.pathMatchers.routeRules.routeAction.urlRewrite.pathTemplateRewrite
       field: routing.path_matcher.route_rule.route_action.url_rewrite.path_template_rewrite
+    - api_field: routing.pathMatchers.routeRules.routeAction.urlRewrite.regexRewrite
+      field: routing.path_matcher.route_rule.route_action.url_rewrite.regex_rewrite
     - api_field: routing.pathMatchers.routeRules.routeMethods.allowedMethods
       field: routing.path_matcher.route_rule.route_methods.allowed_methods
     - api_field: routing.pathMatchers.routeRules.urlRedirect.hostRedirect
