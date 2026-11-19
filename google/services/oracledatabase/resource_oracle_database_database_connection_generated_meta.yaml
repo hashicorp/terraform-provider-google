@@ -1,0 +1,33 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_oracle_database_database_connection
+generation_type: mmv1
+source_file: products/oracledatabase/DatabaseConnection.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: DatabaseConnection
+autogen_status: true
+autogen_version: 2
+fields:
+    - api_field: connectionString
+    - api_field: createTime
+    - field: database_connection_id
+      provider_only: true
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: labels
+    - api_field: lifecycleDetails
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: odbNetwork
+    - api_field: passwordSecretVersion
+    - api_field: state
+    - field: terraform_labels
+      provider_only: true
+    - api_field: updateTime
+    - api_field: username
+    - api_field: walletSecretVersion
+    - field: deletion_policy
+      provider_only: true
