@@ -531,10 +531,7 @@ resolution and up to nine fractional digits.`,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"CLUSTER", "CLUSTER_DISABLED", ""}),
-				Description: `Optional. cluster or cluster-disabled. 
- Possible values:
- CLUSTER
- CLUSTER_DISABLED Possible values: ["CLUSTER", "CLUSTER_DISABLED"]`,
+				Description:  `Optional. cluster or cluster-disabled. Possible values: ["CLUSTER", "CLUSTER_DISABLED"]`,
 			},
 			"node_type": {
 				Type:     schema.TypeString,
@@ -587,11 +584,7 @@ ALWAYS`,
 							Computed:     true,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"DISABLED", "RDB", "AOF", ""}),
-							Description: `Optional. Current persistence mode. 
- Possible values:
-DISABLED
-RDB
-AOF Possible values: ["DISABLED", "RDB", "AOF"]`,
+							Description:  `Optional. Current persistence mode. Possible values: ["DISABLED", "RDB", "AOF"]`,
 						},
 						"rdb_config": {
 							Type:        schema.TypeList,
@@ -673,10 +666,7 @@ SERVER_AUTHENTICATION`,
 							Computed:     true,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"MULTI_ZONE", "SINGLE_ZONE", ""}),
-							Description: `Optional. Current zone distribution mode. Defaults to MULTI_ZONE. 
- Possible values:
- MULTI_ZONE
-SINGLE_ZONE Possible values: ["MULTI_ZONE", "SINGLE_ZONE"]`,
+							Description:  `Optional. Current zone distribution mode. Defaults to MULTI_ZONE. Possible values: ["MULTI_ZONE", "SINGLE_ZONE"]`,
 						},
 						"zone": {
 							Type:     schema.TypeString,

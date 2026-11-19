@@ -688,10 +688,6 @@ The following arguments are supported:
   `POLICY_SCOPE_UNSPECIFIED`, the policy will be applied to the user input.
   When applying the policy to the agent response, additional latency will
   be introduced before the agent can respond.
-  Possible values:
-  USER_QUERY
-  AGENT_RESPONSE
-  USER_QUERY_AND_AGENT_RESPONSE
   Possible values are: `USER_QUERY`, `AGENT_RESPONSE`, `USER_QUERY_AND_AGENT_RESPONSE`.
 
 * `prompt` -
@@ -826,22 +822,11 @@ The following arguments are supported:
 * `category` -
   (Required)
   The harm category.
-  Possible values:
-  HARM_CATEGORY_HATE_SPEECH
-  HARM_CATEGORY_DANGEROUS_CONTENT
-  HARM_CATEGORY_HARASSMENT
-  HARM_CATEGORY_SEXUALLY_EXPLICIT
   Possible values are: `HARM_CATEGORY_HATE_SPEECH`, `HARM_CATEGORY_DANGEROUS_CONTENT`, `HARM_CATEGORY_HARASSMENT`, `HARM_CATEGORY_SEXUALLY_EXPLICIT`.
 
 * `threshold` -
   (Required)
   The harm block threshold.
-  Possible values:
-  BLOCK_LOW_AND_ABOVE
-  BLOCK_MEDIUM_AND_ABOVE
-  BLOCK_ONLY_HIGH
-  BLOCK_NONE
-  OFF
   Possible values are: `BLOCK_LOW_AND_ABOVE`, `BLOCK_MEDIUM_AND_ABOVE`, `BLOCK_ONLY_HIGH`, `BLOCK_NONE`, `OFF`.
 
 ## Attributes Reference

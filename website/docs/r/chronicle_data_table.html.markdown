@@ -187,11 +187,6 @@ Possible values: DEFAULT, FORCE, PREVENT, ABANDON, DELETE
 * `column_type` -
   (Optional)
   Column type can be STRING, CIDR (Ex- 10.1.1.0/24), REGEX
-  Possible values:
-  STRING
-  REGEX
-  CIDR
-  NUMBER
   Possible values are: `STRING`, `REGEX`, `CIDR`, `NUMBER`.
 
 * `key_column` -

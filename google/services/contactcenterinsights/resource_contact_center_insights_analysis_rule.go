@@ -282,11 +282,7 @@ projects/{project}/locations/{location}/conversationProfiles/{conversation_profi
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"BASELINE_MODEL", "BASELINE_MODEL_V2_0", ""}),
-										Description: `Default summarization model to be used.
-Possible values:
-SUMMARIZATION_MODEL_UNSPECIFIED
-BASELINE_MODEL
-BASELINE_MODEL_V2_0 Possible values: ["BASELINE_MODEL", "BASELINE_MODEL_V2_0"]`,
+										Description:  `Default summarization model to be used. Possible values: ["BASELINE_MODEL", "BASELINE_MODEL_V2_0"]`,
 									},
 								},
 							},

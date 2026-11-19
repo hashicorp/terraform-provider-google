@@ -171,9 +171,6 @@ The following arguments are supported:
 * `effect` -
   (Required)
   The effect of the rule.
-  Possible values:
-  DENY
-  ALLOW
   Possible values are: `DENY`, `ALLOW`.
 
 * `excluded_principals` -

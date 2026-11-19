@@ -245,10 +245,6 @@ The following arguments are supported:
 * `summarization_model` -
   (Optional)
   Default summarization model to be used.
-  Possible values:
-  SUMMARIZATION_MODEL_UNSPECIFIED
-  BASELINE_MODEL
-  BASELINE_MODEL_V2_0
   Possible values are: `BASELINE_MODEL`, `BASELINE_MODEL_V2_0`.
 
 <a name="nested_annotator_selector_qa_config"></a>The `qa_config` block supports:

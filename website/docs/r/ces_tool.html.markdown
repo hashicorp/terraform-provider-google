@@ -822,10 +822,6 @@ The following arguments are supported:
 * `filter_parameter_behavior` -
   (Optional)
   Optional. The filter parameter behavior.
-  Possible values:
-  FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED
-  ALWAYS_INCLUDE
-  NEVER_INCLUDE
   Possible values are: `FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED`, `ALWAYS_INCLUDE`, `NEVER_INCLUDE`.
 
 * `max_results` -
@@ -1183,11 +1179,6 @@ The following arguments are supported:
 * `thinking_level` -
   (Optional)
   The thinking level of the model.
-  Possible values:
-  DEFAULT
-  LOW
-  MEDIUM
-  HIGH
   Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_data_store_tool_modality_configs_snippets_config"></a>The `snippets_config` block supports:
@@ -1234,11 +1225,6 @@ The following arguments are supported:
 * `thinking_level` -
   (Optional)
   The thinking level of the model.
-  Possible values:
-  DEFAULT
-  LOW
-  MEDIUM
-  HIGH
   Possible values are: `DEFAULT`, `LOW`, `MEDIUM`, `HIGH`.
 
 <a name="nested_file_search_tool"></a>The `file_search_tool` block supports:
@@ -1246,10 +1232,6 @@ The following arguments are supported:
 * `corpus_type` -
   (Optional)
   Optional. The type of the corpus. Default is FULLY_MANAGED.
-  Possible values:
-  CORPUS_TYPE_UNSPECIFIED
-  USER_OWNED
-  FULLY_MANAGED
   Possible values are: `CORPUS_TYPE_UNSPECIFIED`, `USER_OWNED`, `FULLY_MANAGED`.
 
 * `name` -
@@ -1377,20 +1359,6 @@ The following arguments are supported:
 * `widget_type` -
   (Optional)
   Optional. The type of the widget tool. If not specified, the default type will be CUSTOMIZED.
-  Possible values:
-  WIDGET_TYPE_UNSPECIFIED
-  CUSTOM
-  PRODUCT_CAROUSEL
-  PRODUCT_DETAILS
-  QUICK_ACTIONS
-  PRODUCT_COMPARISON
-  ADVANCED_PRODUCT_DETAILS
-  SHORT_FORM
-  OVERALL_SATISFACTION
-  ORDER_SUMMARY
-  APPOINTMENT_DETAILS
-  APPOINTMENT_SCHEDULER
-  CONTACT_FORM
   Possible values are: `WIDGET_TYPE_UNSPECIFIED`, `CUSTOM`, `PRODUCT_CAROUSEL`, `PRODUCT_DETAILS`, `QUICK_ACTIONS`, `PRODUCT_COMPARISON`, `ADVANCED_PRODUCT_DETAILS`, `SHORT_FORM`, `OVERALL_SATISFACTION`, `ORDER_SUMMARY`, `APPOINTMENT_DETAILS`, `APPOINTMENT_SCHEDULER`, `CONTACT_FORM`.
 
 * `ui_config` -
@@ -1435,10 +1403,6 @@ The following arguments are supported:
 * `mode` -
   (Optional)
   Optional. The mode of the data mapping.
-  Possible values:
-  MODE_UNSPECIFIED
-  FIELD_MAPPING
-  PYTHON_SCRIPT
   Possible values are: `MODE_UNSPECIFIED`, `FIELD_MAPPING`, `PYTHON_SCRIPT`.
 
 
@@ -1464,11 +1428,6 @@ The following arguments are supported:
 * `type` -
   (Optional)
   Optional. The strategy for providing the text response.
-  Possible values:
-  TYPE_UNSPECIFIED
-  NONE
-  LLM_GENERATED
-  STATIC
   Possible values are: `TYPE_UNSPECIFIED`, `NONE`, `LLM_GENERATED`, `STATIC`.
 
 * `static_text` -

@@ -124,9 +124,6 @@ The following arguments are supported:
   (Optional)
   The config for updating the unit kind. By default, the unit kind will be
   updated on the rollout start.
-  Possible values:
-  UPDATE_UNIT_KIND_STRATEGY_ON_START
-  UPDATE_UNIT_KIND_STRATEGY_NEVER
   Possible values are: `UPDATE_UNIT_KIND_STRATEGY_ON_START`, `UPDATE_UNIT_KIND_STRATEGY_NEVER`.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.

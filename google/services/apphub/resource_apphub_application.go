@@ -181,10 +181,7 @@ func ResourceApphubApplication() *schema.Resource {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"REGIONAL", "GLOBAL"}),
-							Description: `Required. Scope Type. 
- Possible values:
-REGIONAL
-GLOBAL Possible values: ["REGIONAL", "GLOBAL"]`,
+							Description:  `Required. Scope Type. Possible values: ["REGIONAL", "GLOBAL"]`,
 						},
 					},
 				},
