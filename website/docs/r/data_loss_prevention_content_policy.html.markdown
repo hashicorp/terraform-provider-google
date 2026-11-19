@@ -608,7 +608,6 @@ The following arguments are supported:
 * `return_verdict` -
   (Optional)
   If set, the verdict will be returned to the user.
-  Possible values: ["ALLOW", "BLOCK"]
   Possible values are: `ALLOW`, `BLOCK`.
 
 <a name="nested_inspect_config"></a>The `inspect_config` block supports:
@@ -1466,7 +1465,6 @@ The following arguments are supported:
 * `return_verdict` -
   (Optional)
   If set, the verdict will be returned to the user.
-  Possible values: ["ALLOW", "BLOCK"]
   Possible values are: `ALLOW`, `BLOCK`.
 
 <a name="nested_input_too_large"></a>The `input_too_large` block supports:
@@ -1474,7 +1472,6 @@ The following arguments are supported:
 * `return_verdict` -
   (Optional)
   If set, the verdict will be returned to the user.
-  Possible values: ["ALLOW", "BLOCK"]
   Possible values are: `ALLOW`, `BLOCK`.
 
 <a name="nested_failed_to_scan_supported_file_type"></a>The `failed_to_scan_supported_file_type` block supports:
@@ -1482,7 +1479,6 @@ The following arguments are supported:
 * `return_verdict` -
   (Optional)
   If set, the verdict will be returned to the user.
-  Possible values: ["ALLOW", "BLOCK"]
   Possible values are: `ALLOW`, `BLOCK`.
 
 <a name="nested_default_action"></a>The `default_action` block supports:
@@ -1490,7 +1486,6 @@ The following arguments are supported:
 * `return_verdict` -
   (Optional)
   If set, the verdict will be returned to the user.
-  Possible values: ["ALLOW", "BLOCK"]
   Possible values are: `ALLOW`, `BLOCK`.
 
 <a name="nested_logging_configs"></a>The `logging_configs` block supports:

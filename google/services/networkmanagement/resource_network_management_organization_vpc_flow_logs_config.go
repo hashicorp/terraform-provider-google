@@ -173,10 +173,7 @@ INTERVAL_5_SEC.   Possible values: INTERVAL_5_SEC INTERVAL_30_SEC INTERVAL_1_MIN
 				ValidateFunc: verify.ValidateEnum([]string{"CROSS_PROJECT_METADATA_ENABLED", "CROSS_PROJECT_METADATA_DISABLED", ""}),
 				Description: `Determines whether to include cross project annotations in the logs.
 This field is available only for organization configurations. If not
-specified in org configs will be set to CROSS_PROJECT_METADATA_ENABLED.
-Possible values:
-CROSS_PROJECT_METADATA_ENABLED
-CROSS_PROJECT_METADATA_DISABLED Possible values: ["CROSS_PROJECT_METADATA_ENABLED", "CROSS_PROJECT_METADATA_DISABLED"]`,
+specified in org configs will be set to CROSS_PROJECT_METADATA_ENABLED. Possible values: ["CROSS_PROJECT_METADATA_ENABLED", "CROSS_PROJECT_METADATA_DISABLED"]`,
 			},
 			"description": {
 				Type:     schema.TypeString,

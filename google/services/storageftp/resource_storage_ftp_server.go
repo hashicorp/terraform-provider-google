@@ -170,7 +170,7 @@ func ResourceStorageFtpServer() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"INTERNAL", "EXTERNAL"}),
-				Description:  `The access type for this SFTP server. Possible values: INTERNAL, EXTERNAL Possible values: ["INTERNAL", "EXTERNAL"]`,
+				Description:  `The access type for this SFTP server. Possible values: ["INTERNAL", "EXTERNAL"]`,
 			},
 			"location": {
 				Type:        schema.TypeString,

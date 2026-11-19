@@ -90,7 +90,7 @@ The following arguments are supported:
 
 * `access_type` -
   (Required)
-  The access type for this SFTP server. Possible values: INTERNAL, EXTERNAL
+  The access type for this SFTP server.
   Possible values are: `INTERNAL`, `EXTERNAL`.
 
 * `location` -

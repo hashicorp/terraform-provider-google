@@ -107,9 +107,6 @@ The following arguments are supported:
   Determines whether to include cross project annotations in the logs.
   This field is available only for organization configurations. If not
   specified in org configs will be set to CROSS_PROJECT_METADATA_ENABLED.
-  Possible values:
-  CROSS_PROJECT_METADATA_ENABLED
-  CROSS_PROJECT_METADATA_DISABLED
   Possible values are: `CROSS_PROJECT_METADATA_ENABLED`, `CROSS_PROJECT_METADATA_DISABLED`.
 
 * `deletion_policy` - (Optional) Whether Terraform will be prevented from destroying the resource. Defaults to DELETE.

@@ -911,10 +911,7 @@ https://cloud.google.com/filestore/docs/service-tiers.`,
 													Type:         schema.TypeString,
 													Required:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"TIER_UNSPECIFIED", "ZONAL", "REGIONAL"}),
-													Description: `Service tier to use for the instance.
-Possible values:
-ZONAL
-REGIONAL Possible values: ["TIER_UNSPECIFIED", "ZONAL", "REGIONAL"]`,
+													Description:  `Service tier to use for the instance. Possible values: ["TIER_UNSPECIFIED", "ZONAL", "REGIONAL"]`,
 												},
 												"description": {
 													Type:        schema.TypeString,
@@ -926,10 +923,7 @@ REGIONAL Possible values: ["TIER_UNSPECIFIED", "ZONAL", "REGIONAL"]`,
 													Optional:     true,
 													ValidateFunc: verify.ValidateEnum([]string{"PROTOCOL_UNSPECIFIED", "NFSV3", "NFSV41", ""}),
 													Description: `Access protocol to use for all file shares in the instance. Defaults to NFS
-V3 if not set.
-Possible values:
-NFSV3
-NFSV41 Possible values: ["PROTOCOL_UNSPECIFIED", "NFSV3", "NFSV41"]`,
+V3 if not set. Possible values: ["PROTOCOL_UNSPECIFIED", "NFSV3", "NFSV41"]`,
 												},
 											},
 										},

@@ -671,10 +671,7 @@ The following arguments are supported:
 
 * `mode` -
   (Optional)
-  Optional. cluster or cluster-disabled. 
-   Possible values:
-   CLUSTER
-   CLUSTER_DISABLED
+  Optional. cluster or cluster-disabled.
   Possible values are: `CLUSTER`, `CLUSTER_DISABLED`.
 
 * `gcs_source` -
@@ -752,11 +749,7 @@ The following arguments are supported:
 
 * `mode` -
   (Optional)
-  Optional. Current persistence mode. 
-   Possible values:
-  DISABLED
-  RDB
-  AOF
+  Optional. Current persistence mode.
   Possible values are: `DISABLED`, `RDB`, `AOF`.
 
 * `rdb_config` -
@@ -876,10 +869,7 @@ The following arguments are supported:
 
 * `mode` -
   (Optional)
-  Optional. Current zone distribution mode. Defaults to MULTI_ZONE. 
-   Possible values:
-   MULTI_ZONE
-  SINGLE_ZONE
+  Optional. Current zone distribution mode. Defaults to MULTI_ZONE.
   Possible values are: `MULTI_ZONE`, `SINGLE_ZONE`.
 
 * `zones` -

@@ -231,10 +231,7 @@ This filter can only reduce, but not expand the scope of the rollout.`,
 				Optional:     true,
 				ValidateFunc: verify.ValidateEnum([]string{"UPDATE_UNIT_KIND_STRATEGY_ON_START", "UPDATE_UNIT_KIND_STRATEGY_NEVER", ""}),
 				Description: `The config for updating the unit kind. By default, the unit kind will be
-updated on the rollout start.
-Possible values:
-UPDATE_UNIT_KIND_STRATEGY_ON_START
-UPDATE_UNIT_KIND_STRATEGY_NEVER Possible values: ["UPDATE_UNIT_KIND_STRATEGY_ON_START", "UPDATE_UNIT_KIND_STRATEGY_NEVER"]`,
+updated on the rollout start. Possible values: ["UPDATE_UNIT_KIND_STRATEGY_ON_START", "UPDATE_UNIT_KIND_STRATEGY_NEVER"]`,
 			},
 			"create_time": {
 				Type:        schema.TypeString,

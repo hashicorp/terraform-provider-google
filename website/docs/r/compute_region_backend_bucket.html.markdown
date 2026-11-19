@@ -204,8 +204,7 @@ The following arguments are supported:
 
 * `load_balancing_scheme` -
   (Optional)
-  Specifies the load balancer type this backend bucket will be used with.
-  Possible values:
+  Specifies the load balancer type this backend bucket will be used with:
   - 'INTERNAL_MANAGED': for regional internal Application Load Balancers
   - 'EXTERNAL_MANAGED': for regional external Application Load Balancers
   This field is required for regional backend buckets.

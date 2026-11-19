@@ -786,17 +786,11 @@ The following arguments are supported:
   (Optional)
   Access protocol to use for all file shares in the instance. Defaults to NFS
   V3 if not set.
-  Possible values:
-  NFSV3
-  NFSV41
   Possible values are: `PROTOCOL_UNSPECIFIED`, `NFSV3`, `NFSV41`.
 
 * `tier` -
   (Required)
   Service tier to use for the instance.
-  Possible values:
-  ZONAL
-  REGIONAL
   Possible values are: `TIER_UNSPECIFIED`, `ZONAL`, `REGIONAL`.
 
 

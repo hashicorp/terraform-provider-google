@@ -185,10 +185,7 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 										Type:         schema.TypeString,
 										Required:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"DENY", "ALLOW"}),
-										Description: `The effect of the rule.
-Possible values:
-DENY
-ALLOW Possible values: ["DENY", "ALLOW"]`,
+										Description:  `The effect of the rule. Possible values: ["DENY", "ALLOW"]`,
 									},
 									"operation": {
 										Type:     schema.TypeList,

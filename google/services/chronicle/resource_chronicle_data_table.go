@@ -199,12 +199,7 @@ following requirements:
 							Optional:     true,
 							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"STRING", "REGEX", "CIDR", "NUMBER", ""}),
-							Description: `Column type can be STRING, CIDR (Ex- 10.1.1.0/24), REGEX
-Possible values:
-STRING
-REGEX
-CIDR
-NUMBER Possible values: ["STRING", "REGEX", "CIDR", "NUMBER"]`,
+							Description:  `Column type can be STRING, CIDR (Ex- 10.1.1.0/24), REGEX Possible values: ["STRING", "REGEX", "CIDR", "NUMBER"]`,
 						},
 						"key_column": {
 							Type:     schema.TypeBool,

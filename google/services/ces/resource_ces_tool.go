@@ -876,11 +876,7 @@ https://cloud.google.com/generative-ai-app-builder/docs/filter-search-metadata`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED", "ALWAYS_INCLUDE", "NEVER_INCLUDE", ""}),
-							Description: `Optional. The filter parameter behavior.
-Possible values:
-FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED
-ALWAYS_INCLUDE
-NEVER_INCLUDE Possible values: ["FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED", "ALWAYS_INCLUDE", "NEVER_INCLUDE"]`,
+							Description:  `Optional. The filter parameter behavior. Possible values: ["FILTER_PARAMETER_BEHAVIOR_UNSPECIFIED", "ALWAYS_INCLUDE", "NEVER_INCLUDE"]`,
 						},
 						"max_results": {
 							Type:       schema.TypeInt,
@@ -961,12 +957,7 @@ responses that are more creative.`,
 																Type:         schema.TypeString,
 																Optional:     true,
 																ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "LOW", "MEDIUM", "HIGH", ""}),
-																Description: `The thinking level of the model.
-Possible values:
-DEFAULT
-LOW
-MEDIUM
-HIGH Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
+																Description:  `The thinking level of the model. Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
 															},
 														},
 													},
@@ -1043,12 +1034,7 @@ responses that are more creative.`,
 																Type:         schema.TypeString,
 																Optional:     true,
 																ValidateFunc: verify.ValidateEnum([]string{"DEFAULT", "LOW", "MEDIUM", "HIGH", ""}),
-																Description: `The thinking level of the model.
-Possible values:
-DEFAULT
-LOW
-MEDIUM
-HIGH Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
+																Description:  `The thinking level of the model. Possible values: ["DEFAULT", "LOW", "MEDIUM", "HIGH"]`,
 															},
 														},
 													},
@@ -1091,11 +1077,7 @@ app/agent developer.`,
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"CORPUS_TYPE_UNSPECIFIED", "USER_OWNED", "FULLY_MANAGED", ""}),
-							Description: `Optional. The type of the corpus. Default is FULLY_MANAGED.
-Possible values:
-CORPUS_TYPE_UNSPECIFIED
-USER_OWNED
-FULLY_MANAGED Possible values: ["CORPUS_TYPE_UNSPECIFIED", "USER_OWNED", "FULLY_MANAGED"]`,
+							Description:  `Optional. The type of the corpus. Default is FULLY_MANAGED. Possible values: ["CORPUS_TYPE_UNSPECIFIED", "USER_OWNED", "FULLY_MANAGED"]`,
 						},
 						"description": {
 							Type:        schema.TypeString,
@@ -1301,11 +1283,7 @@ An object containing a list of "key": value pairs. Example: { "name": "wrench", 
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"MODE_UNSPECIFIED", "FIELD_MAPPING", "PYTHON_SCRIPT", ""}),
-										Description: `Optional. The mode of the data mapping.
-Possible values:
-MODE_UNSPECIFIED
-FIELD_MAPPING
-PYTHON_SCRIPT Possible values: ["MODE_UNSPECIFIED", "FIELD_MAPPING", "PYTHON_SCRIPT"]`,
+										Description:  `Optional. The mode of the data mapping. Possible values: ["MODE_UNSPECIFIED", "FIELD_MAPPING", "PYTHON_SCRIPT"]`,
 									},
 									"python_function": {
 										Type:     schema.TypeList,
@@ -1531,12 +1509,7 @@ the description for the text response parameter if type is LLM_GENERATED.`,
 										Type:         schema.TypeString,
 										Optional:     true,
 										ValidateFunc: verify.ValidateEnum([]string{"TYPE_UNSPECIFIED", "NONE", "LLM_GENERATED", "STATIC", ""}),
-										Description: `Optional. The strategy for providing the text response.
-Possible values:
-TYPE_UNSPECIFIED
-NONE
-LLM_GENERATED
-STATIC Possible values: ["TYPE_UNSPECIFIED", "NONE", "LLM_GENERATED", "STATIC"]`,
+										Description:  `Optional. The strategy for providing the text response. Possible values: ["TYPE_UNSPECIFIED", "NONE", "LLM_GENERATED", "STATIC"]`,
 									},
 								},
 							},
@@ -1552,21 +1525,7 @@ STATIC Possible values: ["TYPE_UNSPECIFIED", "NONE", "LLM_GENERATED", "STATIC"]`
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"WIDGET_TYPE_UNSPECIFIED", "CUSTOM", "PRODUCT_CAROUSEL", "PRODUCT_DETAILS", "QUICK_ACTIONS", "PRODUCT_COMPARISON", "ADVANCED_PRODUCT_DETAILS", "SHORT_FORM", "OVERALL_SATISFACTION", "ORDER_SUMMARY", "APPOINTMENT_DETAILS", "APPOINTMENT_SCHEDULER", "CONTACT_FORM", ""}),
-							Description: `Optional. The type of the widget tool. If not specified, the default type will be CUSTOMIZED.
-Possible values:
-WIDGET_TYPE_UNSPECIFIED
-CUSTOM
-PRODUCT_CAROUSEL
-PRODUCT_DETAILS
-QUICK_ACTIONS
-PRODUCT_COMPARISON
-ADVANCED_PRODUCT_DETAILS
-SHORT_FORM
-OVERALL_SATISFACTION
-ORDER_SUMMARY
-APPOINTMENT_DETAILS
-APPOINTMENT_SCHEDULER
-CONTACT_FORM Possible values: ["WIDGET_TYPE_UNSPECIFIED", "CUSTOM", "PRODUCT_CAROUSEL", "PRODUCT_DETAILS", "QUICK_ACTIONS", "PRODUCT_COMPARISON", "ADVANCED_PRODUCT_DETAILS", "SHORT_FORM", "OVERALL_SATISFACTION", "ORDER_SUMMARY", "APPOINTMENT_DETAILS", "APPOINTMENT_SCHEDULER", "CONTACT_FORM"]`,
+							Description:  `Optional. The type of the widget tool. If not specified, the default type will be CUSTOMIZED. Possible values: ["WIDGET_TYPE_UNSPECIFIED", "CUSTOM", "PRODUCT_CAROUSEL", "PRODUCT_DETAILS", "QUICK_ACTIONS", "PRODUCT_COMPARISON", "ADVANCED_PRODUCT_DETAILS", "SHORT_FORM", "OVERALL_SATISFACTION", "ORDER_SUMMARY", "APPOINTMENT_DETAILS", "APPOINTMENT_SCHEDULER", "CONTACT_FORM"]`,
 						},
 					},
 				},

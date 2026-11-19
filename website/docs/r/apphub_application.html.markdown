@@ -149,10 +149,7 @@ The following arguments are supported:
 
 * `type` -
   (Required)
-  Required. Scope Type. 
-   Possible values:
-  REGIONAL
-  GLOBAL
+  Required. Scope Type.
   Possible values are: `REGIONAL`, `GLOBAL`.
 
 <a name="nested_attributes"></a>The `attributes` block supports:

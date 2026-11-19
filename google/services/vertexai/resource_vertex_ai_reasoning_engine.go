@@ -1301,7 +1301,6 @@ Platform Reasoning Engine service Agent.`,
 							Description: `Optional. The identity type to use for the Reasoning Engine.
 If not specified, the 'service_account' field will be used if set,
 otherwise the default Vertex AI Reasoning Engine Service Agent in the project will be used.
-Possible values:
 * 'SERVICE_ACCOUNT': Use a custom service account if the 'service_account' field is set, otherwise use the default Vertex AI Reasoning Engine Service Agent in the project.
 * 'AGENT_IDENTITY': Use Agent Identity. The 'service_account' field must not be set. Possible values: ["SERVICE_ACCOUNT", "AGENT_IDENTITY"]`,
 						},
