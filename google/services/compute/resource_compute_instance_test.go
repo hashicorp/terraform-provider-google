@@ -2971,6 +2971,8 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 
 	var instance map[string]interface{}
 	var instance2 map[string]interface{}
+	var instance3 map[string]interface{}
+	var instance4 map[string]interface{}
 	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -2985,6 +2987,10 @@ func TestAccComputeInstanceConfidentialInstanceConfigMain(t *testing.T) {
 					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance, true, "SEV"),
 					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar2", &instance2),
 					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance2, true, ""),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar3", &instance3),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance3, true, "SEV"),
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar4", &instance4),
+					testAccCheckComputeInstanceHasConfidentialInstanceConfig(&instance4, true, ""),
 				),
 			},
 			{
@@ -9960,8 +9966,57 @@ resource "google_compute_instance" "foobar2" {
 
 }
 
+resource "google_compute_instance" "foobar3" {
+  name         = "%s3"
+  machine_type = "c3d-standard-4"
+  zone         = "us-central1-a"
 
-`, instance, confidentialInstanceType, instance)
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute       = true
+    confidential_instance_type        = %q
+  }
+
+  scheduling {
+	  on_host_maintenance = "TERMINATE"
+  }
+
+}
+
+resource "google_compute_instance" "foobar4" {
+  name         = "%s4"
+  machine_type = "c3d-standard-4"
+  zone         = "us-central1-a"
+
+  boot_disk {
+    initialize_params {
+      image = data.google_compute_image.my_image.self_link
+    }
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  confidential_instance_config {
+    enable_confidential_compute       = true
+  }
+
+  scheduling {
+    on_host_maintenance = "TERMINATE"
+  }
+
+}
+`, instance, confidentialInstanceType, instance, instance, confidentialInstanceType, instance)
 }
 
 func testAccComputeInstanceConfidentialInstanceConfigNoEnable(instance string, minCpuPlatform, confidentialInstanceType string) string {
