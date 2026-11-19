@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/networkservices"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/storage"
@@ -358,6 +359,266 @@ resource "google_network_services_edge_cache_service" "served" {
           response_header_to_add {
             header_name  = "x-cache-status"
             header_value = "{cdn_cache_status}"
+          }
+        }
+      }
+    }
+  }
+}
+`, bktName, originName, serviceName)
+}
+
+func TestAccNetworkServicesEdgeCacheService_regexMatchAndRewrite(t *testing.T) {
+	t.Parallel()
+	namebkt := "tf-test-bucket-" + acctest.RandString(t, 10)
+	nameorigin := "tf-test-origin-" + acctest.RandString(t, 10)
+	nameservice := "tf-test-service-" + acctest.RandString(t, 10)
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesEdgeCacheServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesEdgeCacheService_regexMatchAndRewrite_0(namebkt, nameorigin, nameservice),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.regex_match", "/videos/([a-z0-9_-]+)/([a-z0-9_-]+)"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.header_match.0.regex_match", "tenant-[a-z0-9]+"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.route_action.0.url_rewrite.0.regex_rewrite", "/media/\\1/\\2"),
+				),
+			},
+			{
+				ResourceName:      "google_network_services_edge_cache_service.served",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccNetworkServicesEdgeCacheService_regexMatchAndRewrite_1(namebkt, nameorigin, nameservice),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_edge_cache_service.served", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.regex_match", "/assets/([a-z0-9_-]+)/v([0-9]+)/([a-z0-9_-]+)"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.header_match.0.regex_match", "region-[a-z]{2}-[0-9]+"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.route_action.0.url_rewrite.0.regex_rewrite", "/static/v\\2/\\1/\\3"),
+				),
+			},
+			{
+				ResourceName:      "google_network_services_edge_cache_service.served",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccNetworkServicesEdgeCacheService_regexMatchAndRewrite_2(namebkt, nameorigin, nameservice),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_edge_cache_service.served", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.regex_match", "/health/[a-z0-9_-]+"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.header_match.0.present_match", "true"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.match_rule.0.header_match.0.regex_match", ""),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.0.route_action.0.url_rewrite.#", "0"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.1.match_rule.0.ignore_case", "true"),
+					resource.TestCheckResourceAttr("google_network_services_edge_cache_service.served", "routing.0.path_matcher.0.route_rule.2.route_action.0.url_rewrite.0.path_template_rewrite", "/v1/{id}"),
+				),
+			},
+			{
+				ResourceName:      "google_network_services_edge_cache_service.served",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesEdgeCacheService_regexMatchAndRewrite_0(bktName, originName, serviceName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "dest" {
+  name                        = "%s"
+  location                    = "US"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+}
+resource "google_network_services_edge_cache_origin" "instance" {
+  name           = "%s"
+  origin_address = google_storage_bucket.dest.url
+  description    = "The default bucket for media edge test"
+  max_attempts   = 2
+  timeout {
+    connect_timeout = "10s"
+  }
+}
+resource "google_network_services_edge_cache_service" "served" {
+  name        = "%s"
+  description = "regex match and rewrite test"
+  routing {
+    host_rule {
+      description  = "host rule description"
+      hosts        = ["sslcert.tf-test.club"]
+      path_matcher = "routes"
+    }
+    path_matcher {
+      name = "routes"
+      route_rule {
+        description = "a route rule using regex match and rewrite"
+        priority    = 1
+        match_rule {
+          regex_match = "/videos/([a-z0-9_-]+)/([a-z0-9_-]+)"
+          header_match {
+            header_name = "x-custom-header"
+            regex_match = "tenant-[a-z0-9]+"
+          }
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+            cache_mode  = "CACHE_ALL_STATIC"
+            default_ttl = "3600s"
+          }
+          url_rewrite {
+            regex_rewrite = "/media/\\1/\\2"
+          }
+        }
+      }
+    }
+  }
+}
+`, bktName, originName, serviceName)
+}
+
+func testAccNetworkServicesEdgeCacheService_regexMatchAndRewrite_1(bktName, originName, serviceName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "dest" {
+  name                        = "%s"
+  location                    = "US"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+}
+resource "google_network_services_edge_cache_origin" "instance" {
+  name           = "%s"
+  origin_address = google_storage_bucket.dest.url
+  description    = "The default bucket for media edge test"
+  max_attempts   = 2
+  timeout {
+    connect_timeout = "10s"
+  }
+}
+resource "google_network_services_edge_cache_service" "served" {
+  name        = "%s"
+  description = "regex match and rewrite test updated"
+  routing {
+    host_rule {
+      description  = "host rule description"
+      hosts        = ["sslcert.tf-test.club"]
+      path_matcher = "routes"
+    }
+    path_matcher {
+      name = "routes"
+      route_rule {
+        description = "an updated route rule using regex match and rewrite"
+        priority    = 1
+        match_rule {
+          regex_match = "/assets/([a-z0-9_-]+)/v([0-9]+)/([a-z0-9_-]+)"
+          header_match {
+            header_name = "x-custom-header"
+            regex_match = "region-[a-z]{2}-[0-9]+"
+          }
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+            cache_mode  = "CACHE_ALL_STATIC"
+            default_ttl = "3600s"
+          }
+          url_rewrite {
+            regex_rewrite = "/static/v\\2/\\1/\\3"
+          }
+        }
+      }
+    }
+  }
+}
+`, bktName, originName, serviceName)
+}
+
+func testAccNetworkServicesEdgeCacheService_regexMatchAndRewrite_2(bktName, originName, serviceName string) string {
+	return fmt.Sprintf(`
+resource "google_storage_bucket" "dest" {
+  name                        = "%s"
+  location                    = "US"
+  force_destroy               = true
+  uniform_bucket_level_access = true
+}
+resource "google_network_services_edge_cache_origin" "instance" {
+  name           = "%s"
+  origin_address = google_storage_bucket.dest.url
+  description    = "The default bucket for media edge test"
+  max_attempts   = 2
+  timeout {
+    connect_timeout = "10s"
+  }
+}
+resource "google_network_services_edge_cache_service" "served" {
+  name        = "%s"
+  description = "regex match without rewrite test"
+  routing {
+    host_rule {
+      description  = "host rule description"
+      hosts        = ["sslcert.tf-test.club"]
+      path_matcher = "routes"
+    }
+    path_matcher {
+      name = "routes"
+      route_rule {
+        description = "a route rule using regex match without url rewrite"
+        priority    = 1
+        match_rule {
+          regex_match = "/health/[a-z0-9_-]+"
+          header_match {
+            header_name   = "x-custom-header"
+            present_match = true
+          }
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+            cache_mode  = "CACHE_ALL_STATIC"
+            default_ttl = "3600s"
+          }
+        }
+      }
+      route_rule {
+        description = "a route rule using case-insensitive prefix match"
+        priority    = 2
+        match_rule {
+          prefix_match = "/static/"
+          ignore_case  = true
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+            cache_mode  = "CACHE_ALL_STATIC"
+            default_ttl = "3600s"
+          }
+        }
+      }
+      route_rule {
+        description = "a route rule using path template match and rewrite"
+        priority    = 3
+        match_rule {
+          path_template_match = "/items/{id}"
+        }
+        origin = google_network_services_edge_cache_origin.instance.name
+        route_action {
+          cdn_policy {
+            cache_mode  = "CACHE_ALL_STATIC"
+            default_ttl = "3600s"
+          }
+          url_rewrite {
+            path_template_rewrite = "/v1/{id}"
           }
         }
       }

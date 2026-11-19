@@ -586,7 +586,8 @@ The following arguments are supported:
 
 * `ignore_case` -
   (Optional)
-  Specifies that prefixMatch and fullPathMatch matches are case sensitive.
+  Specifies that prefixMatch and fullPathMatch matches are not case sensitive. The default value is false, which means that matches are case sensitive.
+  ignoreCase cannot be set to true when regexMatch is specified.
 
 * `header_match` -
   (Optional)
@@ -601,6 +602,7 @@ The following arguments are supported:
 * `prefix_match` -
   (Optional)
   For satisfying the matchRule condition, the request's path must begin with the specified prefixMatch. prefixMatch must begin with a /.
+  One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must be specified.
 
 * `path_template_match` -
   (Optional)
@@ -612,10 +614,27 @@ The following arguments are supported:
   (inclusive).  The pattern specified by pathTemplateMatch may
   have at most 5 wildcard operators and at most 5 variable
   captures in total.
+  One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must be specified.
 
 * `full_path_match` -
   (Optional)
   For satisfying the matchRule condition, the path of the request must exactly match the value specified in fullPathMatch after removing any query parameters and anchor that may be part of the original URL.
+  One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must be specified.
+
+* `regex_match` -
+  (Optional)
+  For satisfying the matchRule condition, the path of the request must
+  match the regular expression specified in regexMatch after removing any
+  query parameters and anchors that may be part of the original URL.
+  regexMatch must match the entire path. The value must be between 1 and
+  1024 characters (inclusive), must conform to RE2 specifications, and can
+  have at most 8 capture groups.
+  Capture groups cannot be nested or repeated, contain `.*`, `.+`, or `.?`,
+  or be combined with `.*`, `.+`, or `.?` in the same sequence. Repetitions
+  cannot be nested. Character classes cannot contain `/` or non-ASCII
+  characters.
+  One of prefixMatch, fullPathMatch, pathTemplateMatch, or regexMatch must
+  be specified.
 
 
 <a name="nested_routing_path_matcher_route_rule_match_rule_header_match"></a>The `header_match` block supports:
@@ -639,6 +658,19 @@ The following arguments are supported:
 * `suffix_match` -
   (Optional)
   The value of the header must end with the contents of suffixMatch.
+
+* `regex_match` -
+  (Optional)
+  The value of the header (not the header name) must match the regular
+  expression specified in regexMatch.
+  regexMatch must match the entire header value. The value must be between
+  1 and 1024 characters (inclusive) and must conform to RE2 specifications.
+  Capture groups cannot be nested or repeated, contain `.*`, `.+`, or `.?`,
+  or be combined with `.*`, `.+`, or `.?` in the same sequence. Repetitions
+  cannot be nested. Character classes cannot contain `/` or non-ASCII
+  characters.
+  Only one of exactMatch, prefixMatch, suffixMatch, regexMatch, or
+  presentMatch must be set.
 
 * `invert_match` -
   (Optional)
@@ -967,6 +999,7 @@ The following arguments are supported:
 * `path_prefix_rewrite` -
   (Optional)
   Prior to forwarding the request to the selected origin, the matching portion of the request's path is replaced by pathPrefixRewrite.
+  Only one of pathPrefixRewrite, pathTemplateRewrite, and regexRewrite may be specified.
 
 * `host_rewrite` -
   (Optional)
@@ -983,8 +1016,23 @@ The following arguments are supported:
   captured by the route's pathTemplate matchers.
   pathTemplateRewrite may only be used when all of a route's
   MatchRules specify pathTemplate.
-  Only one of pathPrefixRewrite and pathTemplateRewrite may be
-  specified.
+  Only one of pathPrefixRewrite, pathTemplateRewrite, and
+  regexRewrite may be specified.
+
+* `regex_rewrite` -
+  (Optional)
+  Prior to forwarding the request to the selected origin, if the
+  request matched a regexMatch, the matching portion of the
+  request's path is rewritten using the pattern specified by
+  regexRewrite.
+  regexRewrite must be between 1 and 1024 characters (inclusive),
+  must start with a '/', must conform to RE2 rewrite specifications,
+  and must reference every capture group defined in the route's
+  regexMatch, and no others.
+  regexRewrite may only be used when all of a route's matchRules
+  specify regexMatch.
+  Only one of pathPrefixRewrite, pathTemplateRewrite, and
+  regexRewrite may be specified.
 
 <a name="nested_routing_path_matcher_route_rule_route_action_cors_policy"></a>The `cors_policy` block supports:
 
