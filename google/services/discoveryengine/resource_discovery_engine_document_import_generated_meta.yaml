@@ -1,0 +1,36 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_discovery_engine_document_import
+generation_type: mmv1
+source_file: products/discoveryengine/DocumentImport.yaml
+api_service_name: discoveryengine.googleapis.com
+api_version: v1
+api_resource_type_kind: DocumentImport
+fields:
+    - api_field: autoGenerateIds
+    - api_field: bigquerySource.dataSchema
+    - api_field: bigquerySource.datasetId
+    - api_field: bigquerySource.gcsStagingDir
+    - api_field: bigquerySource.partitionDate.day
+    - api_field: bigquerySource.partitionDate.month
+    - api_field: bigquerySource.partitionDate.year
+    - api_field: bigquerySource.projectId
+    - api_field: bigquerySource.tableId
+    - field: branch_id
+      provider_only: true
+    - field: collection_id
+      provider_only: true
+    - field: data_store_id
+      provider_only: true
+    - api_field: errorConfig.gcsPrefix
+    - api_field: forceRefreshContent
+    - api_field: gcsSource.dataSchema
+    - api_field: gcsSource.inputUris
+    - api_field: idField
+    - field: import_id
+      provider_only: true
+    - field: location
+      provider_only: true
+    - api_field: reconciliationMode
+    - field: deletion_policy
+      provider_only: true
