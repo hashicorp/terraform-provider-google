@@ -1,0 +1,21 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_cloud_identity_inbound_sso_assignment
+generation_type: mmv1
+source_file: products/cloudidentity/InboundSsoAssignment.yaml
+api_service_name: cloudidentity.googleapis.com
+api_version: v1
+api_resource_type_kind: InboundSsoAssignment
+fields:
+    - api_field: customer
+    - api_field: name
+      field: inbound_sso_assignment_id
+    - api_field: name
+    - api_field: oidcSsoInfo.inboundOidcSsoProfile
+    - api_field: rank
+    - api_field: samlSsoInfo.inboundSamlSsoProfile
+    - api_field: ssoMode
+    - api_field: targetGroup
+    - api_field: targetOrgUnit
+    - field: deletion_policy
+      provider_only: true
