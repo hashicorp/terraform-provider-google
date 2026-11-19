@@ -126,6 +126,89 @@ resource "google_bigtable_schema_bundle" "schema_bundle" {
 `, context)
 }
 
+func TestAccBigtableSchemaBundle_bigtableSchemaBundleAvroExample(t *testing.T) {
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"instance_name":      "tf-test-bt-instance" + randomSuffix,
+		"schema_bundle_name": "tf-test-bt-schema-bundle" + randomSuffix,
+		"table_name":         "tf-test-bt-table" + randomSuffix,
+		"random_suffix":      randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigtableSchemaBundleDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableSchemaBundle_bigtableSchemaBundleAvroExample(context),
+			},
+			{
+				ResourceName:            "google_bigtable_schema_bundle.schema_bundle",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings", "ignore_warnings", "instance", "schema_bundle_id", "table"},
+			},
+			{
+				ResourceName:       "google_bigtable_schema_bundle.schema_bundle",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccBigtableSchemaBundle_bigtableSchemaBundleAvroExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_bigtable_instance" "instance" {
+  name = "%{instance_name}"
+  cluster {
+    cluster_id   = "cluster-1"
+    zone         = "us-east1-b"
+    num_nodes    = 1
+    storage_type = "HDD"
+  }
+
+  deletion_protection  = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%{table_name}"
+  instance_name = google_bigtable_instance.instance.name
+
+  column_family {
+    family = "CF"
+  }
+}
+
+resource "google_bigtable_schema_bundle" "schema_bundle" {
+  schema_bundle_id = "%{schema_bundle_name}"
+  instance         = google_bigtable_instance.instance.name
+  table            = google_bigtable_table.table.name
+
+  avro_schema {
+    json_schemas = [
+      jsonencode({
+        type = "record"
+        name = "TestRecord"
+        fields = [
+          {
+            name = "id"
+            type = "string"
+          }
+        ]
+      })
+    ]
+  }
+}
+`, context)
+}
+
 func testAccCheckBigtableSchemaBundleDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

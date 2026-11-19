@@ -113,3 +113,146 @@ resource "google_bigtable_schema_bundle" "schema_bundle" {
 }
 `, instanceName, instanceName, tableName, sbName, fileName)
 }
+
+func TestAccBigtableSchemaBundle_avroUpdate(t *testing.T) {
+	// bigtable instance does not use the shared HTTP client, this test creates an instance
+	acctest.SkipIfVcr(t)
+	t.Parallel()
+
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	tableName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	sbName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigtableSchemaBundle_avroCreate(instanceName, tableName, sbName),
+			},
+			{
+				ResourceName:            "google_bigtable_schema_bundle.schema_bundle",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+			{
+				Config: testAccBigtableSchemaBundle_avroUpdate(instanceName, tableName, sbName),
+
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_bigtable_schema_bundle.schema_bundle", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_bigtable_schema_bundle.schema_bundle",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"ignore_warnings"},
+			},
+		},
+	})
+}
+
+func testAccBigtableSchemaBundle_avroCreate(instanceName, tableName, sbName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name          = "%s"
+  cluster {
+    cluster_id = "%s-c"
+    zone       = "us-east1-b"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%s"
+  instance_name = google_bigtable_instance.instance.id
+
+  column_family {
+    family = "CF"
+  }
+}
+
+resource "google_bigtable_schema_bundle" "schema_bundle" {
+  schema_bundle_id = "%s"
+  instance         = google_bigtable_instance.instance.name
+  table            = google_bigtable_table.table.name
+
+  avro_schema {
+    json_schemas = [
+      jsonencode({
+        type = "record"
+        name = "TestRecord1"
+        fields = [
+          {
+            name = "id"
+            type = "string"
+          }
+        ]
+      })
+    ]
+  }
+
+  ignore_warnings = true
+}
+`, instanceName, instanceName, tableName, sbName)
+}
+
+func testAccBigtableSchemaBundle_avroUpdate(instanceName, tableName, sbName string) string {
+	return fmt.Sprintf(`
+resource "google_bigtable_instance" "instance" {
+  name          = "%s"
+  cluster {
+    cluster_id = "%s-c"
+    zone       = "us-east1-b"
+  }
+
+  deletion_protection = false
+}
+
+resource "google_bigtable_table" "table" {
+  name          = "%s"
+  instance_name = google_bigtable_instance.instance.id
+
+  column_family {
+    family = "CF"
+  }
+}
+
+resource "google_bigtable_schema_bundle" "schema_bundle" {
+  schema_bundle_id = "%s"
+  instance         = google_bigtable_instance.instance.name
+  table            = google_bigtable_table.table.name
+
+  avro_schema {
+    json_schemas = [
+      jsonencode({
+        type = "record"
+        name = "TestRecord1"
+        fields = [
+          {
+            name = "id"
+            type = "string"
+          }
+        ]
+      }),
+      jsonencode({
+        type = "record"
+        name = "TestRecord2"
+        fields = [
+          {
+            name = "name"
+            type = "string"
+          }
+        ]
+      })
+    ]
+  }
+
+  ignore_warnings = true
+}
+`, instanceName, instanceName, tableName, sbName)
+}
