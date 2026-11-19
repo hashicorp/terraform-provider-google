@@ -339,12 +339,6 @@ and server agree on the ordering of a resource being written.`,
 their values on the unit spec`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"variable": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Name of the variable from actuation configs.`,
-						},
 						"type": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -356,6 +350,11 @@ their values on the unit spec`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `String encoded value for the variable.`,
+						},
+						"variable": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the variable from actuation configs.`,
 						},
 					},
 				},
@@ -375,12 +374,6 @@ scheme:
 their values on the unit status`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"variable": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Name of the variable from actuation configs.`,
-						},
 						"type": {
 							Type:         schema.TypeString,
 							Optional:     true,
@@ -392,6 +385,11 @@ their values on the unit status`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `String encoded value for the variable.`,
+						},
+						"variable": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the variable from actuation configs.`,
 						},
 					},
 				},

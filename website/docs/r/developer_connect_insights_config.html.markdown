@@ -483,7 +483,7 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_runtime_configs"></a>The `runtime_configs` block contains:
 
 * `uri` -
-  (Required)
+  (Output)
   The URI of the runtime configuration.
   For GKE, this is the cluster name.
   For Cloud Run, this is the service name.
@@ -510,7 +510,7 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_runtime_configs_gke_workload"></a>The `gke_workload` block supports:
 
 * `cluster` -
-  (Required)
+  (Output)
   The name of the GKE cluster.
   Format:
   `projects/{project}/locations/{location}/clusters/{cluster}`.

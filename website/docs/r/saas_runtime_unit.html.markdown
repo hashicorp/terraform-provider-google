@@ -240,19 +240,19 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_conditions"></a>The `conditions` block contains:
 
 * `last_transition_time` -
-  (Required)
+  (Output)
   Last time the condition transited from one status to another.
 
 * `message` -
-  (Required)
+  (Output)
   Human readable message indicating details about the last transition.
 
 * `reason` -
-  (Required)
+  (Output)
   Brief reason for the condition's last transition.
 
 * `status` -
-  (Required)
+  (Output)
   Status of the condition.
   Possible values:
   STATUS_UNKNOWN
@@ -260,7 +260,7 @@ In addition to the arguments listed above, the following computed attributes are
   STATUS_FALSE
 
 * `type` -
-  (Required)
+  (Output)
   Type of the condition.
   Possible values:
   TYPE_READY
@@ -303,7 +303,7 @@ In addition to the arguments listed above, the following computed attributes are
   String encoded value for the variable.
 
 * `variable` -
-  (Required)
+  (Output)
   Name of the variable from actuation configs.
 
 <a name="nested_output_variables"></a>The `output_variables` block contains:
@@ -321,7 +321,7 @@ In addition to the arguments listed above, the following computed attributes are
   String encoded value for the variable.
 
 * `variable` -
-  (Required)
+  (Output)
   Name of the variable from actuation configs.
 
 ## Timeouts
