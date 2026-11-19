@@ -238,22 +238,22 @@ have.`,
 					Schema: map[string]*schema.Schema{
 						"last_transition_time": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: `Last time the condition transited from one status to another.`,
 						},
 						"message": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: `Human readable message indicating details about the last transition.`,
 						},
 						"reason": {
 							Type:        schema.TypeString,
-							Required:    true,
+							Computed:    true,
 							Description: `Brief reason for the condition's last transition.`,
 						},
 						"status": {
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 							Description: `Status of the condition.
 Possible values:
 STATUS_UNKNOWN
@@ -262,7 +262,7 @@ STATUS_FALSE`,
 						},
 						"type": {
 							Type:     schema.TypeString,
-							Required: true,
+							Computed: true,
 							Description: `Type of the condition.
 Possible values:
 TYPE_READY
@@ -335,12 +335,6 @@ this list is empty. Maximum 1000.`,
 				Description: `Indicates the current input variables deployed by the unit`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"variable": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Name of the variable from actuation configs.`,
-						},
 						"type": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -355,6 +349,11 @@ BOOL`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `String encoded value for the variable.`,
+						},
+						"variable": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the variable from actuation configs.`,
 						},
 					},
 				},
@@ -384,12 +383,6 @@ in helm chart or terraform) and the values are fetched and returned by the
 actuation engine upon completion of execution.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"variable": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `Name of the variable from actuation configs.`,
-						},
 						"type": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -404,6 +397,11 @@ BOOL`,
 							Type:        schema.TypeString,
 							Optional:    true,
 							Description: `String encoded value for the variable.`,
+						},
+						"variable": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Name of the variable from actuation configs.`,
 						},
 					},
 				},

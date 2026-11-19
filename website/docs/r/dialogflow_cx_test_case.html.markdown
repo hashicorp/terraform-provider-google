@@ -460,13 +460,13 @@ In addition to the arguments listed above, the following computed attributes are
 <a name="nested_last_test_result_conversation_turns_user_input_input_text"></a>The `text` block supports:
 
 * `text` -
-  (Required)
+  (Output)
   The natural language text to be processed. Text length must not exceed 256 characters.
 
 <a name="nested_last_test_result_conversation_turns_user_input_input_event"></a>The `event` block supports:
 
 * `event` -
-  (Required)
+  (Output)
   Name of the event.
 
 <a name="nested_last_test_result_conversation_turns_user_input_input_dtmf"></a>The `dtmf` block supports:

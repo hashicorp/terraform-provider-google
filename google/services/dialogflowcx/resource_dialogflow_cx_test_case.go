@@ -467,7 +467,7 @@ Only one of flow and page should be set to indicate the starting point of the te
 																	Schema: map[string]*schema.Schema{
 																		"event": {
 																			Type:        schema.TypeString,
-																			Required:    true,
+																			Computed:    true,
 																			Description: `Name of the event.`,
 																		},
 																	},
@@ -487,10 +487,9 @@ Note that queries in the same session do not necessarily need to specify the sam
 																Elem: &schema.Resource{
 																	Schema: map[string]*schema.Schema{
 																		"text": {
-																			Type:         schema.TypeString,
-																			Required:     true,
-																			ValidateFunc: validation.StringLenBetween(0, 256),
-																			Description:  `The natural language text to be processed. Text length must not exceed 256 characters.`,
+																			Type:        schema.TypeString,
+																			Computed:    true,
+																			Description: `The natural language text to be processed. Text length must not exceed 256 characters.`,
 																		},
 																	},
 																},

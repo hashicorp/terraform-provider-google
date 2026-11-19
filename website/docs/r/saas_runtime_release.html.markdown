@@ -279,7 +279,7 @@ In addition to the arguments listed above, the following computed attributes are
   String encoded value for the variable.
 
 * `variable` -
-  (Required)
+  (Output)
   Name of the variable from actuation configs.
 
 <a name="nested_output_variables"></a>The `output_variables` block contains:
@@ -294,7 +294,7 @@ In addition to the arguments listed above, the following computed attributes are
   String encoded value for the variable.
 
 * `variable` -
-  (Required)
+  (Output)
   Name of the variable from actuation configs.
 
 ## Timeouts

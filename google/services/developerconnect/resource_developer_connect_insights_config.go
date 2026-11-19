@@ -334,14 +334,6 @@ system actions like failover or maintenance.`,
 				Description: `The runtime configurations where the application is deployed.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"uri": {
-							Type:     schema.TypeString,
-							Required: true,
-							ForceNew: true,
-							Description: `The URI of the runtime configuration.
-For GKE, this is the cluster name.
-For Cloud Run, this is the service name.`,
-						},
 						"app_hub_workload": {
 							Type:        schema.TypeList,
 							Optional:    true,
@@ -378,8 +370,7 @@ Format:
 								Schema: map[string]*schema.Schema{
 									"cluster": {
 										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
+										Computed: true,
 										Description: `The name of the GKE cluster.
 Format:
 'projects/{project}/locations/{location}/clusters/{cluster}'.`,
@@ -402,6 +393,13 @@ Possible values:
 STATE_UNSPECIFIED
 LINKED
 UNLINKED`,
+						},
+						"uri": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The URI of the runtime configuration.
+For GKE, this is the cluster name.
+For Cloud Run, this is the service name.`,
 						},
 					},
 				},
