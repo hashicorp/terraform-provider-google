@@ -157,9 +157,9 @@ This resource provides the following
 
 EncryptionSpec can be imported using any of these accepted formats:
 
-* `projects/{{project}}/locations/{{location}}/encryptionSpec/{{name}}`
-* `{{project}}/{{location}}/{{name}}`
-* `{{location}}/{{name}}`
+* `projects/{{project}}/locations/{{location}}/encryptionSpec`
+* `{{project}}/{{location}}`
+* `{{location}}`
 
 In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hashicorp.com/terraform/language/block/import#identity) to import EncryptionSpec using identity values. For example:
 
@@ -177,7 +177,7 @@ In Terraform v1.5.0 and later, use an [`import` block](https://developer.hashico
 
 ```tf
 import {
-  id = "projects/{{project}}/locations/{{location}}/encryptionSpec/{{name}}"
+  id = "projects/{{project}}/locations/{{location}}/encryptionSpec"
   to = google_contact_center_insights_encryption_spec.default
 }
 ```
@@ -185,9 +185,9 @@ import {
 When using the [`terraform import` command](https://developer.hashicorp.com/terraform/cli/commands/import), EncryptionSpec can be imported using one of the formats above. For example:
 
 ```
-$ terraform import google_contact_center_insights_encryption_spec.default projects/{{project}}/locations/{{location}}/encryptionSpec/{{name}}
-$ terraform import google_contact_center_insights_encryption_spec.default {{project}}/{{location}}/{{name}}
-$ terraform import google_contact_center_insights_encryption_spec.default {{location}}/{{name}}
+$ terraform import google_contact_center_insights_encryption_spec.default projects/{{project}}/locations/{{location}}/encryptionSpec
+$ terraform import google_contact_center_insights_encryption_spec.default {{project}}/{{location}}
+$ terraform import google_contact_center_insights_encryption_spec.default {{location}}
 ```
 
 ## User Project Overrides
