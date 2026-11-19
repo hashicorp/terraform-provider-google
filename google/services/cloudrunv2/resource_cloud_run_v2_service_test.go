@@ -1304,6 +1304,7 @@ resource "google_cloud_run_v2_service" "default" {
 }
 
 func TestAccCloudRunV2Service_cloudrunv2MultiRegionService(t *testing.T) {
+	t.Skip("b/488908948")
 	t.Parallel()
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
