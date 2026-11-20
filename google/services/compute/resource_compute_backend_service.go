@@ -728,6 +728,33 @@ responses.`,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"dynamic_forwarding": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+feature which together with Service Extension allows customized and complex routing logic.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"ip_port_selection": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `IP:PORT based dynamic forwarding configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `A boolean flag enabling IP:PORT based dynamic forwarding.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"edge_security_policy": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -1958,6 +1985,12 @@ func resourceComputeBackendServiceCreate(d *schema.ResourceData, meta interface{
 	} else if v, ok := d.GetOkExists("max_stream_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(maxStreamDurationProp)) && (ok || !reflect.DeepEqual(v, maxStreamDurationProp)) {
 		obj["maxStreamDuration"] = maxStreamDurationProp
 	}
+	dynamicForwardingProp, err := expandComputeBackendServiceDynamicForwarding(d.Get("dynamic_forwarding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_forwarding"); !tpgresource.IsEmptyValue(reflect.ValueOf(dynamicForwardingProp)) && (ok || !reflect.DeepEqual(v, dynamicForwardingProp)) {
+		obj["dynamicForwarding"] = dynamicForwardingProp
+	}
 	paramsProp, err := expandComputeBackendServiceParams(d.Get("params"), d, config)
 	if err != nil {
 		return err
@@ -2468,6 +2501,12 @@ func resourceComputeBackendServiceUpdate(d *schema.ResourceData, meta interface{
 		return err
 	} else if v, ok := d.GetOkExists("max_stream_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, maxStreamDurationProp)) {
 		obj["maxStreamDuration"] = maxStreamDurationProp
+	}
+	dynamicForwardingProp, err := expandComputeBackendServiceDynamicForwarding(d.Get("dynamic_forwarding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_forwarding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dynamicForwardingProp)) {
+		obj["dynamicForwarding"] = dynamicForwardingProp
 	}
 	paramsProp, err := expandComputeBackendServiceParams(d.Get("params"), d, config)
 	if err != nil {
@@ -4236,6 +4275,36 @@ func flattenComputeBackendServiceMaxStreamDurationNanos(v interface{}, d *schema
 	}
 
 	return v // let terraform core handle it otherwise
+}
+
+func flattenComputeBackendServiceDynamicForwarding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ip_port_selection"] =
+		flattenComputeBackendServiceDynamicForwardingIpPortSelection(original["ipPortSelection"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeBackendServiceDynamicForwardingIpPortSelection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenComputeBackendServiceDynamicForwardingIpPortSelectionEnabled(original["enabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeBackendServiceDynamicForwardingIpPortSelectionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func expandComputeBackendServiceAffinityCookieTtlSec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
@@ -6007,6 +6076,54 @@ func expandComputeBackendServiceMaxStreamDurationNanos(v interface{}, d tpgresou
 	return v, nil
 }
 
+func expandComputeBackendServiceDynamicForwarding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIpPortSelection, err := expandComputeBackendServiceDynamicForwardingIpPortSelection(original["ip_port_selection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIpPortSelection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ipPortSelection"] = transformedIpPortSelection
+	}
+
+	return transformed, nil
+}
+
+func expandComputeBackendServiceDynamicForwardingIpPortSelection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandComputeBackendServiceDynamicForwardingIpPortSelectionEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandComputeBackendServiceDynamicForwardingIpPortSelectionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeBackendServiceParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -6239,6 +6356,9 @@ func ResourceComputeBackendServiceFlatten(d *schema.ResourceData, meta interface
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if err = d.Set("max_stream_duration", flattenComputeBackendServiceMaxStreamDuration(res["maxStreamDuration"], d, config)); err != nil {
+		return fmt.Errorf("Error reading BackendService: %s", err)
+	}
+	if err = d.Set("dynamic_forwarding", flattenComputeBackendServiceDynamicForwarding(res["dynamicForwarding"], d, config)); err != nil {
 		return fmt.Errorf("Error reading BackendService: %s", err)
 	}
 	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {

@@ -660,6 +660,55 @@ loadBalancingScheme set to <code>EXTERNAL_MANAGED</code>,
 				Optional:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"dynamic_forwarding": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Description: `Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
+feature which together with Service Extension allows customized and complex routing logic.`,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"forward_proxy": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Dynamic Forwarding Proxy configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
+										Description: `A boolean flag enabling dynamic forwarding proxy.`,
+									},
+									"proxy_mode": {
+										Type:         schema.TypeString,
+										Required:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"DIRECT_FORWARDING", "CLOUD_RUN"}),
+										Description:  `Determines the dynamic forwarding proxy mode Possible values: ["DIRECT_FORWARDING", "CLOUD_RUN"]`,
+									},
+								},
+							},
+						},
+						"ip_port_selection": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `IP:PORT based dynamic forwarding configuration.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Optional:    true,
+										ForceNew:    true,
+										Description: `A boolean flag enabling IP:PORT based dynamic forwarding.`,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"enable_cdn": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -1764,6 +1813,12 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	dynamicForwardingProp, err := expandComputeRegionBackendServiceDynamicForwarding(d.Get("dynamic_forwarding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_forwarding"); !tpgresource.IsEmptyValue(reflect.ValueOf(dynamicForwardingProp)) && (ok || !reflect.DeepEqual(v, dynamicForwardingProp)) {
+		obj["dynamicForwarding"] = dynamicForwardingProp
+	}
 	haPolicyProp, err := expandComputeRegionBackendServiceHaPolicy(d.Get("ha_policy"), d, config)
 	if err != nil {
 		return err
@@ -1823,14 +1878,15 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 	// security_policy isn't set by Create
 	delete(obj, "securityPolicy")
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "POST",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutCreate),
-		Headers:   headers,
+		Config:     config,
+		Method:     "POST",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Body:       obj,
+		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 	if err != nil {
 		return fmt.Errorf("Error creating RegionBackendService: %s", err)
@@ -1873,12 +1929,13 @@ func resourceComputeRegionBackendServiceCreate(d *schema.ResourceData, meta inte
 		}
 
 		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   project,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
+			Config:     config,
+			Method:     "POST",
+			Project:    project,
+			RawURL:     url,
+			UserAgent:  userAgent,
+			Body:       obj,
+			ApiVersion: "2026-11-01",
 		})
 
 		if err != nil {
@@ -1944,12 +2001,13 @@ func resourceComputeRegionBackendServiceRead(d *schema.ResourceData, meta interf
 
 	headers := make(http.Header)
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "GET",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Headers:   headers,
+		Config:     config,
+		Method:     "GET",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, fmt.Sprintf("ComputeRegionBackendService %q", d.Id()))
@@ -2229,6 +2287,12 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
 	}
+	dynamicForwardingProp, err := expandComputeRegionBackendServiceDynamicForwarding(d.Get("dynamic_forwarding"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("dynamic_forwarding"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dynamicForwardingProp)) {
+		obj["dynamicForwarding"] = dynamicForwardingProp
+	}
 	haPolicyProp, err := expandComputeRegionBackendServiceHaPolicy(d.Get("ha_policy"), d, config)
 	if err != nil {
 		return err
@@ -2283,14 +2347,15 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "PUT",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutUpdate),
-		Headers:   headers,
+		Config:     config,
+		Method:     "PUT",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Body:       obj,
+		Timeout:    d.Timeout(schema.TimeoutUpdate),
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 
 	if err != nil {
@@ -2334,14 +2399,15 @@ func resourceComputeRegionBackendServiceUpdate(d *schema.ResourceData, meta inte
 		}
 
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-			Config:    config,
-			Method:    "POST",
-			Project:   billingProject,
-			RawURL:    url,
-			UserAgent: userAgent,
-			Body:      obj,
-			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
+			Config:     config,
+			Method:     "POST",
+			Project:    billingProject,
+			RawURL:     url,
+			UserAgent:  userAgent,
+			Body:       obj,
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
+			ApiVersion: "2026-11-01",
+			Headers:    headers,
 		})
 		if err != nil {
 			return fmt.Errorf("Error updating RegionBackendService %q: %s", d.Id(), err)
@@ -2399,14 +2465,15 @@ func resourceComputeRegionBackendServiceDelete(d *schema.ResourceData, meta inte
 
 	log.Printf("[DEBUG] Deleting RegionBackendService %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:    config,
-		Method:    "DELETE",
-		Project:   billingProject,
-		RawURL:    url,
-		UserAgent: userAgent,
-		Body:      obj,
-		Timeout:   d.Timeout(schema.TimeoutDelete),
-		Headers:   headers,
+		Config:     config,
+		Method:     "DELETE",
+		Project:    billingProject,
+		RawURL:     url,
+		UserAgent:  userAgent,
+		Body:       obj,
+		Timeout:    d.Timeout(schema.TimeoutDelete),
+		Headers:    headers,
+		ApiVersion: "2026-11-01",
 	})
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "RegionBackendService")
@@ -3801,6 +3868,61 @@ func flattenComputeRegionBackendServiceNetwork(v interface{}, d *schema.Resource
 		return v
 	}
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
+}
+
+func flattenComputeRegionBackendServiceDynamicForwarding(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["ip_port_selection"] =
+		flattenComputeRegionBackendServiceDynamicForwardingIpPortSelection(original["ipPortSelection"], d, config)
+	transformed["forward_proxy"] =
+		flattenComputeRegionBackendServiceDynamicForwardingForwardProxy(original["forwardProxy"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceDynamicForwardingIpPortSelection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenComputeRegionBackendServiceDynamicForwardingIpPortSelectionEnabled(original["enabled"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceDynamicForwardingIpPortSelectionEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceDynamicForwardingForwardProxy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["enabled"] =
+		flattenComputeRegionBackendServiceDynamicForwardingForwardProxyEnabled(original["enabled"], d, config)
+	transformed["proxy_mode"] =
+		flattenComputeRegionBackendServiceDynamicForwardingForwardProxyProxyMode(original["proxyMode"], d, config)
+	return []interface{}{transformed}
+}
+func flattenComputeRegionBackendServiceDynamicForwardingForwardProxyEnabled(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenComputeRegionBackendServiceDynamicForwardingForwardProxyProxyMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenComputeRegionBackendServiceHaPolicy(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -5415,6 +5537,98 @@ func expandComputeRegionBackendServiceNetwork(v interface{}, d tpgresource.Terra
 	return f.RelativeLink(), nil
 }
 
+func expandComputeRegionBackendServiceDynamicForwarding(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedIpPortSelection, err := expandComputeRegionBackendServiceDynamicForwardingIpPortSelection(original["ip_port_selection"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedIpPortSelection); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["ipPortSelection"] = transformedIpPortSelection
+	}
+
+	transformedForwardProxy, err := expandComputeRegionBackendServiceDynamicForwardingForwardProxy(original["forward_proxy"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedForwardProxy); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["forwardProxy"] = transformedForwardProxy
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceDynamicForwardingIpPortSelection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandComputeRegionBackendServiceDynamicForwardingIpPortSelectionEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceDynamicForwardingIpPortSelectionEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceDynamicForwardingForwardProxy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnabled, err := expandComputeRegionBackendServiceDynamicForwardingForwardProxyEnabled(original["enabled"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEnabled); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["enabled"] = transformedEnabled
+	}
+
+	transformedProxyMode, err := expandComputeRegionBackendServiceDynamicForwardingForwardProxyProxyMode(original["proxy_mode"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedProxyMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["proxyMode"] = transformedProxyMode
+	}
+
+	return transformed, nil
+}
+
+func expandComputeRegionBackendServiceDynamicForwardingForwardProxyEnabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandComputeRegionBackendServiceDynamicForwardingForwardProxyProxyMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandComputeRegionBackendServiceHaPolicy(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -5806,6 +6020,9 @@ func ResourceComputeRegionBackendServiceFlatten(d *schema.ResourceData, meta int
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err = d.Set("network", flattenComputeRegionBackendServiceNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionBackendService: %s", err)
+	}
+	if err = d.Set("dynamic_forwarding", flattenComputeRegionBackendServiceDynamicForwarding(res["dynamicForwarding"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionBackendService: %s", err)
 	}
 	if err = d.Set("ha_policy", flattenComputeRegionBackendServiceHaPolicy(res["haPolicy"], d, config)); err != nil {

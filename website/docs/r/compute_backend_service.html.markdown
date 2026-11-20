@@ -796,7 +796,6 @@ resource "google_compute_url_map" "default" {
 
 ```hcl
 resource "google_compute_backend_service" "default" {
-  provider              = google-beta
   name                  = "backend-service"
   load_balancing_scheme = "INTERNAL_MANAGED"
   dynamic_forwarding {
@@ -1153,7 +1152,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_network_pass_through_lb_traffic_policy).
 
 * `dynamic_forwarding` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
   feature which together with Service Extension allows customized and complex routing logic.
   Structure is [documented below](#nested_dynamic_forwarding).
@@ -1992,7 +1991,7 @@ The following arguments are supported:
 <a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
 
 * `ip_port_selection` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   IP:PORT based dynamic forwarding configuration.
   Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
 
@@ -2005,7 +2004,7 @@ The following arguments are supported:
 <a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
 
 * `enabled` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A boolean flag enabling IP:PORT based dynamic forwarding.
 
 <a name="nested_dynamic_forwarding_forward_proxy"></a>The `forward_proxy` block supports:
