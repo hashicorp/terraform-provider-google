@@ -1,5 +1,8 @@
 ## 8.13.0 (Unreleased)
 
+BUG FIXES:
+* bigquery: use dataset ETags to prevent concurrent changes from overwriting IAM and access updates ([#30744](https://github.com/hashicorp/terraform-provider-google/issues/30744))
+
 ## 8.12.0 (November 17, 2026)
 
 FEATURES:

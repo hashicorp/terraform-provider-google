@@ -594,10 +594,6 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 
 	log.Printf("[DEBUG] Creating new DatasetAccess: %#v", obj)
 
-	obj, err = resourceBigQueryDatasetAccessPatchCreateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
 	billingProject := ""
 
 	project, err := tpgresource.GetProject(d, config)
@@ -611,20 +607,9 @@ func resourceBigQueryDatasetAccessCreate(d *schema.ResourceData, meta interface{
 		billingProject = bp
 	}
 
-	headers := make(http.Header)
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:               config,
-		Method:               "PATCH",
-		Project:              billingProject,
-		RawURL:               url,
-		UserAgent:            userAgent,
-		Body:                 obj,
-		Timeout:              d.Timeout(schema.TimeoutCreate),
-		Headers:              headers,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigqueryIAMQuotaError},
-	})
+	res, err := resourceBigQueryDatasetAccessPatchWithRetry(d, meta, obj, userAgent, billingProject, url, d.Timeout(schema.TimeoutCreate), resourceBigQueryDatasetAccessPatchCreateEncoder)
 	if err != nil {
-		return fmt.Errorf("Error creating DatasetAccess: %s", err)
+		return fmt.Errorf("Error creating DatasetAccess: %w", err)
 	}
 
 	// Store the ID now
@@ -819,30 +804,13 @@ func resourceBigQueryDatasetAccessDelete(d *schema.ResourceData, meta interface{
 
 	var obj map[string]interface{}
 
-	obj, err = resourceBigQueryDatasetAccessPatchDeleteEncoder(d, meta, obj)
-	if err != nil {
-		return transport_tpg.HandleNotFoundError(err, d, "DatasetAccess")
-	}
-
 	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	headers := make(http.Header)
-
 	log.Printf("[DEBUG] Deleting DatasetAccess %q", d.Id())
-	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-		Config:               config,
-		Method:               "PATCH",
-		Project:              billingProject,
-		RawURL:               url,
-		UserAgent:            userAgent,
-		Body:                 obj,
-		Timeout:              d.Timeout(schema.TimeoutDelete),
-		Headers:              headers,
-		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigqueryIAMQuotaError},
-	})
+	res, err := resourceBigQueryDatasetAccessPatchWithRetry(d, meta, obj, userAgent, billingProject, url, d.Timeout(schema.TimeoutDelete), resourceBigQueryDatasetAccessPatchDeleteEncoder)
 	if err != nil {
 		return transport_tpg.HandleNotFoundError(err, d, "DatasetAccess")
 	}
@@ -1428,20 +1396,20 @@ func resourceBigQueryDatasetAccessFindNestedObjectInList(d *schema.ResourceData,
 
 // PatchCreateEncoder handles creating request data to PATCH parent resource
 // with list including new object.
-func resourceBigQueryDatasetAccessPatchCreateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	currItems, err := resourceBigQueryDatasetAccessListForPatch(d, meta)
+func resourceBigQueryDatasetAccessPatchCreateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, string, error) {
+	currItems, etag, err := resourceBigQueryDatasetAccessListForPatch(d, meta)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	_, found, err := resourceBigQueryDatasetAccessFindNestedObjectInList(d, meta, currItems)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	// Return error if item already created.
 	if found != nil {
-		return nil, fmt.Errorf("Unable to create DatasetAccess, existing object already found: %+v", found)
+		return nil, "", fmt.Errorf("Unable to create DatasetAccess, existing object already found: %+v", found)
 	}
 
 	// Return list with the resource to create appended
@@ -1449,24 +1417,24 @@ func resourceBigQueryDatasetAccessPatchCreateEncoder(d *schema.ResourceData, met
 		"access": append(currItems, obj),
 	}
 
-	return res, nil
+	return res, etag, nil
 }
 
 // PatchDeleteEncoder handles creating request data to PATCH parent resource
 // with list excluding object to delete.
-func resourceBigQueryDatasetAccessPatchDeleteEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	currItems, err := resourceBigQueryDatasetAccessListForPatch(d, meta)
+func resourceBigQueryDatasetAccessPatchDeleteEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, string, error) {
+	currItems, etag, err := resourceBigQueryDatasetAccessListForPatch(d, meta)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	idx, item, err := resourceBigQueryDatasetAccessFindNestedObjectInList(d, meta, currItems)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	if item == nil {
 		// Spoof 404 error for proper handling by Delete (i.e. no-op)
-		return nil, tpgresource.Fake404("nested", "BigQueryDatasetAccess")
+		return nil, "", tpgresource.Fake404("nested", "BigQueryDatasetAccess")
 	}
 
 	updatedItems := append(currItems[:idx], currItems[idx+1:]...)
@@ -1474,25 +1442,60 @@ func resourceBigQueryDatasetAccessPatchDeleteEncoder(d *schema.ResourceData, met
 		"access": updatedItems,
 	}
 
-	return res, nil
+	return res, etag, nil
+}
+
+type bigQueryDatasetAccessPatchEncoder func(*schema.ResourceData, interface{}, map[string]interface{}) (map[string]interface{}, string, error)
+
+func resourceBigQueryDatasetAccessPatchWithRetry(d *schema.ResourceData, meta interface{}, obj map[string]interface{}, userAgent, billingProject, url string, timeout time.Duration, encoder bigQueryDatasetAccessPatchEncoder) (map[string]interface{}, error) {
+	config := meta.(*transport_tpg.Config)
+	var res map[string]interface{}
+	err := tpgresource.Retry(90*time.Second, config.SleepUnit, func() *retry.RetryError {
+		patch, etag, err := encoder(d, meta, obj)
+		if err != nil {
+			return retry.NonRetryableError(err)
+		}
+
+		headers := make(http.Header)
+		setBigQueryDatasetEtagHeader(headers, etag)
+		res, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:               config,
+			Method:               "PATCH",
+			Project:              billingProject,
+			RawURL:               url,
+			UserAgent:            userAgent,
+			Body:                 patch,
+			Timeout:              timeout,
+			Headers:              headers,
+			ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigqueryIAMQuotaError},
+		})
+		if err != nil {
+			if tpgresource.IsConflictError(err) {
+				return retry.RetryableError(fmt.Errorf("concurrent update to BigQuery dataset; retrying with the latest ETag: %w", err))
+			}
+			return retry.NonRetryableError(err)
+		}
+		return nil
+	})
+	return res, err
 }
 
 // ListForPatch handles making API request to get parent resource and
 // extracting list of objects.
-func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, error) {
+func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta interface{}) ([]interface{}, string, error) {
 	config := meta.(*transport_tpg.Config)
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/datasets/{{dataset_id}}?accessPolicyVersion=3")
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	userAgent, err := tpgresource.GenerateUserAgentString(d, config.UserAgent)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -1504,8 +1507,9 @@ func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta inte
 		ErrorRetryPredicates: []transport_tpg.RetryErrorPredicateFunc{transport_tpg.IsBigqueryIAMQuotaError},
 	})
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
+	etag, _ := res["etag"].(string)
 	var v interface{}
 	var ok bool
 
@@ -1513,11 +1517,11 @@ func resourceBigQueryDatasetAccessListForPatch(d *schema.ResourceData, meta inte
 	if ok && v != nil {
 		ls, lsOk := v.([]interface{})
 		if !lsOk {
-			return nil, fmt.Errorf(`expected list for nested field "access"`)
+			return nil, "", fmt.Errorf(`expected list for nested field "access"`)
 		}
-		return ls, nil
+		return ls, etag, nil
 	}
-	return nil, nil
+	return nil, etag, nil
 }
 
 func ResourceBigQueryDatasetAccessFlatten(d *schema.ResourceData, meta interface{}, res map[string]interface{}, config *transport_tpg.Config, project string, userAgent string, billingProject string, url string, headers http.Header) error {
