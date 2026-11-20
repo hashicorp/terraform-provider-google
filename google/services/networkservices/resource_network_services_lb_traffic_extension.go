@@ -232,6 +232,26 @@ This field is helpful when you want to try out the extension in async log-only m
 Supported by regional 'LbTrafficExtension' and 'LbRouteExtension' resources.
 Only 'STREAMED' (default) body processing mode is supported.`,
 									},
+									"request_body_send_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"BODY_SEND_MODE_STREAMED", "BODY_SEND_MODE_FULL_DUPLEX_STREAMED", ""}),
+										Description: `Configures the send mode for request body processing.
+The field can only be set if 'supported_events' includes 'REQUEST_BODY'.
+If 'supported_events' includes 'REQUEST_BODY', but 'request_body_send_mode' is unset, the default value 'STREAMED' is used.
+When this field is set to 'FULL_DUPLEX_STREAMED', 'supported_events' must include both 'REQUEST_BODY' and 'REQUEST_TRAILERS'.
+This field can be set only for 'LbTrafficExtension' and 'LbRouteExtension' resources, and only when the 'service' field of the extension points to a 'BackendService'. Possible values: ["BODY_SEND_MODE_STREAMED", "BODY_SEND_MODE_FULL_DUPLEX_STREAMED"]`,
+									},
+									"response_body_send_mode": {
+										Type:         schema.TypeString,
+										Optional:     true,
+										ValidateFunc: verify.ValidateEnum([]string{"BODY_SEND_MODE_STREAMED", "BODY_SEND_MODE_FULL_DUPLEX_STREAMED", ""}),
+										Description: `Configures the send mode for response processing. If unspecified, the default value 'STREAMED' is used.
+The field can only be set if 'supported_events' includes 'RESPONSE_BODY'.
+If 'supported_events' includes 'RESPONSE_BODY', but 'response_body_send_mode' is unset, the default value 'STREAMED' is used.
+When this field is set to 'FULL_DUPLEX_STREAMED', 'supported_events' must include both 'RESPONSE_BODY' and 'RESPONSE_TRAILERS'.
+This field can be set only for 'LbTrafficExtension' resources, and only when the 'service' field of the extension points to a 'BackendService'. Possible values: ["BODY_SEND_MODE_STREAMED", "BODY_SEND_MODE_FULL_DUPLEX_STREAMED"]`,
+									},
 									"supported_events": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -868,16 +888,18 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfa
 			continue
 		}
 		transformed = append(transformed, map[string]interface{}{
-			"name":               flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsName(original["name"], d, config),
-			"authority":          flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config),
-			"service":            flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsService(original["service"], d, config),
-			"timeout":            flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config),
-			"fail_open":          flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
-			"forward_headers":    flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
-			"forward_attributes": flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardAttributes(original["forwardAttributes"], d, config),
-			"supported_events":   flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
-			"metadata":           flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(original["metadata"], d, config),
-			"observability_mode": flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsObservabilityMode(original["observabilityMode"], d, config),
+			"name":                    flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsName(original["name"], d, config),
+			"authority":               flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsAuthority(original["authority"], d, config),
+			"service":                 flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsService(original["service"], d, config),
+			"timeout":                 flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsTimeout(original["timeout"], d, config),
+			"fail_open":               flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsFailOpen(original["failOpen"], d, config),
+			"forward_headers":         flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardHeaders(original["forwardHeaders"], d, config),
+			"forward_attributes":      flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsForwardAttributes(original["forwardAttributes"], d, config),
+			"supported_events":        flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsSupportedEvents(original["supportedEvents"], d, config),
+			"metadata":                flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(original["metadata"], d, config),
+			"observability_mode":      flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsObservabilityMode(original["observabilityMode"], d, config),
+			"request_body_send_mode":  flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsRequestBodySendMode(original["requestBodySendMode"], d, config),
+			"response_body_send_mode": flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsResponseBodySendMode(original["responseBodySendMode"], d, config),
 		})
 	}
 	return transformed
@@ -919,6 +941,14 @@ func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(v
 }
 
 func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsObservabilityMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsRequestBodySendMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenNetworkServicesLbTrafficExtensionExtensionChainsExtensionsResponseBodySendMode(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1105,6 +1135,20 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensions(v interfac
 			transformed["observabilityMode"] = transformedObservabilityMode
 		}
 
+		transformedRequestBodySendMode, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsRequestBodySendMode(original["request_body_send_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedRequestBodySendMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["requestBodySendMode"] = transformedRequestBodySendMode
+		}
+
+		transformedResponseBodySendMode, err := expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsResponseBodySendMode(original["response_body_send_mode"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedResponseBodySendMode); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["responseBodySendMode"] = transformedResponseBodySendMode
+		}
+
 		req = append(req, transformed)
 	}
 	return req, nil
@@ -1154,6 +1198,14 @@ func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsMetadata(v 
 }
 
 func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsObservabilityMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsRequestBodySendMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandNetworkServicesLbTrafficExtensionExtensionChainsExtensionsResponseBodySendMode(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 

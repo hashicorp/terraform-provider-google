@@ -385,6 +385,81 @@ resource "google_compute_region_backend_service" "callouts_backend" {
   ]
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=network_services_lb_traffic_extension_body_send_mode&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Network Services Lb Traffic Extension Body Send Mode
+
+
+```hcl
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "l7-ext-fr"
+  target                = google_compute_target_http_proxy.default.id
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  network_tier          = "PREMIUM"
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  name        = "l7-ext-proxy"
+  description = "a description"
+  url_map     = google_compute_url_map.default.id
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "l7-ext-urlmap"
+  description     = "a description"
+  default_service = google_compute_backend_service.default.id
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "l7-ext-backend"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_backend_service" "callouts_backend" {
+  name                  = "l7-ext-callout"
+  port_name             = "grpc"
+  protocol              = "HTTP2"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_network_services_lb_traffic_extension" "default" {
+  name        = "l7-ext-traffic-ext"
+  description = "my traffic extension"
+  location    = "global"
+
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  forwarding_rules      = [google_compute_global_forwarding_rule.default.self_link]
+
+  extension_chains {
+    name = "chain1"
+
+    match_condition {
+      cel_expression = "request.host == 'example.com'"
+    }
+
+    extensions {
+      name      = "ext11"
+      authority = "ext11.com"
+      service   = google_compute_backend_service.callouts_backend.self_link
+      timeout   = "0.1s"
+      fail_open = false
+
+      supported_events        = ["REQUEST_HEADERS", "REQUEST_BODY", "RESPONSE_HEADERS", "RESPONSE_BODY"]
+      request_body_send_mode  = "BODY_SEND_MODE_STREAMED"
+      response_body_send_mode = "BODY_SEND_MODE_STREAMED"
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -539,6 +614,24 @@ The following arguments are supported:
   This field is helpful when you want to try out the extension in async log-only mode.
   Supported by regional `LbTrafficExtension` and `LbRouteExtension` resources.
   Only `STREAMED` (default) body processing mode is supported.
+
+* `request_body_send_mode` -
+  (Optional)
+  Configures the send mode for request body processing.
+  The field can only be set if `supported_events` includes `REQUEST_BODY`.
+  If `supported_events` includes `REQUEST_BODY`, but `request_body_send_mode` is unset, the default value `STREAMED` is used.
+  When this field is set to `FULL_DUPLEX_STREAMED`, `supported_events` must include both `REQUEST_BODY` and `REQUEST_TRAILERS`.
+  This field can be set only for `LbTrafficExtension` and `LbRouteExtension` resources, and only when the `service` field of the extension points to a `BackendService`.
+  Possible values are: `BODY_SEND_MODE_STREAMED`, `BODY_SEND_MODE_FULL_DUPLEX_STREAMED`.
+
+* `response_body_send_mode` -
+  (Optional)
+  Configures the send mode for response processing. If unspecified, the default value `STREAMED` is used.
+  The field can only be set if `supported_events` includes `RESPONSE_BODY`.
+  If `supported_events` includes `RESPONSE_BODY`, but `response_body_send_mode` is unset, the default value `STREAMED` is used.
+  When this field is set to `FULL_DUPLEX_STREAMED`, `supported_events` must include both `RESPONSE_BODY` and `RESPONSE_TRAILERS`.
+  This field can be set only for `LbTrafficExtension` resources, and only when the `service` field of the extension points to a `BackendService`.
+  Possible values are: `BODY_SEND_MODE_STREAMED`, `BODY_SEND_MODE_FULL_DUPLEX_STREAMED`.
 
 ## Attributes Reference
 
