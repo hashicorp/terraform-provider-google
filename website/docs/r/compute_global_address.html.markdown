@@ -70,6 +70,39 @@ resource "google_compute_network" "network" {
   auto_create_subnetworks = false
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=global_address_psc_internal_range&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Global Address Psc Internal Range
+
+
+```hcl
+resource "google_compute_global_address" "default" {
+  name          = "global-psc-ir-ip"
+  address_type  = "INTERNAL"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.network.id
+  address       = "10.0.0.5"
+  ip_collection = google_network_connectivity_internal_range.range.id
+}
+
+resource "google_network_connectivity_internal_range" "range" {
+  name          = "psc-internal-range"
+  network       = google_compute_network.network.self_link
+  usage         = "FOR_VPC"
+  peering       = "FOR_SELF"
+  purpose       = "INTERNAL_ADDRESS"
+  ip_cidr_range = "10.0.0.0/24"
+}
+
+resource "google_compute_network" "network" {
+  name                    = "my-network-name"
+  auto_create_subnetworks = false
+}
+```
 
 ## Argument Reference
 
@@ -138,6 +171,17 @@ The following arguments are supported:
   must be in RFC1918 space. The network cannot be deleted if there are
   any reserved IP ranges referring to it.
   This should only be set when using an Internal address.
+
+* `ip_collection` -
+  (Optional)
+  Reference to an InternalRange to allocate the address from. Only applicable
+  when `address_type` is `INTERNAL` and `purpose` is `PRIVATE_SERVICE_CONNECT`.
+  The InternalRange must have `purpose` set to `INTERNAL_ADDRESS`.
+  Use one of the following formats to specify an InternalRange:
+  Full resource URL, as in:
+    * `https://networkconnectivity.googleapis.com/v1/projects/{{projectId}}/locations/global/internalRanges/{{internal-range-name}}`
+  Partial URL, as in:
+    * `projects/{{projectId}}/locations/global/internalRanges/{{internal-range-name}}`
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.

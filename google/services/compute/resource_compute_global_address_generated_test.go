@@ -32,6 +32,7 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/compute"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/networkconnectivityv1"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -94,6 +95,71 @@ func testAccComputeGlobalAddress_globalAddressBasicExample(context map[string]in
 	return acctest.Nprintf(`
 resource "google_compute_global_address" "default" {
   name = "%{global_address_name}"
+}
+`, context)
+}
+
+func TestAccComputeGlobalAddress_globalAddressPscInternalRangeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"global_address_name": "tf-test-global-psc-ir-ip" + randomSuffix,
+		"internal_range_name": "tf-test-psc-internal-range" + randomSuffix,
+		"network_name":        "tf-test-my-network-name" + randomSuffix,
+		"random_suffix":       randomSuffix,
+	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/addresses", "2026-11-01")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeGlobalAddressDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeGlobalAddress_globalAddressPscInternalRangeExample(context),
+			},
+			{
+				ResourceName:            "google_compute_global_address.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "network", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_compute_global_address.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeGlobalAddress_globalAddressPscInternalRangeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_global_address" "default" {
+  name          = "%{global_address_name}"
+  address_type  = "INTERNAL"
+  purpose       = "PRIVATE_SERVICE_CONNECT"
+  network       = google_compute_network.network.id
+  address       = "10.0.0.5"
+  ip_collection = google_network_connectivity_internal_range.range.id
+}
+
+resource "google_network_connectivity_internal_range" "range" {
+  name          = "%{internal_range_name}"
+  network       = google_compute_network.network.self_link
+  usage         = "FOR_VPC"
+  peering       = "FOR_SELF"
+  purpose       = "INTERNAL_ADDRESS"
+  ip_cidr_range = "10.0.0.0/24"
+}
+
+resource "google_compute_network" "network" {
+  name                    = "%{network_name}"
+  auto_create_subnetworks = false
 }
 `, context)
 }

@@ -175,6 +175,20 @@ address or omitted to allow GCP to choose a valid one for you.`,
 				ForceNew:    true,
 				Description: `An optional description of this resource.`,
 			},
+			"ip_collection": {
+				Type:             schema.TypeString,
+				Optional:         true,
+				ForceNew:         true,
+				DiffSuppressFunc: tpgresource.CompareSelfLinkOrResourceName,
+				Description: `Reference to an InternalRange to allocate the address from. Only applicable
+when 'address_type' is 'INTERNAL' and 'purpose' is 'PRIVATE_SERVICE_CONNECT'.
+The InternalRange must have 'purpose' set to 'INTERNAL_ADDRESS'.
+Use one of the following formats to specify an InternalRange:
+Full resource URL, as in:
+  * 'https://networkconnectivity.googleapis.com/v1/projects/{{projectId}}/locations/global/internalRanges/{{internal-range-name}}'
+Partial URL, as in:
+  * 'projects/{{projectId}}/locations/global/internalRanges/{{internal-range-name}}'`,
+			},
 			"ip_version": {
 				Type:             schema.TypeString,
 				Optional:         true,
@@ -341,6 +355,12 @@ func resourceComputeGlobalAddressCreate(d *schema.ResourceData, meta interface{}
 		return err
 	} else if v, ok := d.GetOkExists("network"); !tpgresource.IsEmptyValue(reflect.ValueOf(networkProp)) && (ok || !reflect.DeepEqual(v, networkProp)) {
 		obj["network"] = networkProp
+	}
+	ipCollectionProp, err := expandComputeGlobalAddressIpCollection(d.Get("ip_collection"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("ip_collection"); !tpgresource.IsEmptyValue(reflect.ValueOf(ipCollectionProp)) && (ok || !reflect.DeepEqual(v, ipCollectionProp)) {
+		obj["ipCollection"] = ipCollectionProp
 	}
 	effectiveLabelsProp, err := expandComputeGlobalAddressEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -829,6 +849,10 @@ func flattenComputeGlobalAddressNetwork(v interface{}, d *schema.ResourceData, c
 	return tpgresource.ConvertSelfLinkToV1(v.(string))
 }
 
+func flattenComputeGlobalAddressIpCollection(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenComputeGlobalAddressTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -888,6 +912,21 @@ func expandComputeGlobalAddressNetwork(v interface{}, d tpgresource.TerraformRes
 	return f.RelativeLink(), nil
 }
 
+func expandComputeGlobalAddressIpCollection(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	s, ok := v.(string)
+	if !ok || s == "" {
+		return v, nil
+	}
+	// The API requires InternalRange references to be namespaced with the
+	// networkconnectivity.googleapis.com service name. Prefix bare relative
+	// paths (such as google_network_connectivity_internal_range.id) so users
+	// can pass the resource id directly.
+	if strings.HasPrefix(s, "projects/") {
+		return "//networkconnectivity.googleapis.com/" + s, nil
+	}
+	return s, nil
+}
+
 func expandComputeGlobalAddressEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -933,6 +972,9 @@ func ResourceComputeGlobalAddressFlatten(d *schema.ResourceData, meta interface{
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 	if err = d.Set("network", flattenComputeGlobalAddressNetwork(res["network"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalAddress: %s", err)
+	}
+	if err = d.Set("ip_collection", flattenComputeGlobalAddressIpCollection(res["ipCollection"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalAddress: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenComputeGlobalAddressTerraformLabels(res["labels"], d, config)); err != nil {
