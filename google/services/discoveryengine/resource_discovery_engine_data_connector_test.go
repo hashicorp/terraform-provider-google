@@ -292,3 +292,193 @@ func TestDiscoveryEngineDataConnector_DataConnectorEntitiesParamsDiffSuppress(t 
 		}
 	}
 }
+
+func TestAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(context, false, ""),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.#", "2"),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.0.entity_name", "mail"),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.1.entity_name", "calendar"),
+				),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.outlook",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "state", "sync_mode", "update_time"},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(context, false, ""),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(context, true, ""),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(context, true, "123"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_data_connector.outlook", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.#", "2"),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.0.entity_name", "mail"),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.0.params", `{"custom_id":"123"}`),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.outlook", "entities.1.entity_name", "calendar"),
+				),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.outlook",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "state", "sync_mode", "update_time"},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(context, false, "123"),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataConnector_outlookPlaceholderEntity(context map[string]interface{}, includeRoot bool, mailCustomId string) string {
+	mailParams := ""
+	if mailCustomId != "" {
+		mailParams = fmt.Sprintf(`    params = jsonencode({
+      "custom_id" : %q
+    })`, mailCustomId)
+	}
+	rootEntity := ""
+	if includeRoot {
+		rootEntity = `  entities {
+    entity_name = "root"
+  }`
+	}
+	context["mail_params"] = mailParams
+	context["root_entity"] = rootEntity
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_connector" "outlook" {
+  location                     = "global"
+  collection_id                = "tf-test-outlook-%{random_suffix}"
+  collection_display_name      = "tf-test-dataconnector-outlook"
+  data_source                  = "outlook"
+  params = {
+    client_id     = "dummy-client-id"
+    client_secret = "dummy-client-secret"
+    instance_id   = "00000000-0000-0000-0000-000000000000"
+  }
+  refresh_interval             = "86400s"
+  incremental_refresh_interval = "21600s"
+  entities {
+    entity_name = "mail"
+%{mail_params}
+  }
+  entities {
+    entity_name = "calendar"
+  }
+%{root_entity}
+  static_ip_enabled         = false
+  connector_modes           = ["DATA_INGESTION"]
+  sync_mode                 = "PERIODIC"
+  auto_run_disabled         = true
+  incremental_sync_disabled = true
+}
+`, context)
+}
+
+func TestAccDiscoveryEngineDataConnector_sharepointPlaceholderEntity(t *testing.T) {
+	t.Parallel()
+
+	context := map[string]interface{}{
+		"random_suffix": acctest.RandString(t, 10),
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDiscoveryEngineDataConnectorDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDiscoveryEngineDataConnector_sharepointPlaceholderEntity(context),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.sharepoint", "entities.#", "2"),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.sharepoint", "entities.0.entity_name", "file"),
+					resource.TestCheckResourceAttr("google_discovery_engine_data_connector.sharepoint", "entities.1.entity_name", "page"),
+				),
+			},
+			{
+				ResourceName:            "google_discovery_engine_data_connector.sharepoint",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"auto_run_disabled", "collection_display_name", "collection_id", "incremental_sync_disabled", "location", "params", "state", "sync_mode", "update_time"},
+			},
+			{
+				Config: testAccDiscoveryEngineDataConnector_sharepointPlaceholderEntity(context),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectEmptyPlan(),
+					},
+				},
+			},
+		},
+	})
+}
+
+func testAccDiscoveryEngineDataConnector_sharepointPlaceholderEntity(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_connector" "sharepoint" {
+  location                     = "global"
+  collection_id                = "tf-test-sharepoint-%{random_suffix}"
+  collection_display_name      = "tf-test-dataconnector-sharepoint"
+  data_source                  = "sharepoint"
+  params = {
+    auth_type             = "OAUTH"
+    instance_uri          = "https://example.sharepoint.com/sites/test"
+    tenant_id             = "00000000-0000-0000-0000-000000000000"
+    client_id             = "dummy-client-id"
+    client_secret         = "dummy-client-secret"
+    refresh_token         = "dummy-refresh-token"
+    o365_environment_type = "com"
+  }
+  refresh_interval             = "86400s"
+  incremental_refresh_interval = "21600s"
+  entities {
+    entity_name = "file"
+  }
+  entities {
+    entity_name = "page"
+  }
+  static_ip_enabled         = false
+  connector_modes           = ["DATA_INGESTION"]
+  sync_mode                 = "PERIODIC"
+  auto_run_disabled         = true
+  incremental_sync_disabled = true
+}
+`, context)
+}
