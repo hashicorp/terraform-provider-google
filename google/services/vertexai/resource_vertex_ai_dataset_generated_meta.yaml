@@ -10,6 +10,7 @@ api_variant_patterns:
     - projects/{project}/locations/{location}/datasets/{dataset}
 fields:
     - api_field: createTime
+    - api_field: description
     - api_field: displayName
     - field: effective_labels
       provider_only: true

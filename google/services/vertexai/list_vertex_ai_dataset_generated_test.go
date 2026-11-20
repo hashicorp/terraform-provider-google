@@ -46,6 +46,7 @@ func TestAccVertexAIDatasetListQuery_generated(t *testing.T) {
 
 	randomSuffix := acctest.RandString(t, 10)
 	context := map[string]interface{}{
+		"description":   nil,
 		"display_name":  "tf-test-terraform" + randomSuffix,
 		"region":        envvar.GetTestRegionFromEnv(),
 		"project":       envvar.GetTestProjectFromEnv(),
