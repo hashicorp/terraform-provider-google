@@ -765,7 +765,7 @@ The following arguments are supported:
 
 * `use_reservation_pool` -
   (Optional)
-  When set to true, resources will be drawn from go/cloud-ai-gcp-pool.
+  When set to true, resources will be drawn from the reservation pool.
 
 * `values` -
   (Optional)
