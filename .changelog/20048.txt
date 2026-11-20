@@ -1,0 +1,7 @@
+```release-note:enhancement
+compute: promoted `dynamic_forwarding.ip_port_selection` field on `google_compute_backend_service` resource to GA
+```
+
+```release-note:enhancement
+compute: promoted `dynamic_forwarding` field on `google_compute_region_backend_service` resource to GA
+```

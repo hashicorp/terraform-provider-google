@@ -830,6 +830,56 @@ resource "google_compute_health_check" "default" {
 `, context)
 }
 
+func TestAccComputeBackendService_backendServiceDynamicForwardingExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name": "tf-test-backend-service" + randomSuffix,
+		"random_suffix":        randomSuffix,
+	}
+
+	acctest.AssertRequestApiVersion(t, "projects/{{project}}/global/backendServices", "2026-11-01")
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeBackendServiceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeBackendService_backendServiceDynamicForwardingExample(context),
+			},
+			{
+				ResourceName:            "google_compute_backend_service.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"iap.0.oauth2_client_id", "iap.0.oauth2_client_id_wo", "iap.0.oauth2_client_id_wo_version", "iap.0.oauth2_client_secret", "iap.0.oauth2_client_secret_wo", "iap.0.oauth2_client_secret_wo_version", "params", "security_settings.0.aws_v4_authentication.0.access_key"},
+			},
+			{
+				ResourceName:       "google_compute_backend_service.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccComputeBackendService_backendServiceDynamicForwardingExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_backend_service" "default" {
+  name                  = "%{backend_service_name}"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  dynamic_forwarding {
+    ip_port_selection {
+      enabled = true
+    }
+  }
+}
+`, context)
+}
+
 func testAccCheckComputeBackendServiceDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

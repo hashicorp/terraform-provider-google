@@ -73,6 +73,9 @@ fields:
     - api_field: customMetrics.dryRun
     - api_field: customMetrics.name
     - api_field: description
+    - api_field: dynamicForwarding.forwardProxy.enabled
+    - api_field: dynamicForwarding.forwardProxy.proxyMode
+    - api_field: dynamicForwarding.ipPortSelection.enabled
     - api_field: enableCDN
     - api_field: failoverPolicy.disableConnectionDrainOnFailover
     - api_field: failoverPolicy.dropTrafficIfUnhealthy

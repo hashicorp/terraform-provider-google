@@ -609,7 +609,6 @@ resource "google_compute_instance_group" "s1" {
 
 ```hcl
 resource "google_compute_region_backend_service" "default" {
-  provider                        = google-beta
   name                            = "region-service"
   region                          = "us-central1"
   load_balancing_scheme           = "EXTERNAL_MANAGED"
@@ -631,7 +630,6 @@ resource "google_compute_region_backend_service" "default" {
 
 ```hcl
 resource "google_compute_region_backend_service" "default" {
-  provider              = google-beta
   name                  = "region-service"
   region                = "us-central1"
   load_balancing_scheme = "INTERNAL_SELF_MANAGED"
@@ -655,7 +653,6 @@ resource "google_compute_region_backend_service" "default" {
 
 ```hcl
 resource "google_compute_region_backend_service" "default" {
-  provider                        = google-beta
   name                            = "region-service"
   region                          = "us-central1"
   load_balancing_scheme           = "INTERNAL_SELF_MANAGED"
@@ -1174,7 +1171,7 @@ The following arguments are supported:
   Structure is [documented below](#nested_subsetting).
 
 * `dynamic_forwarding` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Dynamic forwarding configuration. This field is used to configure the backend service with dynamic forwarding
   feature which together with Service Extension allows customized and complex routing logic.
   Structure is [documented below](#nested_dynamic_forwarding).
@@ -1926,12 +1923,12 @@ The following arguments are supported:
 <a name="nested_dynamic_forwarding"></a>The `dynamic_forwarding` block supports:
 
 * `ip_port_selection` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   IP:PORT based dynamic forwarding configuration.
   Structure is [documented below](#nested_dynamic_forwarding_ip_port_selection).
 
 * `forward_proxy` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Dynamic Forwarding Proxy configuration.
   Structure is [documented below](#nested_dynamic_forwarding_forward_proxy).
 
@@ -1939,17 +1936,17 @@ The following arguments are supported:
 <a name="nested_dynamic_forwarding_ip_port_selection"></a>The `ip_port_selection` block supports:
 
 * `enabled` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   A boolean flag enabling IP:PORT based dynamic forwarding.
 
 <a name="nested_dynamic_forwarding_forward_proxy"></a>The `forward_proxy` block supports:
 
 * `enabled` -
-  (Required, [Beta](../guides/provider_versions.html.markdown))
+  (Required)
   A boolean flag enabling dynamic forwarding proxy.
 
 * `proxy_mode` -
-  (Required, [Beta](../guides/provider_versions.html.markdown))
+  (Required)
   Determines the dynamic forwarding proxy mode
   Possible values are: `DIRECT_FORWARDING`, `CLOUD_RUN`.
 

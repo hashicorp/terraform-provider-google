@@ -76,6 +76,7 @@ fields:
     - api_field: customRequestHeaders
     - api_field: customResponseHeaders
     - api_field: description
+    - api_field: dynamicForwarding.ipPortSelection.enabled
     - api_field: edgeSecurityPolicy
     - api_field: enableCDN
     - api_field: externalManagedMigrationState
