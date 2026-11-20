@@ -1,0 +1,32 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_design_center_connection
+generation_type: mmv1
+source_file: products/designcenter/Connection.yaml
+api_service_name: designcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: Connection
+fields:
+    - field: application_template
+      provider_only: true
+    - field: component
+      provider_only: true
+    - field: connection_id
+      provider_only: true
+    - api_field: createTime
+    - api_field: dependencyType
+    - api_field: destinationComponentParameters.key
+    - api_field: destinationComponentParameters.value
+      json: true
+    - api_field: destinationComponentUri
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: sourceComponentParameters.key
+    - api_field: sourceComponentParameters.value
+      json: true
+    - field: space
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
