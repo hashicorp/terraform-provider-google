@@ -408,6 +408,134 @@ resource "google_vertex_ai_model_development_cluster" "default" {
   }
 }
 ```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=vertex_ai_model_development_cluster_gke_full&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Vertex Ai Model Development Cluster Gke Full
+
+
+```hcl
+data "google_container_engine_versions" "default" {
+  provider = google-beta
+  location = "us-east1"
+}
+
+resource "google_compute_network" "net" {
+  provider                = google-beta
+  name                    = "mdc-gkef-net"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  provider                 = google-beta
+  name                     = "mdc-gkef-subnet"
+  ip_cidr_range            = "10.0.0.0/24"
+  region                   = "us-east1"
+  network                  = google_compute_network.net.id
+  private_ip_google_access = true
+
+  secondary_ip_range {
+    range_name    = "pods-range"
+    ip_cidr_range = "10.16.0.0/14"
+  }
+
+  secondary_ip_range {
+    range_name    = "services-range"
+    ip_cidr_range = "10.20.0.0/20"
+  }
+}
+
+resource "google_compute_firewall" "internal" {
+  provider      = google-beta
+  name          = "mdc-gkef-fw"
+  network       = google_compute_network.net.name
+  direction     = "INGRESS"
+  source_ranges = ["10.0.0.0/24"]
+
+  allow {
+    protocol = "tcp"
+    ports    = ["0-65535"]
+  }
+  allow {
+    protocol = "udp"
+    ports    = ["0-65535"]
+  }
+  allow {
+    protocol = "icmp"
+  }
+}
+
+resource "google_vertex_ai_model_development_cluster" "default" {
+  provider                     = google-beta
+  region                       = "us-east1"
+  model_development_cluster_id = "tftest-gkf"
+  display_name                 = "tftest-gke-full"
+  deletion_policy              = "DELETE"
+  depends_on                   = [google_compute_firewall.internal]
+
+  labels = {
+    env = "dev"
+  }
+
+  network {
+    network                       = google_compute_network.net.id
+    subnetwork                    = google_compute_subnetwork.subnet.id
+    pods_secondary_range_name     = "pods-range"
+    services_secondary_range_name = "services-range"
+  }
+
+  orchestrator_spec {
+    kubernetes_spec {
+      enable_ip_alias                = true
+      public_access_endpoint_enabled = true
+      control_plane_version          = data.google_container_engine_versions.default.release_channel_latest_version["REGULAR"]
+      node_pool_versions = {
+        cpu1 = data.google_container_engine_versions.default.release_channel_latest_version["REGULAR"]
+      }
+      kueue_version    = "v0.16.2"
+      nccl_gib_version = "v1.1.2"
+      maintenance_policy = jsonencode({
+        window = {
+          dailyMaintenanceWindow = {
+            startTime = "03:00"
+          }
+          maintenanceExclusions = {
+            no-node-upgrades = {
+              maintenanceExclusionOptions = {
+                scope           = "NO_MINOR_OR_NODE_UPGRADES"
+                endTimeBehavior = "UNTIL_END_OF_SUPPORT"
+              }
+            }
+          }
+        }
+      })
+    }
+  }
+
+  node_pools {
+    id                 = "cpu1"
+    zone               = "us-east1-b"
+    provisioning_model = "ON_DEMAND"
+
+    boot_disk {
+      boot_disk_size_gb = 100
+      boot_disk_type    = "pd-standard"
+    }
+
+    machine_spec {
+      machine_type = "n2-standard-4"
+    }
+
+    scaling_spec {
+      min_node_count = 1
+      max_node_count = 2
+    }
+  }
+}
+```
 
 ## Argument Reference
 
@@ -791,6 +919,9 @@ Defaults to `USER_AND_SERVICE`. Possible values are `USER_ONLY` and
   (Optional)
   IDs of the NodePools to be included in this GKE cluster. These IDs must
   correspond to NodePools defined in the `node_pools` field.
+  Optional; if omitted, all node pools defined in `node_pools` are included
+  in the GKE cluster and node pools can be added or removed in place.
+  If set, changing `node_pool_ids` forces replacement of the cluster.
 
 * `enable_ip_alias` -
   (Optional)
@@ -805,23 +936,56 @@ Defaults to `USER_AND_SERVICE`. Possible values are `USER_ONLY` and
 
 * `control_plane_version` -
   (Optional)
-  The Kubernetes version of the GKE control plane.
-  Accepted formats are minor version (for example, `"1.30"`), patch version
-  (for example, `"1.30.5"`), full GKE release version (for example,
-  `"1.30.5-gke.1014001"`), or `"-"` to use the service default version.
-  Upgrades can advance at most one minor version at a time; downgrades are
-  rejected.
+  The Kubernetes version of the GKE control plane. Can be set on creation
+  or updated in place.
+  Accepted formats are minor version (for example, `"1.35"`), patch version
+  (for example, `"1.35.8"`), full GKE release version (for example,
+  `"1.35.8-gke.1796000"`), or `"-"` to use the service default version.
+  On creation, versions older than the service default minor version are
+  rejected. Upgrades can advance at most one minor version at a time;
+  downgrades are rejected.
 
 * `node_pool_versions` -
   (Optional)
   The Kubernetes versions for specific node pools, keyed by node pool ID.
+  Can be set on creation or updated in place.
   When specified, all node pool IDs in the cluster must be included.
-  Accepted formats are minor version (for example, `"1.30"`), patch version
-  (for example, `"1.30.5"`), full GKE release version (for example,
-  `"1.30.5-gke.1014001"`), or `"-"` to align with the control plane version.
+  Accepted formats are minor version (for example, `"1.35"`), patch version
+  (for example, `"1.35.8"`), full GKE release version (for example,
+  `"1.35.8-gke.1796000"`), or `"-"` to align with the control plane version.
   Node pools cannot be newer than the control plane or more than 2 minor
   versions behind it; upgrades can advance at most one minor version at a
   time and downgrades are rejected.
+
+* `kueue_version` -
+  (Optional)
+  The Kueue version to install on the cluster, in the form
+  `vMAJOR.MINOR.PATCH` (for example, `"v0.16.2"`). Can be set only on
+  creation.
+  If unset, the service installs its default Kueue version and manages
+  Kueue upgrades and default queues. If set, the service installs the
+  specified version on creation and leaves subsequent Kueue upgrades to
+  the user.
+
+* `nccl_gib_version` -
+  (Optional)
+  The version of the NCCL gIB plugin to install on RDMA GPU node pools
+  (such as A3 Ultra and A4), in the form `vMAJOR.MINOR.PATCH` (for example,
+  `"v1.1.2"`). Can be set only on creation.
+  If unset, the service default version is used. Ignored when the cluster
+  has no RDMA GPU node pools.
+
+* `maintenance_policy` -
+  (Optional)
+  GKE maintenance policy configuration in JSON or YAML format matching
+  `google.container.v1.MaintenancePolicy`
+  (https://cloud.google.com/kubernetes-engine/docs/reference/rest/v1/projects.locations.clusters#MaintenancePolicy).
+  Can be set only on creation.
+  If unset, the service applies a default maintenance exclusion with scope
+  `NO_MINOR_OR_NODE_UPGRADES` and end-time behavior `UNTIL_END_OF_SUPPORT`
+  so automatic minor or node upgrades do not interrupt training workloads.
+  If set, the parsed `MaintenancePolicy` replaces that default exclusion on
+  the underlying GKE cluster.
 
 <a name="nested_lustre_export_config"></a>The `lustre_export_config` block supports:
 
@@ -865,10 +1029,35 @@ Defaults to `USER_AND_SERVICE`. Possible values are `USER_ONLY` and
 
 <a name="nested_network"></a>The `network` block supports:
 
+* `effective_pods_secondary_range_name` -
+  (Output)
+  The effective name of the secondary IP range within the subnetwork for pods.
+  This field reflects the value of `pods_secondary_range_name` if it is set
+  by the user, or is empty when GKE auto-creates the secondary range.
+
+* `effective_services_secondary_range_name` -
+  (Output)
+  The effective name of the secondary IP range within the subnetwork for
+  services. This field reflects the value of `services_secondary_range_name`
+  if it is set by the user, or is empty when GKE auto-creates the secondary
+  range.
+
 * `network` -
   (Required)
   The name of the VPC network where to create the cluster.
   The `default` network is used if not specified.
+
+* `pods_secondary_range_name` -
+  (Optional)
+  The name of the secondary IP range within the subnetwork for pods.
+  Applicable to GKE clusters (`kubernetes_spec`). If not specified, GKE
+  automatically creates a secondary IP range for pods.
+
+* `services_secondary_range_name` -
+  (Optional)
+  The name of the secondary IP range within the subnetwork for services.
+  Applicable to GKE clusters (`kubernetes_spec`). If not specified, GKE
+  automatically creates a secondary IP range for services.
 
 * `subnetwork` -
   (Optional)

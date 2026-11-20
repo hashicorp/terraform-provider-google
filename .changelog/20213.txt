@@ -1,0 +1,7 @@
+```release-note:enhancement
+vertexai: added `orchestrator_spec.kubernetes_spec.kueue_version`, `orchestrator_spec.kubernetes_spec.nccl_gib_version`, `orchestrator_spec.kubernetes_spec.maintenance_policy`, `network.pods_secondary_range_name`, `network.services_secondary_range_name`, `network.effective_pods_secondary_range_name`, and `network.effective_services_secondary_range_name` fields to `google_vertex_ai_model_development_cluster` resource (beta)
+```
+
+```release-note:enhancement
+vertexai: updated `google_vertex_ai_model_development_cluster` to send `orchestrator_spec.kubernetes_spec.control_plane_version` and `orchestrator_spec.kubernetes_spec.node_pool_versions` on cluster creation instead of applying them via a post-create update (beta)
+```
