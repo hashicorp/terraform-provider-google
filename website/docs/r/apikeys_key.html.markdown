@@ -164,7 +164,7 @@ The following arguments are supported:
   
 * `restrictions` -
   (Optional)
-  Key restrictions.
+  Key restrictions. Structure is [documented below](#nested_restrictions).
   
 * `service_account_email` -
   (Optional)
@@ -184,35 +184,35 @@ The following arguments are supported:
   
 
 
-The `restrictions` block supports:
+<a name="nested_restrictions"></a>The `restrictions` block supports:
     
 * `android_key_restrictions` -
   (Optional)
-  The Android apps that are allowed to use the key.
+  The Android apps that are allowed to use the key. Structure is [documented below](#nested_restrictions_android_key_restrictions).
     
 * `api_targets` -
   (Optional)
-  A restriction for a specific service and optionally one or more specific methods. Requests are allowed if they match any of these restrictions. If no restrictions are specified, all targets are allowed.
+  A restriction for a specific service and optionally one or more specific methods. Requests are allowed if they match any of these restrictions. If no restrictions are specified, all targets are allowed. Structure is [documented below](#nested_restrictions_api_targets).
     
 * `browser_key_restrictions` -
   (Optional)
-  The HTTP referrers (websites) that are allowed to use the key.
+  The HTTP referrers (websites) that are allowed to use the key. Structure is [documented below](#nested_restrictions_browser_key_restrictions).
     
 * `ios_key_restrictions` -
   (Optional)
-  The iOS apps that are allowed to use the key.
+  The iOS apps that are allowed to use the key. Structure is [documented below](#nested_restrictions_ios_key_restrictions).
     
 * `server_key_restrictions` -
   (Optional)
-  The IP addresses of callers that are allowed to use the key.
+  The IP addresses of callers that are allowed to use the key. Structure is [documented below](#nested_restrictions_server_key_restrictions).
     
-The `android_key_restrictions` block supports:
+<a name="nested_restrictions_android_key_restrictions"></a>The `android_key_restrictions` block supports:
     
 * `allowed_applications` -
   (Required)
-  A list of Android applications that are allowed to make API calls with this key.
+  A list of Android applications that are allowed to make API calls with this key. Structure is [documented below](#nested_restrictions_android_key_restrictions_allowed_applications).
     
-The `allowed_applications` block supports:
+<a name="nested_restrictions_android_key_restrictions_allowed_applications"></a>The `allowed_applications` block supports:
     
 * `package_name` -
   (Required)
@@ -222,7 +222,7 @@ The `allowed_applications` block supports:
   (Required)
   The SHA1 fingerprint of the application. For example, both sha1 formats are acceptable : DA:39:A3:EE:5E:6B:4B:0D:32:55:BF:EF:95:60:18:90:AF:D8:07:09 or DA39A3EE5E6B4B0D3255BFEF95601890AFD80709. Output format is the latter.
     
-The `api_targets` block supports:
+<a name="nested_restrictions_api_targets"></a>The `api_targets` block supports:
     
 * `methods` -
   (Optional)
@@ -232,19 +232,19 @@ The `api_targets` block supports:
   (Required)
   The service for this restriction. It should be the canonical service name, for example: `translate.googleapis.com`. You can use `gcloud services list` to get a list of services that are enabled in the project.
     
-The `browser_key_restrictions` block supports:
+<a name="nested_restrictions_browser_key_restrictions"></a>The `browser_key_restrictions` block supports:
     
 * `allowed_referrers` -
   (Required)
   A list of regular expressions for the referrer URLs that are allowed to make API calls with this key.
     
-The `ios_key_restrictions` block supports:
+<a name="nested_restrictions_ios_key_restrictions"></a>The `ios_key_restrictions` block supports:
     
 * `allowed_bundle_ids` -
   (Required)
   A list of bundle IDs that are allowed when making API calls with this key.
     
-The `server_key_restrictions` block supports:
+<a name="nested_restrictions_server_key_restrictions"></a>The `server_key_restrictions` block supports:
     
 * `allowed_ips` -
   (Required)
