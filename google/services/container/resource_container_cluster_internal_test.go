@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -1289,6 +1290,157 @@ func TestUnitContainerCluster_dnsConfigPlan(t *testing.T) {
 			}
 			if string(b) != tc.wantRequest {
 				t.Errorf("request = %s, want %s", b, tc.wantRequest)
+			}
+		})
+	}
+}
+
+func TestUnitContainerCluster_expandControlPlaneEndpointsAndManConfig(t *testing.T) {
+	t.Parallel()
+
+	r := &schema.Resource{Schema: map[string]*schema.Schema{
+		"control_plane_endpoints_config":    ResourceContainerCluster().Schema["control_plane_endpoints_config"],
+		"private_cluster_config":            ResourceContainerCluster().Schema["private_cluster_config"],
+		"master_authorized_networks_config": ResourceContainerCluster().Schema["master_authorized_networks_config"],
+	}}
+
+	cpecRawConfig := func(allowExternalTraffic, ipEnabled cty.Value) cty.Value {
+		return cty.ObjectVal(map[string]cty.Value{
+			"control_plane_endpoints_config": cty.ListVal([]cty.Value{
+				cty.ObjectVal(map[string]cty.Value{
+					"dns_endpoint_config": cty.ListVal([]cty.Value{
+						cty.ObjectVal(map[string]cty.Value{
+							"allow_external_traffic": allowExternalTraffic,
+						}),
+					}),
+					"ip_endpoints_config": cty.ListVal([]cty.Value{
+						cty.ObjectVal(map[string]cty.Value{
+							"enabled": ipEnabled,
+						}),
+					}),
+				}),
+			}),
+		})
+	}
+
+	cpecCases := map[string]struct {
+		attrs     map[string]string
+		rawConfig cty.Value
+		isCreate  bool
+		wantJSON  string
+	}{
+		"create omitting endpoint access fields": {
+			attrs: map[string]string{
+				"id":                               "id",
+				"control_plane_endpoints_config.#": "1",
+				"control_plane_endpoints_config.0.dns_endpoint_config.#":                           "1",
+				"control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns": "true",
+				"control_plane_endpoints_config.0.ip_endpoints_config.#":                           "1",
+			},
+			rawConfig: cpecRawConfig(cty.NullVal(cty.Bool), cty.NullVal(cty.Bool)),
+			isCreate:  true,
+			wantJSON:  `{"dnsEndpointConfig":{"enableK8sCertsViaDns":false,"enableK8sTokensViaDns":true},"ipEndpointsConfig":{"authorizedNetworksConfig":{},"enablePublicEndpoint":true,"globalAccess":false,"privateEndpointSubnetwork":""}}`,
+		},
+		"create with explicit false values": {
+			attrs:     map[string]string{"id": "id"},
+			rawConfig: cpecRawConfig(cty.False, cty.False),
+			isCreate:  true,
+			wantJSON:  `{"dnsEndpointConfig":{"allowExternalTraffic":false,"enableK8sCertsViaDns":false,"enableK8sTokensViaDns":false},"ipEndpointsConfig":{"enabled":false}}`,
+		},
+		"create with explicit true values": {
+			attrs:     map[string]string{"id": "id"},
+			rawConfig: cpecRawConfig(cty.True, cty.True),
+			isCreate:  true,
+			wantJSON:  `{"dnsEndpointConfig":{"allowExternalTraffic":true,"enableK8sCertsViaDns":false,"enableK8sTokensViaDns":false},"ipEndpointsConfig":{"authorizedNetworksConfig":{},"enablePublicEndpoint":true,"enabled":true,"globalAccess":false,"privateEndpointSubnetwork":""}}`,
+		},
+		"update with omitted ip_endpoints_config when disabled in state": {
+			attrs: map[string]string{
+				"id":                               "id",
+				"control_plane_endpoints_config.#": "1",
+				"control_plane_endpoints_config.0.dns_endpoint_config.#":                           "1",
+				"control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic":    "true",
+				"control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns": "true",
+				"control_plane_endpoints_config.0.ip_endpoints_config.#":                           "1",
+				"control_plane_endpoints_config.0.ip_endpoints_config.0.enabled":                   "false",
+			},
+			rawConfig: cpecRawConfig(cty.NullVal(cty.Bool), cty.NullVal(cty.Bool)),
+			isCreate:  false,
+			wantJSON:  `{"dnsEndpointConfig":{"enableK8sCertsViaDns":false,"enableK8sTokensViaDns":true},"ipEndpointsConfig":{}}`,
+		},
+	}
+
+	for tn, tc := range cpecCases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			d, err := schema.InternalMap(r.SchemaMap()).Data(&terraform.InstanceState{
+				ID:         "id",
+				Attributes: tc.attrs,
+				RawConfig:  tc.rawConfig,
+			}, nil)
+			if err != nil {
+				t.Fatalf("Data: %v", err)
+			}
+			got, err := json.Marshal(expandControlPlaneEndpointsConfig(d, tc.isCreate))
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			if string(got) != tc.wantJSON {
+				t.Errorf("got %s, want %s", got, tc.wantJSON)
+			}
+		})
+	}
+
+	manRawConfig := func(gcpPublicCidrs cty.Value) cty.Value {
+		return cty.ObjectVal(map[string]cty.Value{
+			"master_authorized_networks_config": cty.ListVal([]cty.Value{
+				cty.ObjectVal(map[string]cty.Value{
+					"gcp_public_cidrs_access_enabled": gcpPublicCidrs,
+				}),
+			}),
+		})
+	}
+
+	manCases := map[string]struct {
+		rawConfig cty.Value
+		wantJSON  string
+	}{
+		"gcp_public_cidrs_access_enabled omitted when false in state": {
+			rawConfig: manRawConfig(cty.NullVal(cty.Bool)),
+			wantJSON:  `{"enabled":true}`,
+		},
+		"gcp_public_cidrs_access_enabled explicit false": {
+			rawConfig: manRawConfig(cty.False),
+			wantJSON:  `{"enabled":true,"gcpPublicCidrsAccessEnabled":false}`,
+		},
+		"gcp_public_cidrs_access_enabled explicit true": {
+			rawConfig: manRawConfig(cty.True),
+			wantJSON:  `{"enabled":true,"gcpPublicCidrsAccessEnabled":true}`,
+		},
+	}
+
+	for tn, tc := range manCases {
+		tc := tc
+		t.Run(tn, func(t *testing.T) {
+			t.Parallel()
+			d, err := schema.InternalMap(r.SchemaMap()).Data(&terraform.InstanceState{
+				ID: "id",
+				Attributes: map[string]string{
+					"id":                                  "id",
+					"master_authorized_networks_config.#": "1",
+					"master_authorized_networks_config.0.gcp_public_cidrs_access_enabled": "false",
+				},
+				RawConfig: tc.rawConfig,
+			}, nil)
+			if err != nil {
+				t.Fatalf("Data: %v", err)
+			}
+			got, err := json.Marshal(expandMasterAuthorizedNetworksConfig(d))
+			if err != nil {
+				t.Fatalf("json.Marshal: %v", err)
+			}
+			if string(got) != tc.wantJSON {
+				t.Errorf("got %s, want %s", got, tc.wantJSON)
 			}
 		})
 	}

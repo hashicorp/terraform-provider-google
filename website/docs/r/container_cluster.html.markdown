@@ -1153,7 +1153,9 @@ This block also contains several computed attributes, documented below.
     Kubernetes cluster master through HTTPS.
 
 * `gcp_public_cidrs_access_enabled` - (Optional) Whether Kubernetes master is
-    accessible via Google Compute Engine Public IPs.
+    accessible via Google Compute Engine Public IPs. If unset, GKE chooses the
+    default on cluster creation and preserves the current setting on existing
+    clusters; set `true` or `false` explicitly to change it.
 
 * `private_endpoint_enforcement_enabled` - (Optional) Whether authorized networks is enforced on the private endpoint or not.
 
@@ -1676,7 +1678,7 @@ The `control_plane_endpoints_config.dns_endpoint_config` block supports:
 
 * `endpoint` - (Output) The cluster's DNS endpoint.
 
-* `allow_external_traffic` - (Optional) Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.
+* `allow_external_traffic` - (Optional) Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false. If unset, GKE chooses the default on cluster creation based on the cluster version and other settings, and preserves the current setting on existing clusters; set `true` or `false` explicitly to change it.
 
 * `enable_k8s_tokens_via_dns` - (Optional) Controls whether the k8s token auth is allowed via Dns.
 
@@ -1684,7 +1686,7 @@ The `control_plane_endpoints_config.dns_endpoint_config` block supports:
 
 The `control_plane_endpoints_config.ip_endpoints_config` block supports:
 
-* `enabled` - (Optional) Controls whether to allow direct IP access. Defaults to `true`.
+* `enabled` - (Optional) Controls whether to allow direct IP access. If unset (or if `ip_endpoints_config` is omitted), GKE chooses the default on cluster creation based on the cluster version and other settings (for example, newer GKE versions disable direct IP access by default unless IP-specific settings such as `master_authorized_networks_config` are configured), and preserves the current setting on existing clusters; set `true` or `false` explicitly to change it.
 
 <a name="nested_private_cluster_config"></a>The `private_cluster_config` block supports:
 
