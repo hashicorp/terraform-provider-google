@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
@@ -28,38 +29,109 @@ import (
 var DEFAULT_SCRATCH_DISK_SIZE_GB = 375
 var VALID_SCRATCH_DISK_SIZES_GB = []int{375, 3000, 3500, 7000, 14000}
 
-// FlattenAliasIpRangeHTTP replaces the legacy SDK-dependent flattenAliasIpRange.
-// It operates directly on API JSON response maps, allowing all direct-HTTP compute resources to share it.
-func FlattenAliasIpRangeHTTP(d *schema.ResourceData, ranges []interface{}, i int) []map[string]interface{} {
-	prefix := fmt.Sprintf("network_interface.%d", i)
+type aliasIpRange struct {
+	cidr      string
+	rangeName string
+}
 
-	configData := []map[string]interface{}{}
-	for _, item := range d.Get(prefix + ".alias_ip_range").([]interface{}) {
-		configData = append(configData, item.(map[string]interface{}))
+// aliasIpRangeNetmask returns the netmask of an alias IP range, with its leading slash, or "" if
+// the range has none: "10.0.0.1/32" -> "/32", "/24" -> "/24", "10.0.0.1" -> "".
+func aliasIpRangeNetmask(cidr string) string {
+	idx := strings.LastIndex(cidr, "/")
+	if idx == -1 {
+		return ""
 	}
+	return cidr[idx:]
+}
 
-	apiData := make([]map[string]interface{}, 0, len(ranges))
-	for _, raw := range ranges {
-		ipRange, ok := raw.(map[string]interface{})
-		if !ok || ipRange == nil {
+// matchAliasIpRanges pairs desired ranges against actual API ranges in two passes:
+// exact (cidr, rangeName) matches first so a netmask entry like "/32" cannot claim an
+// explicitly configured CIDR, then (rangeName, netmask) matches for netmask-only entries.
+func matchAliasIpRanges(desired, actual []aliasIpRange) (matched []int, used []bool) {
+	matched = make([]int, len(desired))
+	for i := range matched {
+		matched[i] = -1
+	}
+	used = make([]bool, len(actual))
+
+	for i, want := range desired {
+		if want.cidr == "" || strings.HasPrefix(want.cidr, "/") {
 			continue
 		}
+		for j, got := range actual {
+			if !used[j] && got.cidr == want.cidr && got.rangeName == want.rangeName {
+				matched[i] = j
+				used[j] = true
+				break
+			}
+		}
+	}
 
-		ipCidrRange, _ := ipRange["ipCidrRange"].(string)
-		subnetworkRangeName, _ := ipRange["subnetworkRangeName"].(string)
+	for i, want := range desired {
+		if matched[i] != -1 || !strings.HasPrefix(want.cidr, "/") {
+			continue
+		}
+		for j, got := range actual {
+			if !used[j] && got.rangeName == want.rangeName && aliasIpRangeNetmask(got.cidr) == want.cidr {
+				matched[i] = j
+				used[j] = true
+				break
+			}
+		}
+	}
 
+	return matched, used
+}
+
+// FlattenAliasIpRangeHTTP returns the API's aliasIpRanges in the order of the blocks already in d:
+// the plan after an apply, prior state on refresh. The API lists ranges in the order they were
+// attached, which stops matching config once an update adds a range ahead of another. Ranges with
+// no block in d (import, data sources, ranges added outside Terraform) follow sorted by CIDR
+// string, or in API order if two of them share one, as bare netmasks on instance templates do.
+func FlattenAliasIpRangeHTTP(d *schema.ResourceData, ranges []interface{}, i int) []map[string]interface{} {
+	configRaw, _ := d.Get(fmt.Sprintf("network_interface.%d.alias_ip_range", i)).([]interface{})
+	desired := make([]aliasIpRange, 0, len(configRaw))
+	for _, item := range configRaw {
+		if m, ok := item.(map[string]interface{}); ok && m != nil {
+			cidr, _ := m["ip_cidr_range"].(string)
+			name, _ := m["subnetwork_range_name"].(string)
+			desired = append(desired, aliasIpRange{cidr: cidr, rangeName: name})
+		}
+	}
+
+	actual := make([]aliasIpRange, 0, len(ranges))
+	apiData := make([]map[string]interface{}, 0, len(ranges))
+	for _, raw := range ranges {
+		m, ok := raw.(map[string]interface{})
+		if !ok || m == nil {
+			continue
+		}
+		cidr, _ := m["ipCidrRange"].(string)
+		name, _ := m["subnetworkRangeName"].(string)
+		actual = append(actual, aliasIpRange{cidr: cidr, rangeName: name})
 		apiData = append(apiData, map[string]interface{}{
-			"ip_cidr_range":         ipCidrRange,
-			"subnetwork_range_name": subnetworkRangeName,
+			"ip_cidr_range":         cidr,
+			"subnetwork_range_name": name,
 		})
 	}
 
-	// Preserve config ordering to prevent permadiffs
-	sorted, err := tpgresource.SortMapsByConfigOrder(configData, apiData, "ip_cidr_range")
-	if err != nil {
-		return apiData
+	matched, used := matchAliasIpRanges(desired, actual)
+	result := make([]map[string]interface{}, 0, len(apiData))
+	for _, apiIdx := range matched {
+		if apiIdx != -1 {
+			result = append(result, apiData[apiIdx])
+		}
 	}
-	return sorted
+	unmatched := make([]map[string]interface{}, 0, len(apiData))
+	for apiIdx, api := range apiData {
+		if !used[apiIdx] {
+			unmatched = append(unmatched, api)
+		}
+	}
+	if sorted, err := tpgresource.SortMapsByConfigOrder(nil, unmatched, "ip_cidr_range"); err == nil {
+		unmatched = sorted
+	}
+	return append(result, unmatched...)
 }
 
 func FlattenDisksHTTP(disks []interface{}, d *schema.ResourceData, defaultProject string) ([]map[string]interface{}, error) {
