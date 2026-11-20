@@ -11,6 +11,7 @@ api_variant_patterns:
 fields:
     - api_field: createTime
     - api_field: description
+    - api_field: expiryTime
     - api_field: filter
     - field: location
       provider_only: true
