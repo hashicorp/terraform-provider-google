@@ -250,9 +250,9 @@ group. You can specify only one value. Structure is [documented below](#nested_a
 * `all_instances_config` - (Optional)
   Properties to set on all instances in the group. After setting
   allInstancesConfig on the group, you must update the group's instances to
-  apply the configuration.
+  apply the configuration. Structure is [documented below](#nested_all_instances_config).
 
-* `standby_policy` - (Optional) The standby policy for stopped and suspended instances. Structure is documented below. For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/suspended-and-stopped-vms-in-mig).
+* `standby_policy` - (Optional) The standby policy for stopped and suspended instances. Structure is [documented below](#nested_standby_policy). For more information, see the [official documentation](https://cloud.google.com/compute/docs/instance-groups/suspended-and-stopped-vms-in-mig).
 
 * `target_suspended_size` - (Optional) The target number of suspended instances for this managed instance group.
 
@@ -286,7 +286,7 @@ group. You can specify only one value. Structure is [documented below](#nested_a
 
 - - -
 
-The `standby_policy` block supports:
+<a name="nested_standby_policy"></a>The `standby_policy` block supports:
 
 * `initial_delay_sec` - (Optional) - Specifies the number of seconds that the MIG should wait to suspend or stop a VM after that VM was created. The initial delay gives the initialization script the time to prepare your VM for a quick scale out. The value of initial delay must be between 0 and 3600 seconds. The default value is 0.
 * `mode` - (Optional) - Defines how a MIG resumes or starts VMs from a standby pool when the group scales out. Valid options are: `MANUAL`, `SCALE_OUT_POOL`. If `MANUAL`(default), you have full control over which VMs are stopped and suspended in the MIG. If `SCALE_OUT_POOL`, the MIG uses the VMs from the standby pools to accelerate the scale out by resuming or starting them and then automatically replenishes the standby pool with new VMs to maintain the target sizes.
@@ -485,37 +485,39 @@ exported:
 
 * `instance_group` - The full URL of the instance group created by the manager.
 
+* `instance_group_manager_id` - The unique identifier number for the resource. This identifier is defined by the server.
+
 * `self_link` - The URL of the created resource.
 
-* `status` - The status of this managed instance group.
+* `status` - The status of this managed instance group. Structure is [documented below](#nested_status).
 
-The `status` block holds:
+<a name="nested_status"></a>The `status` block holds:
 
 * `is_stable` - A bit indicating whether the managed instance group is in a stable state. A stable state means that: none of the instances in the managed instance group is currently undergoing any type of change (for example, creation, restart, or deletion); no future changes are scheduled for instances in the managed instance group; and the managed instance group itself is not being modified.
 
-* `version_target` - A status of consistency of Instances' versions with their target version specified by version field on Instance Group Manager.
+* `version_target` - A status of consistency of Instances' versions with their target version specified by version field on Instance Group Manager. Structure is [documented below](#nested_status_version_target).
 
-* `all_instances_config` - Status of all-instances configuration on the group.
+* `all_instances_config` - Status of all-instances configuration on the group. Structure is [documented below](#nested_status_all_instances_config).
 
-* `stateful` - Stateful status of the given Instance Group Manager.
+* `stateful` - Stateful status of the given Instance Group Manager. Structure is [documented below](#nested_status_stateful).
 
-The `version_target` block holds:
+<a name="nested_status_version_target"></a>The `version_target` block holds:
 
 * `is_reached` - A bit indicating whether version target has been reached in this managed instance group, i.e. all instances are in their target version. Instances' target version are specified by version field on Instance Group Manager.
 
-The `all_instances_config` block holds:
+<a name="nested_status_all_instances_config"></a>The `all_instances_config` block holds:
 
 * `effective` -  A bit indicating whether this configuration has been applied to all managed instances in the group.
 
 * `current_revision` - Current all-instances configuration revision. This value is in RFC3339 text format.
 
-The `stateful` block holds:
+<a name="nested_status_stateful"></a>The `stateful` block holds:
 
 * `has_stateful_config` - A bit indicating whether the managed instance group has stateful configuration, that is, if you have configured any items in a stateful policy or in per-instance configs. The group might report that it has no stateful config even when there is still some preserved state on a managed instance, for example, if you have deleted all PICs but not yet applied those deletions.
 
-* `per_instance_configs` - Status of per-instance configs on the instances.
+* `per_instance_configs` - Status of per-instance configs on the instances. Structure is [documented below](#nested_status_stateful_per_instance_configs).
 
-The `per_instance_configs` block holds:
+<a name="nested_status_stateful_per_instance_configs"></a>The `per_instance_configs` block holds:
 
 * `all_effective` - A bit indicating if all of the group's per-instance configs (listed in the output of a listPerInstanceConfigs API call) have status `EFFECTIVE` or there are no per-instance-configs.
 
