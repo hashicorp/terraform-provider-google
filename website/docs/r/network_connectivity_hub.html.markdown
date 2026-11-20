@@ -75,7 +75,6 @@ resource "google_network_connectivity_hub" "primary"  {
 
 ```hcl
 resource "google_network_connectivity_hub" "primary" {
-  provider    = google-beta
   name        = "psc-config"
   description = "A sample hub that propagates Private Service Connect endpoints for global Google APIs only"
   export_psc  = true
@@ -180,7 +179,7 @@ The following arguments are supported:
   Whether Private Service Connect transitivity is enabled for the hub. If true, Private Service Connect endpoints in VPC spokes attached to the hub are made accessible to other VPC spokes attached to the hub. The default value is false.
 
 * `export_psc_config` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Config for more granular control of Private Service Connect transitivity. Only takes effect when `export_psc` is true.
   If `export_psc` is true, at least one of `published_services_and_regional_google_apis` and `global_google_apis` must be true.
   Structure is [documented below](#nested_export_psc_config).

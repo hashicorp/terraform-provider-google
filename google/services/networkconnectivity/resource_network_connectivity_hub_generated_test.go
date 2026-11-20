@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -128,6 +129,81 @@ resource "google_network_connectivity_hub" "primary"  {
  name        = "%{resource_name}"
  description = "A sample hub with Private Service Connect transitivity is enabled"
  export_psc = true
+}
+`, context)
+}
+
+func TestAccNetworkConnectivityHub_networkConnectivityHubWithExportPscConfigExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"resource_name": "tf-test-psc-config" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"resource_name": "tf-test-psc-config" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkConnectivityHubDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscConfigExample(context),
+			},
+			{
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+			{
+				Config: testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscConfigUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_connectivity_hub.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_connectivity_hub.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "terraform_labels"},
+			},
+		},
+	})
+}
+
+func testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscConfigExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_hub" "primary" {
+  name        = "%{resource_name}"
+  description = "A sample hub that propagates Private Service Connect endpoints for global Google APIs only"
+  export_psc  = true
+  export_psc_config {
+    published_services_and_regional_google_apis = false
+    global_google_apis                          = true
+  }
+}
+`, context)
+}
+
+func testAccNetworkConnectivityHub_networkConnectivityHubWithExportPscConfigUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_network_connectivity_hub" "primary" {
+  name        = "%{resource_name}"
+  description = "A sample hub that propagates all Private Service Connect endpoints"
+  export_psc  = true
+  export_psc_config {
+    published_services_and_regional_google_apis = true
+    global_google_apis                          = false
+  }
 }
 `, context)
 }
