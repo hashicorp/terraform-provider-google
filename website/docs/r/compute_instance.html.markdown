@@ -223,7 +223,8 @@ is desired, you will need to modify your state file manually using
     **Note**: [`allow_stopping_for_update`](#allow_stopping_for_update) must be set to true or your instance must have a `desired_status` of `TERMINATED` in order to update this field.
 
 * `params` - (Optional) Additional instance parameters.
-.
+    Structure is [documented below](#nested_params).
+
 * `project` - (Optional) The ID of the project in which the resource belongs. If it
     is not provided, the provider project is used.
 
@@ -266,7 +267,7 @@ is desired, you will need to modify your state file manually using
 
 * `key_revocation_action_type` - (optional) Action to be taken when a customer's encryption key is revoked. Supports `STOP` and `NONE`, with `NONE` being the default.
 
-* `instance_encryption_key` - (optional) Configuration for data encryption on the instance with encryption keys. Structure is [documented below](#nested_instance_encryption_key`).
+* `instance_encryption_key` - (optional) Configuration for data encryption on the instance with encryption keys. Structure is [documented below](#nested_instance_encryption_key).
 
 * `erase_windows_vss_signature` - (optional) [Beta](../guides/provider_versions.html.markdown) Specifies whether the disks restored from source snapshots or source machine image should erase Windows specific VSS signature.
 
@@ -323,6 +324,8 @@ is desired, you will need to modify your state file manually using
     disk even if it's currently attached to another instance. If you try to force attach a zonal
     disk to an instance, you will receive an error. Setting this parameter cause VM recreation.
 
+* `interface` - (Optional) The disk interface used for attaching this disk. One of SCSI or NVME. (This field is shared with attached_disk and only used for specific cases, please don't specify this field without advice from Google.)
+
 <a name="nested_initialize_params"></a>The `initialize_params` block supports:
 
 * `size` - (Optional) The size of the image in gigabytes. If not specified, it
@@ -347,7 +350,7 @@ is desired, you will need to modify your state file manually using
 
 * `snapshot` - (Optional) The snapshot from which to initialize this disk. To create a disk with a snapshot that you created, specify the snapshot name in the following format: `global/snapshots/my-backup`
 
-* `source_snapshot_encryption_key` - (Optional) Encryption key used to decrypt the given snapshot. Structure is [documented below](#nested_source_snapshot_ecryption_key).
+* `source_snapshot_encryption_key` - (Optional) Encryption key used to decrypt the given snapshot. Structure is [documented below](#nested_source_snapshot_encryption_key).
 
 * `architecture` - (Optional) The architecture of the attached disk. Valid values are `ARM64` or `x86_64`.
 
@@ -386,6 +389,10 @@ is desired, you will need to modify your state file manually using
 
 * `interface` - (Required) The disk interface to use for attaching this disk; either SCSI or NVME.
 
+* `device_name` - (Optional) Name with which the attached disk is accessible under /dev/disk/by-id/
+
+* `size` - (Optional) The size of the disk in gigabytes. One of 375 or 3000. Defaults to 375.
+
 <a name="nested_attached_disk"></a>The `attached_disk` block supports:
 
 * `source` - (Required) The name or self_link of the disk to attach to this instance.
@@ -418,7 +425,7 @@ is desired, you will need to modify your state file manually using
     disk even if it's currently attached to another instance. If you try to force attach a zonal
     disk to an instance, you will receive an error. Setting this parameter cause VM recreation.
 
-<a name="nested_source_image_encryption_key"></a>The `source_snapshot_encryption_key` block supports:
+<a name="nested_source_image_encryption_key"></a>The `source_image_encryption_key` block supports:
 
 * `raw_key` - (Optional)  A 256-bit [customer-supplied encryption key]
     (https://cloud.google.com/compute/docs/disks/customer-supplied-encryption),
@@ -516,6 +523,10 @@ is desired, you will need to modify your state file manually using
 * `ipv6_access_config` - (Optional) An array of IPv6 access configurations for this interface.
 Currently, only one IPv6 access config, DIRECT_IPV6, is supported. If there is no ipv6AccessConfig
 specified, then this instance will have no external IPv6 Internet access. Structure [documented below](#nested_ipv6_access_config).
+
+* `internal_ipv6_prefix_length` - (Optional) The prefix length of the primary internal IPv6 range.
+
+* `ipv6_address` - (Optional) An IPv6 internal network address for this network interface. If not specified, Google Cloud will automatically assign an internal IPv6 address from the instance's subnetwork.
 
 * `queue_count` - (Optional) The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.
 
@@ -785,6 +796,14 @@ exported:
 This field is always inherited from its subnetwork.
 
 * `current_status` - The current status of the instance. This could be one of the following values: PROVISIONING, STAGING, RUNNING, STOPPING, SUSPENDING, SUSPENDED, REPAIRING, and TERMINATED. For more information about the status of the instance, see [Instance life cycle](https://cloud.google.com/compute/docs/instances/instance-life-cycle).
+
+* `network_interface.0.name` - The name of the interface.
+
+* `network_interface.0.access_config.0.security_policy` - [Beta](../guides/provider_versions.html.markdown) The URL of the security policy applied to this access config. To set it, use `network_interface.security_policy`.
+
+* `network_interface.0.ipv6_access_config.0.security_policy` - [Beta](../guides/provider_versions.html.markdown) The URL of the security policy applied to this IPv6 access config. To set it, use `network_interface.security_policy`.
+
+* `instance_encryption_key.0.sha256` - The SHA256 hash of the customer's encryption key.
 
 * `network_interface.0.network_ip` - The internal ip address of the instance, either manually or dynamically assigned.
 
