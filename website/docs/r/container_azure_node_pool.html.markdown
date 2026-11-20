@@ -139,7 +139,7 @@ The following arguments are supported:
 
 * `autoscaling` -
   (Required)
-  Autoscaler configuration for this node pool.
+  Autoscaler configuration for this node pool. Structure is [documented below](#nested_autoscaling).
   
 * `cluster` -
   (Required)
@@ -147,7 +147,7 @@ The following arguments are supported:
   
 * `config` -
   (Required)
-  The node configuration of the node pool.
+  The node configuration of the node pool. Structure is [documented below](#nested_config).
   
 * `location` -
   (Required)
@@ -155,7 +155,7 @@ The following arguments are supported:
   
 * `max_pods_constraint` -
   (Required)
-  The constraint on the maximum number of pods that can be run simultaneously on a node in the node pool.
+  The constraint on the maximum number of pods that can be run simultaneously on a node in the node pool. Structure is [documented below](#nested_max_pods_constraint).
   
 * `name` -
   (Required)
@@ -177,7 +177,7 @@ The following arguments are supported:
     When set to "DELETE", deleting the resource is allowed.
 
 
-The `autoscaling` block supports:
+<a name="nested_autoscaling"></a>The `autoscaling` block supports:
     
 * `max_node_count` -
   (Required)
@@ -187,7 +187,7 @@ The `autoscaling` block supports:
   (Required)
   Minimum number of nodes in the node pool. Must be >= 1 and <= max_node_count.
     
-The `config` block supports:
+<a name="nested_config"></a>The `config` block supports:
     
 * `image_type` -
   (Optional)
@@ -199,15 +199,15 @@ The `config` block supports:
     
 * `proxy_config` -
   (Optional)
-  Proxy configuration for outbound HTTP(S) traffic.
+  Proxy configuration for outbound HTTP(S) traffic. Structure is [documented below](#nested_config_proxy_config).
     
 * `root_volume` -
   (Optional)
-  Optional. Configuration related to the root volume provisioned for each node pool machine. When unspecified, it defaults to a 32-GiB Azure Disk.
+  Optional. Configuration related to the root volume provisioned for each node pool machine. When unspecified, it defaults to a 32-GiB Azure Disk. Structure is [documented below](#nested_config_root_volume).
     
 * `ssh_config` -
   (Required)
-  SSH configuration for how to access the node pool machines.
+  SSH configuration for how to access the node pool machines. Structure is [documented below](#nested_config_ssh_config).
     
 * `tags` -
   (Optional)
@@ -217,7 +217,7 @@ The `config` block supports:
   (Optional)
   Optional. The Azure VM size name. Example: `Standard_DS2_v2`. See (/anthos/clusters/docs/azure/reference/supported-vms) for options. When unspecified, it defaults to `Standard_DS2_v2`.
     
-The `max_pods_constraint` block supports:
+<a name="nested_max_pods_constraint"></a>The `max_pods_constraint` block supports:
     
 * `max_pods_per_node` -
   (Required)
@@ -238,7 +238,7 @@ Please refer to the field `effective_annotations` for all of the annotations pre
   
 * `management` -
   (Optional)
-  The Management configuration for this node pool.
+  The Management configuration for this node pool. Structure is [documented below](#nested_management).
   
 * `project` -
   (Optional)
@@ -246,7 +246,7 @@ Please refer to the field `effective_annotations` for all of the annotations pre
   
 
 
-The `proxy_config` block supports:
+<a name="nested_config_proxy_config"></a>The `proxy_config` block supports:
     
 * `resource_group_id` -
   (Required)
@@ -256,19 +256,19 @@ The `proxy_config` block supports:
   (Required)
   The URL the of the proxy setting secret with its version. Secret ids are formatted as `https:<key-vault-name>.vault.azure.net/secrets/<secret-name>/<secret-version>`.
     
-The `root_volume` block supports:
+<a name="nested_config_root_volume"></a>The `root_volume` block supports:
     
 * `size_gib` -
   (Optional)
   Optional. The size of the disk, in GiBs. When unspecified, a default value is provided. See the specific reference in the parent resource.
     
-The `ssh_config` block supports:
+<a name="nested_config_ssh_config"></a>The `ssh_config` block supports:
     
 * `authorized_key` -
   (Required)
   The SSH public key data for VMs managed by Anthos. This accepts the authorized_keys file format used in OpenSSH according to the sshd(8) manual page.
     
-The `management` block supports:
+<a name="nested_management"></a>The `management` block supports:
     
 * `auto_repair` -
   (Optional)
