@@ -1,0 +1,3 @@
+```release-note:enhancement
+identityplatform: added `enable_anonymous_user` field to `google_identity_platform_tenant` resource
+```

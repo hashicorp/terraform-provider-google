@@ -12,6 +12,7 @@ fields:
     - api_field: client.permissions.disabledUserSignup
     - api_field: disableAuth
     - api_field: displayName
+    - api_field: enableAnonymousUser
     - api_field: enableEmailLinkSignin
     - api_field: name
     - field: deletion_policy
