@@ -447,9 +447,8 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_specific_sku_properties).
 
 * `amendment_status` -
-  (Optional)
+  (Output)
   The current status of the requested amendment.
-  Possible values are: .
 
 * `last_known_good_state` -
   (Optional)
@@ -471,9 +470,8 @@ In addition to the arguments listed above, the following computed attributes are
   Structure is [documented below](#nested_status_last_known_good_state_future_reservation_specs).
 
 * `procurement_status` -
-  (Optional)
+  (Output)
   The status of the last known good state for the Future Reservation
-  Possible values are: .
 
 * `name_prefix` -
   (Optional)
