@@ -39,28 +39,84 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/verify"
 )
 
-func IpCidrRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
-	// The range may be a:
-	// A) single IP address (e.g. 10.2.3.4)
-	// B) CIDR format string (e.g. 10.1.2.0/24)
-	// C) netmask (e.g. /24)
-	//
-	// For A) and B), no diff to suppress, they have to match completely.
-	// For C), The API picks a network IP address and this creates a diff of the form:
-	// network_interface.0.alias_ip_range.0.ip_cidr_range: "10.128.1.0/24" => "/24"
-	// We should only compare the mask portion for this case.
-	if len(new) > 0 && new[0] == '/' {
-		oldNetmaskStartPos := strings.LastIndex(old, "/")
+// IpCidrRangeDiffSuppress suppresses the diff between a CIDR in state and a netmask in config
+// with the same mask: old "10.1.2.0/24", new "/24" -> true; new "/32" or "10.1.3.0/24" -> false.
+// It compares the mask and nothing else. It serves ip_cidr_range in alias_ip_range on the
+// instance templates and in beta alias_ipv6_range; alias_ip_range on google_compute_instance
+// uses AliasIpRangeDiffSuppress.
+func IpCidrRangeDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
+	return strings.HasPrefix(new, "/") && aliasIpRangeNetmask(old) == new
+}
 
-		if oldNetmaskStartPos != -1 {
-			oldNetmask := old[strings.LastIndex(old, "/"):]
-			if oldNetmask == new {
-				return true
-			}
+// AliasIpRangeDiffSuppress is IpCidrRangeDiffSuppress for alias_ip_range on
+// google_compute_instance, with two more conditions. A suppressed diff keeps the state CIDR in
+// the plan and Update sends it, so the diff is suppressed only while that CIDR still belongs to
+// this block: subnetwork_range_name at this index is unchanged, and no other block in the same
+// range sets that CIDR explicitly.
+func AliasIpRangeDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	// Config must be a netmask and state a CIDR with that mask.
+	if !IpCidrRangeDiffSuppress(k, old, new, d) {
+		return false
+	}
+
+	// Locate this block in state and in config. If there is no block to examine (a direct call
+	// with a nil d or another kind of key, or an index outside either list), the mask-only
+	// answer stands.
+	listKey, idx, ok := parseAliasIpRangeListKey(k)
+	if !ok || d == nil {
+		return true
+	}
+	// d.GetChange on this block's own subnetwork_range_name returns the state value when config
+	// omits it, which would hide a move to the primary range, so read the whole list.
+	oldRaw, newRaw := d.GetChange(listKey)
+	oldBlocks, _ := oldRaw.([]interface{})
+	newBlocks, _ := newRaw.([]interface{})
+	if idx >= len(oldBlocks) || idx >= len(newBlocks) {
+		return true
+	}
+
+	// The block must name the same range as before.
+	oldBlock, _ := oldBlocks[idx].(map[string]interface{})
+	newBlock, _ := newBlocks[idx].(map[string]interface{})
+	oldRangeName, _ := oldBlock["subnetwork_range_name"].(string)
+	newRangeName, _ := newBlock["subnetwork_range_name"].(string)
+	if oldRangeName != newRangeName {
+		return false
+	}
+
+	// No other block may set the state CIDR explicitly in that range.
+	for j, raw := range newBlocks {
+		if j == idx {
+			continue
+		}
+		other, _ := raw.(map[string]interface{})
+		otherCidr, _ := other["ip_cidr_range"].(string)
+		otherRangeName, _ := other["subnetwork_range_name"].(string)
+		if otherCidr == old && otherRangeName == newRangeName {
+			return false
 		}
 	}
 
-	return false
+	// Established above: config is a netmask and the state CIDR has that mask; the block at this
+	// index names the same range in state and in config; no other block sets that CIDR
+	// explicitly in the range. The state CIDR is therefore still this block's address.
+	return true
+}
+
+// parseAliasIpRangeListKey splits the key of a block's ip_cidr_range into the key of its list
+// and the block's index: "network_interface.0.alias_ip_range.1.ip_cidr_range" ->
+// "network_interface.0.alias_ip_range", 1, true. ok is false for any other form of key.
+func parseAliasIpRangeListKey(k string) (listKey string, idx int, ok bool) {
+	blockKey, found := strings.CutSuffix(k, ".ip_cidr_range")
+	dot := strings.LastIndex(blockKey, ".")
+	if !found || dot == -1 {
+		return "", 0, false
+	}
+	idx, err := strconv.Atoi(blockKey[dot+1:])
+	if err != nil || idx < 0 {
+		return "", 0, false
+	}
+	return blockKey[:dot], idx, true
 }
 
 func DisksForceAttachDiffSuppress(_, old, new string, _ *schema.ResourceData) bool {
@@ -769,7 +825,7 @@ func ResourceComputeInstance() *schema.Resource {
 									"ip_cidr_range": {
 										Type:             schema.TypeString,
 										Required:         true,
-										DiffSuppressFunc: IpCidrRangeDiffSuppress,
+										DiffSuppressFunc: AliasIpRangeDiffSuppress,
 										Description:      `The IP CIDR range represented by this alias IP range.`,
 									},
 									"subnetwork_range_name": {
@@ -2850,90 +2906,29 @@ func resourceComputeInstanceUpdate(d *schema.ResourceData, meta interface{}) err
 		}
 
 		if !updateDuringStop && d.HasChange(prefix+".alias_ip_range") {
-			// Alias IP ranges cannot be updated; they must be removed and then added
-			// unless you are changing subnetwork/network
-			if instAliasIpRanges, _ := instNetworkInterface["aliasIpRanges"].([]interface{}); len(instAliasIpRanges) > 0 {
-				oldNiMap := instNetworkInterface
-				newNiMap := networkInterface
-				aliasRanges := []interface{}{}
-				if commonAliasIpRanges := CheckForCommonAliasIp(oldNiMap, newNiMap); len(commonAliasIpRanges) > 0 {
-					aliasRanges = commonAliasIpRanges
-				}
-				niBody := map[string]interface{}{
-					"fingerprint":   instNetworkInterface["fingerprint"],
-					"aliasIpRanges": aliasRanges,
-				}
-				url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateNetworkInterface")
-				if err != nil {
-					return fmt.Errorf("Error generating URL: %w", err)
-				}
-				url, err = transport_tpg.AddQueryParams(url, map[string]string{"networkInterface": networkName})
+			// Compute Engine rejects a call that both adds and removes alias IP ranges, so PATCH the
+			// ranges being kept first, then the full list. A netmask entry that matches an attached
+			// range is sent as that range's CIDR, so the API keeps it rather than allocating again.
+			// The kept list has one entry per matched pair, so a step is needed only if that list is
+			// shorter than the attached ranges (something to remove) or the desired ranges (to add).
+			instAliasIpRanges, _ := instNetworkInterface["aliasIpRanges"].([]interface{})
+			newAliasIpRanges, _ := networkInterface["aliasIpRanges"].([]interface{})
+			resolvedNewRanges, commonAliasIpRanges := ResolveAliasIpRanges(instAliasIpRanges, newAliasIpRanges)
+
+			if len(instAliasIpRanges) > 0 && len(commonAliasIpRanges) < len(instAliasIpRanges) {
+				instance, instNetworkInterface, err = patchAliasIpRanges(d, config, project, userAgent, networkName, i, instNetworkInterface["fingerprint"], commonAliasIpRanges)
 				if err != nil {
 					return err
 				}
-				res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-					Config:    config,
-					Method:    "PATCH",
-					Project:   project,
-					RawURL:    url,
-					UserAgent: userAgent,
-					Body:      niBody,
-				})
-				if err != nil {
-					return fmt.Errorf("Error removing alias_ip_range: %w", err)
-				}
-				opErr := ComputeOperationWaitTime(config, res, project, "updating alias ip ranges", userAgent, d.Timeout(schema.TimeoutUpdate))
-				if opErr != nil {
-					return opErr
-				}
-				// re-read fingerprint
-				freshUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
-				if err != nil {
-					return err
-				}
-				freshMap, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-					Config:    config,
-					Method:    "GET",
-					Project:   project,
-					RawURL:    freshUrl,
-					UserAgent: userAgent,
-				})
-				if err != nil {
-					return err
-				}
-				instance = freshMap
 				instNics, _ = instance["networkInterfaces"].([]interface{})
-				instNetworkInterface, _ = instNics[i].(map[string]interface{})
 			}
 
-			niBody := map[string]interface{}{
-				"fingerprint": instNetworkInterface["fingerprint"],
-			}
-			if air, ok := networkInterface["aliasIpRanges"].([]interface{}); ok && len(air) > 0 {
-				niBody["aliasIpRanges"] = air
-			}
-			url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateNetworkInterface")
-			if err != nil {
-				return fmt.Errorf("Error generating URL: %w", err)
-			}
-			url, err = transport_tpg.AddQueryParams(url, map[string]string{"networkInterface": networkName})
-			if err != nil {
-				return err
-			}
-			res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
-				Config:    config,
-				Method:    "PATCH",
-				Project:   project,
-				RawURL:    url,
-				UserAgent: userAgent,
-				Body:      niBody,
-			})
-			if err != nil {
-				return fmt.Errorf("Error updating network interface: %w", err)
-			}
-			opErr := ComputeOperationWaitTime(config, res, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate))
-			if opErr != nil {
-				return opErr
+			if len(resolvedNewRanges) > len(commonAliasIpRanges) {
+				instance, instNetworkInterface, err = patchAliasIpRanges(d, config, project, userAgent, networkName, i, instNetworkInterface["fingerprint"], resolvedNewRanges)
+				if err != nil {
+					return err
+				}
+				instNics, _ = instance["networkInterfaces"].([]interface{})
 			}
 		}
 
@@ -4613,39 +4608,102 @@ func isEmptyServiceAccountBlock(d *schema.ResourceData) bool {
 	return false
 }
 
-// Alias ip ranges cannot be removed and created at the same time. This checks if there are any unchanged alias ip ranges
-// to be kept in between the PATCH operations on Network Interface.
-//
-// The arguments and return value use REST-shaped maps (camelCase keys) to keep this helper
-// independent of the typed compute client library; callers can convert via tpgresource.ConvertToMap
-// before invoking it.
-func CheckForCommonAliasIp(old, new map[string]interface{}) []interface{} {
-	newAliasIpMap := make(map[string]bool)
-	if newRanges, ok := new["aliasIpRanges"].([]interface{}); ok {
-		for _, raw := range newRanges {
-			ipRange, ok := raw.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			cidr := ipRange["ipCidrRange"].(string)
-			newAliasIpMap[cidr] = true
-		}
+// patchAliasIpRanges replaces the NIC's alias IP ranges and returns the re-read instance and NIC.
+// A PATCH that changes the NIC changes its fingerprint, and the next call must send the new one.
+func patchAliasIpRanges(d *schema.ResourceData, config *transport_tpg.Config, project, userAgent, networkName string, nicIndex int, fingerprint interface{}, ranges []interface{}) (map[string]interface{}, map[string]interface{}, error) {
+	url, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}/updateNetworkInterface")
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error generating URL: %w", err)
+	}
+	url, err = transport_tpg.AddQueryParams(url, map[string]string{"networkInterface": networkName})
+	if err != nil {
+		return nil, nil, err
+	}
+	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "PATCH",
+		Project:   project,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Body: map[string]interface{}{
+			"fingerprint":   fingerprint,
+			"aliasIpRanges": ranges,
+		},
+	})
+	if err != nil {
+		return nil, nil, fmt.Errorf("Error updating network interface: %w", err)
+	}
+	if err := ComputeOperationWaitTime(config, res, project, "network interface to update", userAgent, d.Timeout(schema.TimeoutUpdate)); err != nil {
+		return nil, nil, err
 	}
 
-	resultAliasIpRanges := make([]interface{}, 0)
-	if oldRanges, ok := old["aliasIpRanges"].([]interface{}); ok {
-		for _, raw := range oldRanges {
-			ipRange, ok := raw.(map[string]interface{})
-			if !ok {
-				continue
-			}
-			cidr := ipRange["ipCidrRange"].(string)
-			if newAliasIpMap[cidr] {
-				resultAliasIpRanges = append(resultAliasIpRanges, ipRange)
-			}
+	freshUrl, err := tpgresource.ReplaceVars(d, config, "{{ComputeBasePath}}projects/{{project}}/zones/{{zone}}/instances/{{name}}")
+	if err != nil {
+		return nil, nil, err
+	}
+	freshInstance, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   project,
+		RawURL:    freshUrl,
+		UserAgent: userAgent,
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+	nics, _ := freshInstance["networkInterfaces"].([]interface{})
+	if nicIndex >= len(nics) {
+		return nil, nil, fmt.Errorf("Instance had unexpected number of network interfaces: %d", len(nics))
+	}
+	nic, _ := nics[nicIndex].(map[string]interface{})
+	return freshInstance, nic, nil
+}
+
+func parseApiAliasIpRanges(ranges []interface{}) []aliasIpRange {
+	out := make([]aliasIpRange, len(ranges))
+	for i, raw := range ranges {
+		if m, ok := raw.(map[string]interface{}); ok && m != nil {
+			cidr, _ := m["ipCidrRange"].(string)
+			name, _ := m["subnetworkRangeName"].(string)
+			out[i] = aliasIpRange{cidr: cidr, rangeName: name}
 		}
 	}
-	return resultAliasIpRanges
+	return out
+}
+
+// ResolveAliasIpRanges replaces matched netmask-only entries in newRanges with their
+// currently attached CIDRs from oldRanges and returns the subset of retained ranges.
+func ResolveAliasIpRanges(oldRanges, newRanges []interface{}) (resolvedNew []interface{}, common []interface{}) {
+	oldItems := parseApiAliasIpRanges(oldRanges)
+	newItems := parseApiAliasIpRanges(newRanges)
+	matched, _ := matchAliasIpRanges(newItems, oldItems)
+
+	resolvedNew = make([]interface{}, len(newRanges))
+	copy(resolvedNew, newRanges)
+	common = make([]interface{}, 0)
+
+	for i, oldIdx := range matched {
+		if oldIdx == -1 {
+			continue
+		}
+		kept := map[string]interface{}{"ipCidrRange": oldItems[oldIdx].cidr}
+		if oldItems[oldIdx].rangeName != "" {
+			kept["subnetworkRangeName"] = oldItems[oldIdx].rangeName
+		}
+		resolvedNew[i] = kept
+		common = append(common, kept)
+	}
+	return resolvedNew, common
+}
+
+// CheckForCommonAliasIp returns the alias IP ranges of old that new keeps. It wraps
+// ResolveAliasIpRanges, which Update calls directly, and is kept for the explicit-CIDR cases in
+// TestCheckForCommonAliasIp.
+func CheckForCommonAliasIp(old, new map[string]interface{}) []interface{} {
+	oldRanges, _ := old["aliasIpRanges"].([]interface{})
+	newRanges, _ := new["aliasIpRanges"].([]interface{})
+	_, common := ResolveAliasIpRanges(oldRanges, newRanges)
+	return common
 }
 
 func updateDisk(d *schema.ResourceData, config *transport_tpg.Config, userAgent, project, method, patchUrl string, obj map[string]interface{}) error {

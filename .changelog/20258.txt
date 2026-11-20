@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed unexpected diffs after apply, HTTP 400 update errors, and detached or reallocated alias IPs on `google_compute_instance` when `network_interface.alias_ip_range.ip_cidr_range` is set to a netmask such as `/32`
+```
