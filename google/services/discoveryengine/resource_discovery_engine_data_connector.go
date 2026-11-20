@@ -325,6 +325,7 @@ after the action configuration is validated.`,
 			},
 			"bap_config": {
 				Type:     schema.TypeList,
+				Computed: true,
 				Optional: true,
 				Description: `BAP (Business Application Platform) configuration for the data
 connector. Controls which actions are enabled for connectors

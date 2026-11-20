@@ -1,0 +1,3 @@
+```release-note:bug
+discoveryengine: fixed permadiff on `bap_config` in `google_discovery_engine_data_connector` when omitted from configuration for connectors with default read-only actions
+```
