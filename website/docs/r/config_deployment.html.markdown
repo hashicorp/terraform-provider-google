@@ -113,6 +113,11 @@ The following arguments are supported:
   Controls quota checks.
   Possible values are: `ENABLED`, `ENFORCED`.
 
+* `provider_config` -
+  (Optional)
+  This field specifies the provider configurations.
+  Structure is [documented below](#nested_provider_config).
+
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
 
@@ -163,6 +168,13 @@ The following arguments are supported:
 * `input_value` -
   (Required)
   The value of the variable.
+
+<a name="nested_provider_config"></a>The `provider_config` block supports:
+
+* `source_type` -
+  (Optional)
+  ProviderSource specifies the source type of the provider.
+  Possible values are: `SERVICE_MAINTAINED`.
 
 ## Attributes Reference
 
