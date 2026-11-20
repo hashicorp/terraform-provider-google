@@ -245,6 +245,22 @@ Please refer to the field 'effective_annotations' for all of the annotations pre
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"provider_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `This field specifies the provider configurations.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"source_type": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"SERVICE_MAINTAINED", ""}),
+							Description:  `ProviderSource specifies the source type of the provider. Possible values: ["SERVICE_MAINTAINED"]`,
+						},
+					},
+				},
+			},
 			"quota_validation": {
 				Type:         schema.TypeString,
 				Optional:     true,
@@ -368,6 +384,12 @@ func resourceConfigDeploymentCreate(d *schema.ResourceData, meta interface{}) er
 		return err
 	} else if v, ok := d.GetOkExists("quota_validation"); !tpgresource.IsEmptyValue(reflect.ValueOf(quotaValidationProp)) && (ok || !reflect.DeepEqual(v, quotaValidationProp)) {
 		obj["quotaValidation"] = quotaValidationProp
+	}
+	providerConfigProp, err := expandConfigDeploymentProviderConfig(d.Get("provider_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("provider_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(providerConfigProp)) && (ok || !reflect.DeepEqual(v, providerConfigProp)) {
+		obj["providerConfig"] = providerConfigProp
 	}
 	effectiveLabelsProp, err := expandConfigDeploymentEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -644,6 +666,12 @@ func resourceConfigDeploymentUpdate(d *schema.ResourceData, meta interface{}) er
 	} else if v, ok := d.GetOkExists("quota_validation"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, quotaValidationProp)) {
 		obj["quotaValidation"] = quotaValidationProp
 	}
+	providerConfigProp, err := expandConfigDeploymentProviderConfig(d.Get("provider_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("provider_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, providerConfigProp)) {
+		obj["providerConfig"] = providerConfigProp
+	}
 	effectiveLabelsProp, err := expandConfigDeploymentEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -692,6 +720,10 @@ func resourceConfigDeploymentUpdate(d *schema.ResourceData, meta interface{}) er
 
 	if d.HasChange("quota_validation") {
 		updateMask = append(updateMask, "quotaValidation")
+	}
+
+	if d.HasChange("provider_config") {
+		updateMask = append(updateMask, "providerConfig")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -971,6 +1003,23 @@ func flattenConfigDeploymentQuotaValidation(v interface{}, d *schema.ResourceDat
 	return v
 }
 
+func flattenConfigDeploymentProviderConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["source_type"] =
+		flattenConfigDeploymentProviderConfigSourceType(original["sourceType"], d, config)
+	return []interface{}{transformed}
+}
+func flattenConfigDeploymentProviderConfigSourceType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenConfigDeploymentState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1160,6 +1209,32 @@ func expandConfigDeploymentQuotaValidation(v interface{}, d tpgresource.Terrafor
 	return v, nil
 }
 
+func expandConfigDeploymentProviderConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSourceType, err := expandConfigDeploymentProviderConfigSourceType(original["source_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSourceType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sourceType"] = transformedSourceType
+	}
+
+	return transformed, nil
+}
+
+func expandConfigDeploymentProviderConfigSourceType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandConfigDeploymentEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1210,6 +1285,9 @@ func ResourceConfigDeploymentFlatten(d *schema.ResourceData, meta interface{}, r
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 	if err = d.Set("quota_validation", flattenConfigDeploymentQuotaValidation(res["quotaValidation"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Deployment: %s", err)
+	}
+	if err = d.Set("provider_config", flattenConfigDeploymentProviderConfig(res["providerConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Deployment: %s", err)
 	}
 	if err = d.Set("state", flattenConfigDeploymentState(res["state"], d, config)); err != nil {
