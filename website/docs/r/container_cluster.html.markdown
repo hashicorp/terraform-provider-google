@@ -544,7 +544,7 @@ Fleet configuration for the cluster. Structure is [documented below](#nested_fle
   Configuration for [anonymous authentication restrictions](https://cloud.google.com/kubernetes-engine/docs/how-to/hardening-your-cluster#restrict-anon-access). Structure is [documented below](#anonymous_authentication_config).
 
 * `node_creation_config` - (Optional)
-  Configuration for [node creation config](https://clouddocs.devsite.corp.google.com/kubernetes-engine/security/control-plane-node-creation). Structure is [documented below](#node_creation_config).
+  Configuration for [node creation config](https://cloud.google.com/kubernetes-engine/security/control-plane-node-creation). Structure is [documented below](#node_creation_config).
 
 * `rbac_binding_config` - (Optional)
   RBACBindingConfig allows user to restrict ClusterRoleBindings an RoleBindings that can be created. Structure is [documented below](#nested_rbac_binding_config).

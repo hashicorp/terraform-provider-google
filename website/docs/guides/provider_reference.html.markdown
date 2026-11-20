@@ -82,7 +82,7 @@ as a primary authentication method. You can set up ADC with your user credential
 [`gcloud auth application-default login`](https://cloud.google.com/sdk/gcloud/reference/auth/application-default).
 
 <!-- 
-TODO: quota project is not currently read from ADC file b/360405077#comment8
+TODO: quota project is not currently read from ADC file
 
 Google Cloud reads the quota project for requests will be read automatically
 from the `core/project` value. You can override this project by specifying the

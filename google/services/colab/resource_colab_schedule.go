@@ -264,7 +264,7 @@ func ResourceColabSchedule() *schema.Resource {
 																		"use_reservation_pool": {
 																			Type:        schema.TypeBool,
 																			Optional:    true,
-																			Description: `When set to true, resources will be drawn from go/cloud-ai-gcp-pool.`,
+																			Description: `When set to true, resources will be drawn from the reservation pool.`,
 																		},
 																		"values": {
 																			Type:        schema.TypeList,
