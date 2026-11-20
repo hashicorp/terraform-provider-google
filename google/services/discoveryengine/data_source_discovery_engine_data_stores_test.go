@@ -17,9 +17,12 @@
 package discoveryengine_test
 
 import (
+	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/terraform"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 )
@@ -40,16 +43,54 @@ func TestAccDataSourceGoogleDiscoveryEngineDataStores_basic(t *testing.T) {
 				Config: testAccDataSourceGoogleDiscoveryEngineDataStores_basic(context),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.#"),
-					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.0.name"),
-					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.0.data_store_id"),
-					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.0.display_name"),
-					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.0.industry_vertical"),
-					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.0.content_config"),
-					resource.TestCheckResourceAttrSet("data.google_discovery_engine_data_stores.all", "data_stores.0.create_time"),
+					testAccCheckDiscoveryEngineDataStoresContainsResource("data.google_discovery_engine_data_stores.all", "google_discovery_engine_data_store.res"),
 				),
 			},
 		},
 	})
+}
+
+func testAccCheckDiscoveryEngineDataStoresContainsResource(dataSourceName, resourceName string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		ds, ok := s.RootModule().Resources[dataSourceName]
+		if !ok {
+			return fmt.Errorf("data source not found: %s", dataSourceName)
+		}
+		rs, ok := s.RootModule().Resources[resourceName]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", resourceName)
+		}
+
+		count, err := strconv.Atoi(ds.Primary.Attributes["data_stores.#"])
+		if err != nil {
+			return fmt.Errorf("invalid data_stores.# value %q: %w", ds.Primary.Attributes["data_stores.#"], err)
+		}
+
+		targetID := rs.Primary.Attributes["data_store_id"]
+		for i := 0; i < count; i++ {
+			prefix := fmt.Sprintf("data_stores.%d.", i)
+			if ds.Primary.Attributes[prefix+"data_store_id"] != targetID {
+				continue
+			}
+
+			for _, attr := range []string{"name", "display_name", "industry_vertical", "content_config", "default_schema_id"} {
+				got := ds.Primary.Attributes[prefix+attr]
+				want := rs.Primary.Attributes[attr]
+				if got != want {
+					return fmt.Errorf("%s%s = %q, want %q", prefix, attr, got, want)
+				}
+			}
+			if ds.Primary.Attributes[prefix+"create_time"] == "" {
+				return fmt.Errorf("expected %screate_time to be set", prefix)
+			}
+			if ds.Primary.Attributes[prefix+"solution_types.#"] != rs.Primary.Attributes["solution_types.#"] {
+				return fmt.Errorf("%ssolution_types.# = %q, want %q", prefix, ds.Primary.Attributes[prefix+"solution_types.#"], rs.Primary.Attributes["solution_types.#"])
+			}
+			return nil
+		}
+
+		return fmt.Errorf("data store %q not found in %s (%d entries)", targetID, dataSourceName, count)
+	}
 }
 
 func testAccDataSourceGoogleDiscoveryEngineDataStores_basic(context map[string]interface{}) string {
