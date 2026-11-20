@@ -1,0 +1,3 @@
+```release-note:enhancement
+networkconnectivity: promoted `export_psc_config` field on `google_network_connectivity_hub` resource to GA (ga)
+```
