@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/customdiff"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
@@ -2161,6 +2162,7 @@ func ResourceContainerCluster() *schema.Resource {
 									"allow_external_traffic": {
 										Type:        schema.TypeBool,
 										Optional:    true,
+										Computed:    true,
 										Description: `Controls whether user traffic is allowed over this endpoint. Note that GCP-managed services may still use the endpoint even if this is false.`,
 									},
 									"enable_k8s_tokens_via_dns": {
@@ -2187,6 +2189,7 @@ func ResourceContainerCluster() *schema.Resource {
 									"enabled": {
 										Type:        schema.TypeBool,
 										Optional:    true,
+										Computed:    true,
 										Description: `Controls whether to allow direct IP access.`,
 									},
 								},
@@ -3069,7 +3072,7 @@ func resourceContainerClusterCreate(d *schema.ResourceData, meta interface{}) er
 		Name:                        clusterName,
 		InitialNodeCount:            int64(d.Get("initial_node_count").(int)),
 		MaintenancePolicy:           expandMaintenancePolicy(d, meta),
-		ControlPlaneEndpointsConfig: expandControlPlaneEndpointsConfig(d),
+		ControlPlaneEndpointsConfig: expandControlPlaneEndpointsConfig(d, true),
 		InitialClusterVersion:       d.Get("min_master_version").(string),
 		ClusterIpv4Cidr:             d.Get("cluster_ipv4_cidr").(string),
 		Description:                 d.Get("description").(string),
@@ -3988,7 +3991,7 @@ func resourceContainerClusterUpdate(d *schema.ResourceData, meta interface{}) er
 		d.HasChange("private_cluster_config.0.master_global_access_config") {
 		req := &container.UpdateClusterRequest{
 			Update: &container.ClusterUpdate{
-				DesiredControlPlaneEndpointsConfig: expandControlPlaneEndpointsConfig(d),
+				DesiredControlPlaneEndpointsConfig: expandControlPlaneEndpointsConfig(d, false),
 			},
 		}
 
@@ -6365,8 +6368,14 @@ func expandMasterAuthorizedNetworksConfig(d *schema.ResourceData) *container.Mas
 	if v, ok := d.GetOk("master_authorized_networks_config.0.cidr_blocks"); ok {
 		result.CidrBlocks = expandManCidrBlocks(v)
 	}
-	if v, ok := d.GetOkExists("master_authorized_networks_config.0.gcp_public_cidrs_access_enabled"); ok {
-		result.GcpPublicCidrsAccessEnabled = v.(bool)
+	// gcp_public_cidrs_access_enabled is Optional+Computed, so d.Get and d.GetOkExists also return
+	// the value read back from state when it is omitted from config, which is false when GKE left
+	// the field unset. GKE treats an explicit false as an opt-out and, on PSC clusters, starts
+	// enforcing reserved-range validation that rejects non-internet-routable CIDRs, so only send
+	// the field when it is set in raw config and otherwise let GKE keep or default its value.
+	gcpPublicCidrsPath := cty.GetAttrPath("master_authorized_networks_config").IndexInt(0).GetAttr("gcp_public_cidrs_access_enabled")
+	if val, diags := d.GetRawConfigAt(gcpPublicCidrsPath); !diags.HasError() && !val.IsNull() && val.IsKnown() {
+		result.GcpPublicCidrsAccessEnabled = val.True()
 		result.ForceSendFields = append(result.ForceSendFields, "GcpPublicCidrsAccessEnabled")
 	}
 	if v, ok := d.GetOkExists("master_authorized_networks_config.0.private_endpoint_enforcement_enabled"); ok {
@@ -6522,10 +6531,22 @@ func expandDefaultEnablePrivateNodes(d *schema.ResourceData) bool {
 	return false
 }
 
-func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.ControlPlaneEndpointsConfig {
+// expandControlPlaneEndpointsConfig builds the control plane endpoints config for cluster
+// create (isCreate = true) and update requests.
+//
+// Direct IP access (ip_endpoints_config.enabled) and DNS external traffic
+// (dns_endpoint_config.allow_external_traffic) are only sent when explicitly set in raw config,
+// so GKE applies its own defaults when they are omitted on create (for example, DNS-based access
+// with direct IP access disabled on newer GKE versions) and preserves existing settings on update.
+func expandControlPlaneEndpointsConfig(d *schema.ResourceData, isCreate bool) *container.ControlPlaneEndpointsConfig {
 	dns := &container.DNSEndpointConfig{}
-	if v := d.Get("control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic"); v != nil {
-		dns.AllowExternalTraffic = v.(bool)
+	allowExternalTrafficPath := cty.GetAttrPath("control_plane_endpoints_config").IndexInt(0).
+		GetAttr("dns_endpoint_config").IndexInt(0).
+		GetAttr("allow_external_traffic")
+	if val, diags := d.GetRawConfigAt(allowExternalTrafficPath); !diags.HasError() && !val.IsNull() && val.IsKnown() {
+		dns.AllowExternalTraffic = val.True()
+		// The API client drops false bools unless they are force-sent, so an explicit
+		// allow_external_traffic = false must be force-sent.
 		dns.ForceSendFields = append(dns.ForceSendFields, "AllowExternalTraffic")
 	}
 
@@ -6539,12 +6560,13 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 		dns.ForceSendFields = append(dns.ForceSendFields, "EnableK8sCertsViaDns")
 	}
 
-	ip := &container.IPEndpointsConfig{
-		Enabled:         true,
-		ForceSendFields: []string{"Enabled"},
-	}
-	if v := d.Get("control_plane_endpoints_config.0.ip_endpoints_config.#"); v != 0 {
-		ip.Enabled = d.Get("control_plane_endpoints_config.0.ip_endpoints_config.0.enabled").(bool)
+	ip := &container.IPEndpointsConfig{}
+	ipEnabledPath := cty.GetAttrPath("control_plane_endpoints_config").IndexInt(0).
+		GetAttr("ip_endpoints_config").IndexInt(0).
+		GetAttr("enabled")
+	if val, diags := d.GetRawConfigAt(ipEnabledPath); !diags.HasError() && !val.IsNull() && val.IsKnown() {
+		ip.Enabled = val.True()
+		ip.ForceSendFields = []string{"Enabled"}
 
 		if !ip.Enabled {
 			return &container.ControlPlaneEndpointsConfig{
@@ -6552,7 +6574,19 @@ func expandControlPlaneEndpointsConfig(d *schema.ResourceData) *container.Contro
 				IpEndpointsConfig: ip,
 			}
 		}
+	} else if !isCreate &&
+		d.Get("control_plane_endpoints_config.0.ip_endpoints_config.#") != 0 &&
+		!d.Get("control_plane_endpoints_config.0.ip_endpoints_config.0.enabled").(bool) {
+		// On update, when ip_endpoints_config.0.enabled is omitted in config and state indicates
+		// IP endpoints are disabled on the cluster, return early before populating IP-endpoint
+		// fields so GKE does not reject dns_endpoint_config updates on DNS-only clusters.
+		return &container.ControlPlaneEndpointsConfig{
+			DnsEndpointConfig: dns,
+			IpEndpointsConfig: ip,
+		}
 	}
+	// When ip_endpoints_config.0.enabled is omitted in config, Enabled is left unset so GKE picks
+	// the default on create and preserves the cluster's existing setting on update.
 	if v := d.Get("private_cluster_config.0.enable_private_endpoint"); v != nil {
 		ip.EnablePublicEndpoint = !v.(bool)
 		ip.ForceSendFields = append(ip.ForceSendFields, "EnablePublicEndpoint")

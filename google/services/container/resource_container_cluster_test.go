@@ -17351,6 +17351,27 @@ func TestAccContainerCluster_withDnsEndpoint(t *testing.T) {
 				ImportStateVerifyIgnore: []string{"deletion_protection"},
 			},
 			{
+				Config: testAccContainerCluster_withDnsEndpointPartial(clusterName, networkName, subnetworkName),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_container_cluster.primary", plancheck.ResourceActionUpdate),
+					},
+				},
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.endpoint"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.allow_external_traffic", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_tokens_via_dns", "true"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.dns_endpoint_config.0.enable_k8s_certs_via_dns", "false"),
+					resource.TestCheckResourceAttr("google_container_cluster.primary", "control_plane_endpoints_config.0.ip_endpoints_config.0.enabled", "true"),
+				),
+			},
+			{
+				ResourceName:            "google_container_cluster.primary",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"deletion_protection"},
+			},
+			{
 				Config: testAccContainerCluster_withDnsEndpoint(clusterName, networkName, subnetworkName, false),
 				ConfigPlanChecks: resource.ConfigPlanChecks{
 					PreApply: []plancheck.PlanCheck{
@@ -17391,6 +17412,25 @@ resource "google_container_cluster" "primary" {
     }
   }
 }`, name, networkName, subnetworkName, enabled, enabled, enabled)
+}
+
+func testAccContainerCluster_withDnsEndpointPartial(name, networkName, subnetworkName string) string {
+	return fmt.Sprintf(`
+resource "google_container_cluster" "primary" {
+  name                = "%s"
+  location            = "us-east1-b"
+  initial_node_count  = 1
+  network    = "%s"
+  subnetwork = "%s"
+  deletion_protection = false
+  control_plane_endpoints_config {
+    dns_endpoint_config {
+      enable_k8s_tokens_via_dns = true
+      enable_k8s_certs_via_dns = false
+    }
+    ip_endpoints_config {}
+  }
+}`, name, networkName, subnetworkName)
 }
 
 func TestAccContainerCluster_withCgroupModeUpdate(t *testing.T) {

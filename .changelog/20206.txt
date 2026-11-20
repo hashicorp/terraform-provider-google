@@ -1,0 +1,7 @@
+```release-note:enhancement
+container: updated `google_container_cluster` to omit `control_plane_endpoints_config.ip_endpoints_config.enabled` and `control_plane_endpoints_config.dns_endpoint_config.allow_external_traffic` when unset in config so GKE applies its server defaults. This server default will change on GKE 1.38+.
+```
+
+```release-note:bug
+container: fixed `google_container_cluster` sending `master_authorized_networks_config.gcp_public_cidrs_access_enabled = false` when unset in config
+```
