@@ -214,8 +214,15 @@ resource "google_project_service" "discoveryengine" {
   disable_on_destroy = false
 }
 
+resource "google_project_service" "aiplatform" {
+  project            = google_project.project.project_id
+  service            = "aiplatform.googleapis.com"
+  disable_on_destroy = false
+  depends_on         = [google_project_service.discoveryengine]
+}
+
 resource "time_sleep" "wait_enable_service_api" {
-  depends_on      = [google_project_service.discoveryengine]
+  depends_on      = [google_project_service.aiplatform]
   create_duration = "30s"
 }
 
