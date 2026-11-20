@@ -15,6 +15,7 @@ fields:
     - api_field: name
     - api_field: notificationConfig.pubsubTopic
     - api_field: notificationConfig.sendForBulkImport
+    - api_field: notificationConfigs.pubsubTopic
     - api_field: selfLink
     - field: terraform_labels
       provider_only: true

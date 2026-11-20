@@ -117,6 +117,68 @@ resource "google_healthcare_dataset" "dataset" {
 `, context)
 }
 
+func TestAccHealthcareDicomStore_healthcareDicomStoreNotificationConfigsExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"dataset_name":     "tf-test-example-dataset" + randomSuffix,
+		"dicom_store_name": "tf-test-example-dicom-store" + randomSuffix,
+		"pubsub_topic":     "tf-test-dicom-notifications" + randomSuffix,
+		"random_suffix":    randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareDicomStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccHealthcareDicomStore_healthcareDicomStoreNotificationConfigsExample(context),
+			},
+			{
+				ResourceName:            "google_healthcare_dicom_store.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"dataset", "labels", "self_link", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_healthcare_dicom_store.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccHealthcareDicomStore_healthcareDicomStoreNotificationConfigsExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_healthcare_dicom_store" "default" {
+  name    = "%{dicom_store_name}"
+  dataset = google_healthcare_dataset.dataset.id
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic.id
+  }
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+}
+
+resource "google_pubsub_topic" "topic" {
+  name = "%{pubsub_topic}"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "%{dataset_name}"
+  location = "us-central1"
+}
+`, context)
+}
+
 func testAccCheckHealthcareDicomStoreDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {
