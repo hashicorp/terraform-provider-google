@@ -147,6 +147,11 @@ func ResourceVertexAIDataset() *schema.Resource {
 				ForceNew:    true,
 				Description: `Points to a YAML file stored on Google Cloud Storage describing additional information about the Dataset. The schema is defined as an OpenAPI 3.0.2 Schema Object. The schema files that can be used here are found in gs://google-cloud-aiplatform/schema/dataset/metadata/.`,
 			},
+			"description": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `The description of the Dataset.`,
+			},
 			"encryption_spec": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -246,6 +251,12 @@ func resourceVertexAIDatasetCreate(d *schema.ResourceData, meta interface{}) err
 		return err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(displayNameProp)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
+	}
+	descriptionProp, err := expandVertexAIDatasetDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(descriptionProp)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
 	}
 	encryptionSpecProp, err := expandVertexAIDatasetEncryptionSpec(d.Get("encryption_spec"), d, config)
 	if err != nil {
@@ -509,6 +520,12 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 	} else if v, ok := d.GetOkExists("display_name"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, displayNameProp)) {
 		obj["displayName"] = displayNameProp
 	}
+	descriptionProp, err := expandVertexAIDatasetDescription(d.Get("description"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("description"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, descriptionProp)) {
+		obj["description"] = descriptionProp
+	}
 	effectiveLabelsProp, err := expandVertexAIDatasetEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -530,6 +547,10 @@ func resourceVertexAIDatasetUpdate(d *schema.ResourceData, meta interface{}) err
 
 	if d.HasChange("display_name") {
 		updateMask = append(updateMask, "displayName")
+	}
+
+	if d.HasChange("description") {
+		updateMask = append(updateMask, "description")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -646,6 +667,10 @@ func flattenVertexAIDatasetDisplayName(v interface{}, d *schema.ResourceData, co
 	return v
 }
 
+func flattenVertexAIDatasetDescription(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenVertexAIDatasetCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -713,6 +738,10 @@ func expandVertexAIDatasetDisplayName(v interface{}, d tpgresource.TerraformReso
 	return v, nil
 }
 
+func expandVertexAIDatasetDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandVertexAIDatasetEncryptionSpec(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	if v == nil {
 		return nil, nil
@@ -761,6 +790,9 @@ func ResourceVertexAIDatasetFlatten(d *schema.ResourceData, meta interface{}, re
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err = d.Set("display_name", flattenVertexAIDatasetDisplayName(res["displayName"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Dataset: %s", err)
+	}
+	if err = d.Set("description", flattenVertexAIDatasetDescription(res["description"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Dataset: %s", err)
 	}
 	if err = d.Set("create_time", flattenVertexAIDatasetCreateTime(res["createTime"], d, config)); err != nil {

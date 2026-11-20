@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -60,6 +61,19 @@ func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
+		"description":   nil,
+		"display_name":  "tf-test-terraform" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"description":   "A test description",
+		"display_name":  "tf-test-terraform" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"description":   "An updated test description",
 		"display_name":  "tf-test-terraform" + randomSuffix,
 		"random_suffix": randomSuffix,
 	}
@@ -72,6 +86,22 @@ func TestAccVertexAIDataset_vertexAiDatasetExample(t *testing.T) {
 			{
 				Config: testAccVertexAIDataset_vertexAiDatasetExample(context),
 			},
+			{
+				Config: testAccVertexAIDataset_vertexAiDatasetUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_vertex_ai_dataset.dataset", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				Config: testAccVertexAIDataset_vertexAiDatasetUpdateAgainExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_vertex_ai_dataset.dataset", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
 		},
 	})
 }
@@ -80,6 +110,37 @@ func testAccVertexAIDataset_vertexAiDatasetExample(context map[string]interface{
 	return acctest.Nprintf(`
 resource "google_vertex_ai_dataset" "dataset" {
   display_name          = "%{display_name}"
+  description           = "%{description}"
+  metadata_schema_uri   = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
+  region                = "us-central1"
+
+  labels = {
+    env = "test"
+  }
+}
+`, context)
+}
+
+func testAccVertexAIDataset_vertexAiDatasetUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_dataset" "dataset" {
+  display_name          = "%{display_name}"
+  description           = "%{description}"
+  metadata_schema_uri   = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
+  region                = "us-central1"
+
+  labels = {
+    env = "test"
+  }
+}
+`, context)
+}
+
+func testAccVertexAIDataset_vertexAiDatasetUpdateAgainExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_vertex_ai_dataset" "dataset" {
+  display_name          = "%{display_name}"
+  description           = "%{description}"
   metadata_schema_uri   = "gs://google-cloud-aiplatform/schema/dataset/metadata/image_1.0.0.yaml"
   region                = "us-central1"
 
