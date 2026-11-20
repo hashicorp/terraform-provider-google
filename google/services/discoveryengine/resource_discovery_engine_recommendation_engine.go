@@ -192,6 +192,7 @@ only be one of "global", "us" and "eu".`,
 			"media_recommendation_engine_config": {
 				Type:     schema.TypeList,
 				Optional: true,
+				ForceNew: true,
 				Description: `Configurations for a Media Recommendation Engine. Only applicable on the data stores
 with SOLUTION_TYPE_RECOMMENDATION solution type and MEDIA industry vertical.`,
 				MaxItems: 1,
@@ -200,6 +201,7 @@ with SOLUTION_TYPE_RECOMMENDATION solution type and MEDIA industry vertical.`,
 						"engine_features_config": {
 							Type:        schema.TypeList,
 							Optional:    true,
+							ForceNew:    true,
 							Description: `More feature configs of the selected engine type.`,
 							MaxItems:    1,
 							Elem: &schema.Resource{
@@ -207,6 +209,7 @@ with SOLUTION_TYPE_RECOMMENDATION solution type and MEDIA industry vertical.`,
 									"most_popular_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Feature configurations that are required for creating a Most Popular engine.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -214,6 +217,7 @@ with SOLUTION_TYPE_RECOMMENDATION solution type and MEDIA industry vertical.`,
 												"time_window_days": {
 													Type:     schema.TypeInt,
 													Optional: true,
+													ForceNew: true,
 													Description: `The time window of which the engine is queried at training and
 prediction time. Positive integers only. The value translates to the
 last X days of events. Currently required for the 'most-popular-items'
@@ -225,6 +229,7 @@ engine.`,
 									"recommended_for_you_config": {
 										Type:        schema.TypeList,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `Additional feature configurations for creating a 'recommended-for-you' engine.`,
 										MaxItems:    1,
 										Elem: &schema.Resource{
@@ -232,6 +237,7 @@ engine.`,
 												"context_event_type": {
 													Type:     schema.TypeString,
 													Optional: true,
+													ForceNew: true,
 													Description: `The type of event with which the engine is queried at prediction time.
 If set to 'generic', only 'view-item', 'media-play',and
 'media-complete' will be used as 'context-event' in engine training. If
@@ -249,6 +255,7 @@ engine. Currently supported values: 'view-home-page', 'generic'.`,
 						"optimization_objective": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 							Description: `The optimization objective. e.g., 'cvr'.
 This field together with MediaRecommendationEngineConfig.type describes
 engine metadata to use to control engine training and serving.
@@ -260,6 +267,7 @@ If not specified, we choose default based on engine type. Default depends on typ
 						"optimization_objective_config": {
 							Type:     schema.TypeList,
 							Optional: true,
+							ForceNew: true,
 							Description: `Name and value of the custom threshold for cvr optimization_objective.
 For target_field 'watch-time', target_field_value must be an integer
 value indicating the media progress time in seconds between (0, 86400]
@@ -272,11 +280,13 @@ valid float value between (0, 1.0] (excludes 0, includes 1.0) (e.g., 0.5).`,
 									"target_field": {
 										Type:        schema.TypeString,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `The name of the field to target. Currently supported values: 'watch-percentage', 'watch-time'.`,
 									},
 									"target_field_value_float": {
 										Type:        schema.TypeFloat,
 										Optional:    true,
+										ForceNew:    true,
 										Description: `The threshold to be applied to the target (e.g., 0.5).`,
 									},
 								},
@@ -285,6 +295,7 @@ valid float value between (0, 1.0] (excludes 0, includes 1.0) (e.g., 0.5).`,
 						"training_state": {
 							Type:         schema.TypeString,
 							Optional:     true,
+							ForceNew:     true,
 							ValidateFunc: verify.ValidateEnum([]string{"PAUSED", "TRAINING", ""}),
 							Description: `The training state that the engine is in (e.g. 'TRAINING' or 'PAUSED').
 Since part of the cost of running the service
@@ -296,6 +307,7 @@ engine in order to control cost. If not specified: the default value for
 						"type": {
 							Type:     schema.TypeString,
 							Optional: true,
+							ForceNew: true,
 							Description: `The type of engine. e.g., 'recommended-for-you'.
 This field together with MediaRecommendationEngineConfig.optimizationObjective describes
 engine metadata to use to control engine training and serving.
@@ -624,12 +636,6 @@ func resourceDiscoveryEngineRecommendationEngineUpdate(d *schema.ResourceData, m
 	} else if v, ok := d.GetOkExists("data_store_ids"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, dataStoreIdsProp)) {
 		obj["dataStoreIds"] = dataStoreIdsProp
 	}
-	mediaRecommendationEngineConfigProp, err := expandDiscoveryEngineRecommendationEngineMediaRecommendationEngineConfig(d.Get("media_recommendation_engine_config"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("media_recommendation_engine_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, mediaRecommendationEngineConfigProp)) {
-		obj["mediaRecommendationEngineConfig"] = mediaRecommendationEngineConfigProp
-	}
 
 	obj, err = resourceDiscoveryEngineRecommendationEngineEncoder(d, meta, obj)
 	if err != nil {
@@ -654,10 +660,6 @@ func resourceDiscoveryEngineRecommendationEngineUpdate(d *schema.ResourceData, m
 
 	if d.HasChange("data_store_ids") {
 		updateMask = append(updateMask, "dataStoreIds")
-	}
-
-	if d.HasChange("media_recommendation_engine_config") {
-		updateMask = append(updateMask, "mediaRecommendationEngineConfig")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it

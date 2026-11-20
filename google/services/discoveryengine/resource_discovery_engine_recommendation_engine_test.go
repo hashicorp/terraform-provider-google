@@ -20,16 +20,15 @@ import (
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
 )
 
+// The v1 EngineService.UpdateEngine API rejects media_recommendation_engine_config in updateMask as immutable,
+// so modifying nested fields must plan a resource replacement.
 func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_update(t *testing.T) {
 	t.Parallel()
-
-	// Skip in VCR until the test issue is resolved
-	// TODO(shuyama): Add GH issue link
-	acctest.SkipIfVcr(t)
 
 	context := map[string]interface{}{
 		"random_suffix": acctest.RandString(t, 10),
@@ -49,13 +48,33 @@ func TestAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationeng
 				ImportStateVerifyIgnore: []string{"common_config", "engine_id", "industry_vertical", "location"},
 			},
 			{
-				Config: testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_update(context),
+				Config:             testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_update(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PostApplyPreRefresh: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_recommendation_engine.media", plancheck.ResourceActionReplace),
+					},
+				},
+			},
+			{
+				Config: testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_cvr(context),
 			},
 			{
 				ResourceName:            "google_discovery_engine_recommendation_engine.media",
 				ImportState:             true,
 				ImportStateVerify:       true,
 				ImportStateVerifyIgnore: []string{"common_config", "engine_id", "industry_vertical", "location"},
+			},
+			{
+				Config:             testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_updateMostPopular(context),
+				PlanOnly:           true,
+				ExpectNonEmptyPlan: true,
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PostApplyPreRefresh: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_discovery_engine_recommendation_engine.media", plancheck.ResourceActionReplace),
+					},
+				},
 			},
 		},
 	})
@@ -84,9 +103,9 @@ resource "google_discovery_engine_recommendation_engine" "media" {
     optimization_objective     = "ctr"
     training_state             = "PAUSED"
     engine_features_config {
-        recommended_for_you_config {
-            context_event_type = "generic"
-        }
+      recommended_for_you_config {
+        context_event_type = "generic"
+      }
     }
   }
   common_config {
@@ -117,15 +136,90 @@ resource "google_discovery_engine_recommendation_engine" "media" {
   media_recommendation_engine_config {
     type                       = "recommended-for-you"
     optimization_objective     = "cvr"
-  	optimization_objective_config {
-  		target_field           = "watch-percentage"
-  		target_field_value_float = 0.5
-  	}
+    optimization_objective_config {
+      target_field             = "watch-percentage"
+      target_field_value_float = 0.5
+    }
     training_state             = "PAUSED"
     engine_features_config {
-        recommended_for_you_config {
-            context_event_type = "generic"
-        }
+      recommended_for_you_config {
+        context_event_type = "generic"
+      }
+    }
+  }
+  common_config {
+    company_name               = "test-company"
+  }
+}
+`, context)
+}
+
+// Recreating under the same engine_id immediately after soft-delete collides in backend recommendation metadata,
+// so apply the CVR configuration under a new engine_id to exercise live creation and import of optimization_objective_config.
+func testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_cvr(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "media" {
+  location                     = "global"
+  data_store_id                = "tf-test-recommendation-datastore-id%{random_suffix}"
+  display_name                 = "tf-test-structured-datastore"
+  industry_vertical            = "MEDIA"
+  content_config               = "NO_CONTENT"
+  solution_types               = ["SOLUTION_TYPE_RECOMMENDATION"]
+  create_advanced_site_search  = false
+  skip_default_schema_creation = false
+}
+resource "google_discovery_engine_recommendation_engine" "media" {
+  engine_id                    = "tf-test-recommendation-engine-cvr%{random_suffix}"
+  location                     = google_discovery_engine_data_store.media.location
+  display_name                 = "Example Media CVR Recommendation Engine"
+  data_store_ids               = [google_discovery_engine_data_store.media.data_store_id]
+  industry_vertical            = "MEDIA"
+  media_recommendation_engine_config {
+    type                       = "recommended-for-you"
+    optimization_objective     = "cvr"
+    optimization_objective_config {
+      target_field             = "watch-percentage"
+      target_field_value_float = 0.5
+    }
+    training_state             = "PAUSED"
+    engine_features_config {
+      recommended_for_you_config {
+        context_event_type = "generic"
+      }
+    }
+  }
+  common_config {
+    company_name               = "test-company"
+  }
+}
+`, context)
+}
+
+func testAccDiscoveryEngineRecommendationEngine_discoveryengineRecommendationengineMediaExample_updateMostPopular(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_discovery_engine_data_store" "media" {
+  location                     = "global"
+  data_store_id                = "tf-test-recommendation-datastore-id%{random_suffix}"
+  display_name                 = "tf-test-structured-datastore"
+  industry_vertical            = "MEDIA"
+  content_config               = "NO_CONTENT"
+  solution_types               = ["SOLUTION_TYPE_RECOMMENDATION"]
+  create_advanced_site_search  = false
+  skip_default_schema_creation = false
+}
+resource "google_discovery_engine_recommendation_engine" "media" {
+  engine_id                    = "tf-test-recommendation-engine-cvr%{random_suffix}"
+  location                     = google_discovery_engine_data_store.media.location
+  display_name                 = "Example Media CVR Recommendation Engine"
+  data_store_ids               = [google_discovery_engine_data_store.media.data_store_id]
+  industry_vertical            = "MEDIA"
+  media_recommendation_engine_config {
+    type           = "most-popular-items"
+    training_state = "TRAINING"
+    engine_features_config {
+      most_popular_config {
+        time_window_days = 7
+      }
     }
   }
   common_config {
