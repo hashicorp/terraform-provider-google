@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -451,6 +452,183 @@ resource "google_compute_region_backend_service" "callouts_backend" {
   depends_on = [
 	  google_compute_region_backend_service.default
   ]
+}
+`, context)
+}
+
+func TestAccNetworkServicesLbTrafficExtension_networkServicesLbTrafficExtensionBodySendModeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name":      "tf-test-l7-ext-backend" + randomSuffix,
+		"callouts_backend_name":     "tf-test-l7-ext-callout" + randomSuffix,
+		"forwarding_rule_name":      "tf-test-l7-ext-fr" + randomSuffix,
+		"lb_traffic_extension_name": "tf-test-l7-ext-traffic-ext" + randomSuffix,
+		"request_body_send_mode":    "BODY_SEND_MODE_STREAMED",
+		"response_body_send_mode":   "BODY_SEND_MODE_STREAMED",
+		"supported_events":          "[\"REQUEST_HEADERS\", \"REQUEST_BODY\", \"RESPONSE_HEADERS\", \"RESPONSE_BODY\"]",
+		"target_http_proxy_name":    "tf-test-l7-ext-proxy" + randomSuffix,
+		"url_map_name":              "tf-test-l7-ext-urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"backend_service_name":      "tf-test-l7-ext-backend" + randomSuffix,
+		"callouts_backend_name":     "tf-test-l7-ext-callout" + randomSuffix,
+		"forwarding_rule_name":      "tf-test-l7-ext-fr" + randomSuffix,
+		"lb_traffic_extension_name": "tf-test-l7-ext-traffic-ext" + randomSuffix,
+		"request_body_send_mode":    "BODY_SEND_MODE_FULL_DUPLEX_STREAMED",
+		"response_body_send_mode":   "BODY_SEND_MODE_FULL_DUPLEX_STREAMED",
+		"supported_events":          "[\"REQUEST_HEADERS\", \"REQUEST_BODY\", \"REQUEST_TRAILERS\", \"RESPONSE_HEADERS\", \"RESPONSE_BODY\", \"RESPONSE_TRAILERS\"]",
+		"target_http_proxy_name":    "tf-test-l7-ext-proxy" + randomSuffix,
+		"url_map_name":              "tf-test-l7-ext-urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"backend_service_name":      "tf-test-l7-ext-backend" + randomSuffix,
+		"callouts_backend_name":     "tf-test-l7-ext-callout" + randomSuffix,
+		"forwarding_rule_name":      "tf-test-l7-ext-fr" + randomSuffix,
+		"lb_traffic_extension_name": "tf-test-l7-ext-traffic-ext" + randomSuffix,
+		"request_body_send_mode":    nil,
+		"response_body_send_mode":   nil,
+		"supported_events":          "[\"REQUEST_HEADERS\"]",
+		"target_http_proxy_name":    "tf-test-l7-ext-proxy" + randomSuffix,
+		"url_map_name":              "tf-test-l7-ext-urlmap" + randomSuffix,
+		"random_suffix":             randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesLbTrafficExtensionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesLbTrafficExtension_networkServicesLbTrafficExtensionBodySendModeExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_lb_traffic_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_lb_traffic_extension.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkServicesLbTrafficExtension_networkServicesLbTrafficExtensionBodySendModeExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_lb_traffic_extension.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_services_lb_traffic_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_lb_traffic_extension.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkServicesLbTrafficExtension_networkServicesLbTrafficExtensionBodySendModeExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_lb_traffic_extension.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_services_lb_traffic_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_lb_traffic_extension.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesLbTrafficExtension_networkServicesLbTrafficExtensionBodySendModeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_global_forwarding_rule" "default" {
+  name                  = "%{forwarding_rule_name}"
+  target                = google_compute_target_http_proxy.default.id
+  port_range            = "80"
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  network_tier          = "PREMIUM"
+}
+
+resource "google_compute_target_http_proxy" "default" {
+  name        = "%{target_http_proxy_name}"
+  description = "a description"
+  url_map     = google_compute_url_map.default.id
+}
+
+resource "google_compute_url_map" "default" {
+  name            = "%{url_map_name}"
+  description     = "a description"
+  default_service = google_compute_backend_service.default.id
+}
+
+resource "google_compute_backend_service" "default" {
+  name                  = "%{backend_service_name}"
+  port_name             = "http"
+  protocol              = "HTTP"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_compute_backend_service" "callouts_backend" {
+  name                  = "%{callouts_backend_name}"
+  port_name             = "grpc"
+  protocol              = "HTTP2"
+  timeout_sec           = 10
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+}
+
+resource "google_network_services_lb_traffic_extension" "default" {
+  name        = "%{lb_traffic_extension_name}"
+  description = "my traffic extension"
+  location    = "global"
+
+  load_balancing_scheme = "EXTERNAL_MANAGED"
+  forwarding_rules      = [google_compute_global_forwarding_rule.default.self_link]
+
+  extension_chains {
+    name = "chain1"
+
+    match_condition {
+      cel_expression = "request.host == 'example.com'"
+    }
+
+    extensions {
+      name      = "ext11"
+      authority = "ext11.com"
+      service   = google_compute_backend_service.callouts_backend.self_link
+      timeout   = "0.1s"
+      fail_open = false
+
+      supported_events        = %{supported_events}
+      request_body_send_mode  = "%{request_body_send_mode}"
+      response_body_send_mode = "%{response_body_send_mode}"
+    }
+  }
 }
 `, context)
 }

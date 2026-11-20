@@ -17,6 +17,8 @@ fields:
     - api_field: extensionChains.extensions.metadata
     - api_field: extensionChains.extensions.name
     - api_field: extensionChains.extensions.observabilityMode
+    - api_field: extensionChains.extensions.requestBodySendMode
+    - api_field: extensionChains.extensions.responseBodySendMode
     - api_field: extensionChains.extensions.service
     - api_field: extensionChains.extensions.supportedEvents
     - api_field: extensionChains.extensions.timeout
