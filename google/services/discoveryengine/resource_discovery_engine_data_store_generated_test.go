@@ -32,7 +32,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
 	"github.com/hashicorp/terraform-provider-google/google/envvar"
 	"github.com/hashicorp/terraform-provider-google/google/services/discoveryengine"
-	"github.com/hashicorp/terraform-provider-google/google/services/kms"
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 
@@ -111,7 +110,7 @@ func TestAccDiscoveryEngineDataStore_discoveryengineDatastoreKmsKeyNameExample(t
 
 	context := map[string]interface{}{
 		"data_store_id": "tf-test-data-store-id" + randomSuffix,
-		"kms_key_name":  kms.BootstrapKMSKeyWithPurposeInLocationAndName(t, "ENCRYPT_DECRYPT", "us", "tf-bootstrap-discoveryengine-datastore-key").CryptoKey.Name,
+		"kms_key_name":  BootstrapDiscoveryEngineCmekKey(t, "us", "tf-bootstrap-discoveryengine-datastore-key", "tf-bootstrap-discoveryengine-datastore-cmek"),
 		"random_suffix": randomSuffix,
 	}
 
