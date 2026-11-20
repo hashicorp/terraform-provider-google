@@ -354,6 +354,17 @@ For more information, refer to [Choosing a load balancer](https://cloud.google.c
 Please refer to the field 'effective_labels' for all of the labels present on the resource.`,
 				Elem: &schema.Schema{Type: schema.TypeString},
 			},
+			"metadata": {
+				Type:     schema.TypeMap,
+				Optional: true,
+				Description: `The metadata provided here is included as part of the 'metadata_context' (of type 'google.protobuf.Struct') in the 'ProcessingRequest' message sent to the extension server.
+The metadata applies to all extensions in all extensions chains in this resource.
+The metadata is available under the key 'com.google.lb_route_extension.<resource_name>'.
+The following variables are supported in the metadata: '{forwarding_rule_id}' - substituted with the forwarding rule's fully qualified resource name.
+This field must not be set if at least one of the extension chains contains plugin extensions. Setting it results in a validation error.
+You can set metadata at either the resource level or the extension level. The extension level metadata is recommended because you can pass a different set of metadata through each extension to the backend.`,
+				Elem: &schema.Schema{Type: schema.TypeString},
+			},
 			"effective_labels": {
 				Type:        schema.TypeMap,
 				Computed:    true,
@@ -421,6 +432,12 @@ func resourceNetworkServicesLbRouteExtensionCreate(d *schema.ResourceData, meta 
 		return err
 	} else if v, ok := d.GetOkExists("load_balancing_scheme"); !tpgresource.IsEmptyValue(reflect.ValueOf(loadBalancingSchemeProp)) && (ok || !reflect.DeepEqual(v, loadBalancingSchemeProp)) {
 		obj["loadBalancingScheme"] = loadBalancingSchemeProp
+	}
+	metadataProp, err := expandNetworkServicesLbRouteExtensionMetadata(d.Get("metadata"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(metadataProp)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
+		obj["metadata"] = metadataProp
 	}
 	effectiveLabelsProp, err := expandNetworkServicesLbRouteExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
@@ -662,6 +679,12 @@ func resourceNetworkServicesLbRouteExtensionUpdate(d *schema.ResourceData, meta 
 	} else if v, ok := d.GetOkExists("extension_chains"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, extensionChainsProp)) {
 		obj["extensionChains"] = extensionChainsProp
 	}
+	metadataProp, err := expandNetworkServicesLbRouteExtensionMetadata(d.Get("metadata"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("metadata"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, metadataProp)) {
+		obj["metadata"] = metadataProp
+	}
 	effectiveLabelsProp, err := expandNetworkServicesLbRouteExtensionEffectiveLabels(d.Get("effective_labels"), d, config)
 	if err != nil {
 		return err
@@ -688,6 +711,10 @@ func resourceNetworkServicesLbRouteExtensionUpdate(d *schema.ResourceData, meta 
 
 	if d.HasChange("extension_chains") {
 		updateMask = append(updateMask, "extensionChains")
+	}
+
+	if d.HasChange("metadata") {
+		updateMask = append(updateMask, "metadata")
 	}
 
 	if d.HasChange("effective_labels") {
@@ -963,6 +990,10 @@ func flattenNetworkServicesLbRouteExtensionLoadBalancingScheme(v interface{}, d 
 	return v
 }
 
+func flattenNetworkServicesLbRouteExtensionMetadata(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenNetworkServicesLbRouteExtensionTerraformLabels(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1210,6 +1241,17 @@ func expandNetworkServicesLbRouteExtensionLoadBalancingScheme(v interface{}, d t
 	return v, nil
 }
 
+func expandNetworkServicesLbRouteExtensionMetadata(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
+	if v == nil {
+		return map[string]string{}, nil
+	}
+	m := make(map[string]string)
+	for k, val := range v.(map[string]interface{}) {
+		m[k] = val.(string)
+	}
+	return m, nil
+}
+
 func expandNetworkServicesLbRouteExtensionEffectiveLabels(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (map[string]string, error) {
 	if v == nil {
 		return map[string]string{}, nil
@@ -1237,6 +1279,9 @@ func ResourceNetworkServicesLbRouteExtensionFlatten(d *schema.ResourceData, meta
 		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
 	if err = d.Set("load_balancing_scheme", flattenNetworkServicesLbRouteExtensionLoadBalancingScheme(res["loadBalancingScheme"], d, config)); err != nil {
+		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
+	}
+	if err = d.Set("metadata", flattenNetworkServicesLbRouteExtensionMetadata(res["metadata"], d, config)); err != nil {
 		return fmt.Errorf("Error reading LbRouteExtension: %s", err)
 	}
 	if err = d.Set("terraform_labels", flattenNetworkServicesLbRouteExtensionTerraformLabels(res["labels"], d, config)); err != nil {

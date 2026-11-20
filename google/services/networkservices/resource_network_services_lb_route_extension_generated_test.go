@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -867,6 +868,242 @@ resource "google_compute_region_backend_service" "callouts_backend" {
   depends_on = [
     google_compute_region_backend_service.default
   ]
+}
+`, context)
+}
+
+func TestAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionMetadataExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"backend_service_name":    "tf-test-l7-ilb-backend" + randomSuffix,
+		"backend_subnet_name":     "tf-test-l7-ilb-subnet" + randomSuffix,
+		"callouts_backend_name":   "tf-test-l7-ilb-callouts-backend" + randomSuffix,
+		"forwarding_rule_name":    "tf-test-l7-ilb-forwarding-rule" + randomSuffix,
+		"hc_name":                 "tf-test-l7-ilb-hc" + randomSuffix,
+		"ilb_network_name":        "tf-test-l7-ilb-network" + randomSuffix,
+		"lb_route_extension_name": "tf-test-l7-ilb-route-ext" + randomSuffix,
+		"metadata":                "{ key1 = \"value1\", fr = \"{forwarding_rule_id}\" }",
+		"proxy_subnet_name":       "tf-test-l7-ilb-proxy-subnet" + randomSuffix,
+		"regional_url_map_name":   "tf-test-l7-ilb-regional-url-map" + randomSuffix,
+		"target_http_proxy_name":  "tf-test-l7-ilb-target-http-proxy" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"backend_service_name":    "tf-test-l7-ilb-backend" + randomSuffix,
+		"backend_subnet_name":     "tf-test-l7-ilb-subnet" + randomSuffix,
+		"callouts_backend_name":   "tf-test-l7-ilb-callouts-backend" + randomSuffix,
+		"forwarding_rule_name":    "tf-test-l7-ilb-forwarding-rule" + randomSuffix,
+		"hc_name":                 "tf-test-l7-ilb-hc" + randomSuffix,
+		"ilb_network_name":        "tf-test-l7-ilb-network" + randomSuffix,
+		"lb_route_extension_name": "tf-test-l7-ilb-route-ext" + randomSuffix,
+		"metadata":                "{ key1 = \"value1-updated\", key2 = \"value2\" }",
+		"proxy_subnet_name":       "tf-test-l7-ilb-proxy-subnet" + randomSuffix,
+		"regional_url_map_name":   "tf-test-l7-ilb-regional-url-map" + randomSuffix,
+		"target_http_proxy_name":  "tf-test-l7-ilb-target-http-proxy" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"backend_service_name":    "tf-test-l7-ilb-backend" + randomSuffix,
+		"backend_subnet_name":     "tf-test-l7-ilb-subnet" + randomSuffix,
+		"callouts_backend_name":   "tf-test-l7-ilb-callouts-backend" + randomSuffix,
+		"forwarding_rule_name":    "tf-test-l7-ilb-forwarding-rule" + randomSuffix,
+		"hc_name":                 "tf-test-l7-ilb-hc" + randomSuffix,
+		"ilb_network_name":        "tf-test-l7-ilb-network" + randomSuffix,
+		"lb_route_extension_name": "tf-test-l7-ilb-route-ext" + randomSuffix,
+		"metadata":                nil,
+		"proxy_subnet_name":       "tf-test-l7-ilb-proxy-subnet" + randomSuffix,
+		"regional_url_map_name":   "tf-test-l7-ilb-regional-url-map" + randomSuffix,
+		"target_http_proxy_name":  "tf-test-l7-ilb-target-http-proxy" + randomSuffix,
+		"random_suffix":           randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckNetworkServicesLbRouteExtensionDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionMetadataExample(context),
+			},
+			{
+				ResourceName:            "google_network_services_lb_route_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_lb_route_extension.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionMetadataExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_lb_route_extension.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_services_lb_route_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_lb_route_extension.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionMetadataExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_network_services_lb_route_extension.default", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_network_services_lb_route_extension.default",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"labels", "location", "name", "terraform_labels"},
+			},
+			{
+				ResourceName:       "google_network_services_lb_route_extension.default",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccNetworkServicesLbRouteExtension_networkServicesLbRouteExtensionMetadataExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_compute_network" "ilb_network" {
+  name                    = "%{ilb_network_name}"
+  auto_create_subnetworks = false
+}
+
+resource "google_compute_subnetwork" "proxy_subnet" {
+  name          = "%{proxy_subnet_name}"
+  ip_cidr_range = "10.0.0.0/24"
+  region        = "us-west1"
+  purpose       = "REGIONAL_MANAGED_PROXY"
+  role          = "ACTIVE"
+  network       = google_compute_network.ilb_network.id
+}
+
+resource "google_compute_subnetwork" "ilb_subnet" {
+  name          = "%{backend_subnet_name}"
+  ip_cidr_range = "10.0.1.0/24"
+  region        = "us-west1"
+  network       = google_compute_network.ilb_network.id
+
+  depends_on = [
+    google_compute_subnetwork.proxy_subnet
+  ]
+}
+
+resource "google_compute_region_health_check" "default" {
+  name   = "%{hc_name}"
+  region = "us-west1"
+
+  http_health_check {
+    port_specification = "USE_SERVING_PORT"
+  }
+}
+
+resource "google_compute_region_backend_service" "default" {
+  name                  = "%{backend_service_name}"
+  region                = "us-west1"
+  protocol              = "HTTP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  health_checks         = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_backend_service" "callouts_backend" {
+  name                  = "%{callouts_backend_name}"
+  region                = "us-west1"
+  protocol              = "HTTP2"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  timeout_sec           = 10
+  port_name             = "grpc"
+  health_checks         = [google_compute_region_health_check.default.id]
+}
+
+resource "google_compute_region_url_map" "default" {
+  name            = "%{regional_url_map_name}"
+  region          = "us-west1"
+  default_service = google_compute_region_backend_service.default.id
+
+  host_rule {
+    hosts        = ["service-extensions.com"]
+    path_matcher = "callouts"
+  }
+
+  path_matcher {
+    name            = "callouts"
+    default_service = google_compute_region_backend_service.callouts_backend.id
+  }
+}
+
+resource "google_compute_region_target_http_proxy" "default" {
+  name    = "%{target_http_proxy_name}"
+  region  = "us-west1"
+  url_map = google_compute_region_url_map.default.id
+}
+
+resource "google_compute_forwarding_rule" "default" {
+  name                  = "%{forwarding_rule_name}"
+  region                = "us-west1"
+  ip_protocol           = "TCP"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  port_range            = "80"
+  target                = google_compute_region_target_http_proxy.default.id
+  network               = google_compute_network.ilb_network.id
+  subnetwork            = google_compute_subnetwork.ilb_subnet.id
+  network_tier          = "PREMIUM"
+
+  depends_on = [
+    google_compute_subnetwork.proxy_subnet
+  ]
+}
+
+resource "google_network_services_lb_route_extension" "default" {
+  name                  = "%{lb_route_extension_name}"
+  description           = "my route extension"
+  location              = "us-west1"
+  load_balancing_scheme = "INTERNAL_MANAGED"
+  forwarding_rules      = [google_compute_forwarding_rule.default.self_link]
+  metadata              = %{metadata}
+
+  extension_chains {
+    name = "chain1"
+
+    match_condition {
+      cel_expression = "request.path.startsWith('/extensions')"
+    }
+
+    extensions {
+      name      = "ext11"
+      authority = "ext11.com"
+      service   = google_compute_region_backend_service.callouts_backend.self_link
+      timeout   = "0.1s"
+      fail_open = false
+
+      forward_headers = ["custom-header"]
+    }
+  }
 }
 `, context)
 }
