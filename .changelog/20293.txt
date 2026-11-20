@@ -1,0 +1,3 @@
+```release-note:enhancement
+alloydb: added `psc_instance_config.psc_auto_dns_state`, `psc_instance_config.psc_auto_connection_policy_state`, `psc_instance_config.psc_auto_connections.service_connection_policy`, `psc_instance_config.psc_auto_connections.service_connection_policy_creation_state`, `psc_instance_config.psc_auto_connections.dns_automation_infos`, and `psc_instance_info` fields to `google_alloydb_instance` resource
+```
