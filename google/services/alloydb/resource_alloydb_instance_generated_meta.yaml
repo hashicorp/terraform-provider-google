@@ -39,14 +39,23 @@ fields:
     - api_field: networkConfig.enablePublicIp
     - api_field: outboundPublicIpAddresses
     - api_field: pscInstanceConfig.allowedConsumerProjects
+    - api_field: pscInstanceConfig.pscAutoConnectionPolicyState
     - api_field: pscInstanceConfig.pscAutoConnections.consumerNetwork
     - api_field: pscInstanceConfig.pscAutoConnections.consumerNetworkStatus
     - api_field: pscInstanceConfig.pscAutoConnections.consumerProject
+    - api_field: pscInstanceConfig.pscAutoConnections.dnsAutomationInfos.fullyQualifiedDomainName
+    - api_field: pscInstanceConfig.pscAutoConnections.dnsAutomationInfos.state
     - api_field: pscInstanceConfig.pscAutoConnections.ipAddress
+    - api_field: pscInstanceConfig.pscAutoConnections.serviceConnectionPolicy
+    - api_field: pscInstanceConfig.pscAutoConnections.serviceConnectionPolicyCreationState
     - api_field: pscInstanceConfig.pscAutoConnections.status
+    - api_field: pscInstanceConfig.pscAutoDnsState
     - api_field: pscInstanceConfig.pscDnsName
     - api_field: pscInstanceConfig.pscInterfaceConfigs.networkAttachmentResource
     - api_field: pscInstanceConfig.serviceAttachmentLink
+    - api_field: pscInstanceInfo.effectivePscAutoConnectionPolicy
+    - api_field: pscInstanceInfo.effectivePscAutoDnsEnabled
+    - api_field: pscInstanceInfo.pscAutoDnsNames
     - api_field: publicIpAddress
     - api_field: queryInsightsConfig.queryPlansPerMinute
     - api_field: queryInsightsConfig.queryStringLength

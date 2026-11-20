@@ -422,6 +422,20 @@ The following arguments are supported:
   Configurations for setting up PSC service automation.
   Structure is [documented below](#nested_psc_instance_config_psc_auto_connections).
 
+* `psc_auto_dns_state` -
+  (Optional)
+  Configuration for setting up PSC auto DNS for the instance.
+  If unspecified, PSC auto DNS is disabled for older instances and enabled by default for new instances.
+  Use `psc_instance_info.effective_psc_auto_dns_enabled` to check the effective state of PSC auto DNS.
+  Possible values are: `PSC_AUTO_DNS_STATE_ENABLED`, `PSC_AUTO_DNS_STATE_DISABLED`.
+
+* `psc_auto_connection_policy_state` -
+  (Optional)
+  Configuration for setting up PSC auto connection policy for the instance.
+  If unspecified, PSC auto connection policy is disabled for older instances and enabled by default for new instances.
+  Use `psc_instance_info.effective_psc_auto_connection_policy` to check the effective state of PSC auto connection policy.
+  Possible values are: `ENABLED`, `DISABLED`.
+
 
 <a name="nested_psc_instance_config_psc_interface_configs"></a>The `psc_interface_configs` block supports:
 
@@ -458,6 +472,38 @@ The following arguments are supported:
 * `consumer_network_status` -
   (Output)
   The status of the service connection policy.
+
+* `service_connection_policy` -
+  (Output)
+  The PSC service connection policy name. The format is
+  `projects/<PROJECT_ID>/regions/<REGION_ID>/serviceConnectionPolicies/<alloydb-$NETWORK-$RANDOM-scp>`.
+
+* `service_connection_policy_creation_state` -
+  (Output)
+  The creation state or result of the connection policy.
+  Possible values include:
+  - `ACTIVE`: The policy was created successfully.
+  - `PERMISSION_DENIED`: Sufficient permissions were not provided.
+  Note that this field is an unstructured output and customers should not
+  rely on the specific string value or error message directly.
+
+* `dns_automation_infos` -
+  (Output)
+  List of DNS automation info for the PSC auto connection.
+  Structure is [documented below](#nested_psc_instance_config_psc_auto_connections_dns_automation_infos).
+
+
+<a name="nested_psc_instance_config_psc_auto_connections_dns_automation_infos"></a>The `dns_automation_infos` block contains:
+
+* `state` -
+  (Output)
+  The state of the DNS automation.
+  Possible values are: `STATE_UNSPECIFIED`, `PENDING_CREATE`, `ACTIVE`, `PENDING_DELETE`, `CREATE_FAILED`, `DELETE_FAILED`.
+
+* `fully_qualified_domain_name` -
+  (Output)
+  The fully qualified domain name of the instance for DNS automation.
+  Example: `<uid>.<uid>.<region>.alloydb.goog.`.
 
 <a name="nested_network_config"></a>The `network_config` block supports:
 
@@ -540,6 +586,10 @@ In addition to the arguments listed above, the following computed attributes are
 * `ip_address` -
   The IP address for the Instance. This is the connection endpoint for an end-user application.
 
+* `psc_instance_info` -
+  Information about the Private Service Connect (PSC) for the instance.
+  Structure is [documented below](#nested_psc_instance_info).
+
 * `public_ip_address` -
   The public IP addresses for the Instance. This is available ONLY when
   networkConfig.enablePublicIp is set to true. This is the connection
@@ -560,6 +610,21 @@ In addition to the arguments listed above, the following computed attributes are
 * `effective_annotations` -
   All of annotations (key/value pairs) present on the resource in GCP, including the annotations configured through Terraform, other clients and services.
 
+
+<a name="nested_psc_instance_info"></a>The `psc_instance_info` block contains:
+
+* `effective_psc_auto_dns_enabled` -
+  (Output)
+  The effective state of the PSC auto DNS for the instance.
+
+* `psc_auto_dns_names` -
+  (Output)
+  Specifies the auto DNS names for the instance.
+
+* `effective_psc_auto_connection_policy` -
+  (Output)
+  Indicates if the PSC auto connection policy is enabled for the instance.
+  For older instances, this will be off by default, but for newer instances, this will be auto-enabled.
 
 ## Timeouts
 
