@@ -42,7 +42,7 @@ To get more information about InstanceConfig, see:
 
 ```hcl
 resource "google_spanner_instance_config" "example" {
-  name          = ""custom-nam11-config""
+  name          = "custom-nam11-config"
   display_name  = "Test Spanner Instance Config"
   base_config    = "nam11"
   replicas     {

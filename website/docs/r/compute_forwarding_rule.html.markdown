@@ -477,10 +477,10 @@ resource "google_compute_forwarding_rule" "default" {
   ip_protocol           = "TCP"
   ip_version            = "IPV6"
   load_balancing_scheme = "EXTERNAL"
-  ip_address            = ""2600:1901:4457:1::/96""
+  ip_address            = "2600:1901:4457:1::/96"
   network_tier          = "PREMIUM"
   backend_service       = google_compute_region_backend_service.backend.id
-  ip_collection         = ""projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-forwarding-rule-mode-pdp""
+  ip_collection         = "projects/tf-static-byoip/regions/us-central1/publicDelegatedPrefixes/tf-test-forwarding-rule-mode-pdp"
 }
 
 resource "google_compute_region_backend_service" "backend" {
