@@ -303,6 +303,26 @@ The following arguments are supported:
   (Required)
   The content of the aspect in JSON form, according to its aspect type schema. The maximum size of the field is 120KB (encoded as UTF-8).
 
+* `aspect_source` -
+  (Optional)
+  Information related to the source system of the aspect.
+  Structure is [documented below](#nested_aspects_aspect_aspect_source).
+
+
+<a name="nested_aspects_aspect_aspect_source"></a>The `aspect_source` block supports:
+
+* `create_time` -
+  (Optional)
+  The time the aspect was created in the source system.
+
+* `update_time` -
+  (Optional)
+  The time the aspect was last updated in the source system.
+
+* `data_version` -
+  (Optional)
+  The version of the data format used to produce this data. This field is used to indicated when the underlying data format changes (e.g., schema modifications, changes to the source URL format definition, etc).
+
 ## Attributes Reference
 
 In addition to the arguments listed above, the following computed attributes are exported:
