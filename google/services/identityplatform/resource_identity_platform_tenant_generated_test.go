@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -92,6 +93,75 @@ func testAccIdentityPlatformTenant_identityPlatformTenantBasicExample(context ma
 resource "google_identity_platform_tenant" "tenant" {
   display_name          = "%{display_name}"
   allow_password_signup = true
+}
+`, context)
+}
+
+func TestAccIdentityPlatformTenant_identityPlatformTenantAnonymousExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"display_name":          "tf-test-anon-tenant",
+		"enable_anonymous_user": true,
+		"random_suffix":         randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"display_name":          "tf-test-anon-tenant",
+		"enable_anonymous_user": false,
+		"random_suffix":         randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckIdentityPlatformTenantDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccIdentityPlatformTenant_identityPlatformTenantAnonymousExample(context),
+			},
+			{
+				ResourceName:      "google_identity_platform_tenant.tenant",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_identity_platform_tenant.tenant",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccIdentityPlatformTenant_identityPlatformTenantAnonymousExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_identity_platform_tenant.tenant", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:      "google_identity_platform_tenant.tenant",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				ResourceName:       "google_identity_platform_tenant.tenant",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccIdentityPlatformTenant_identityPlatformTenantAnonymousExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_identity_platform_tenant" "tenant" {
+  display_name          = "%{display_name}"
+  allow_password_signup = true
+  enable_anonymous_user = %{enable_anonymous_user}
 }
 `, context)
 }

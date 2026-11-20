@@ -182,6 +182,11 @@ func ResourceIdentityPlatformTenant() *schema.Resource {
 the disabled tenant are not allowed to sign-in. Admins of the disabled tenant
 are not able to manage its users.`,
 			},
+			"enable_anonymous_user": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: `Whether to enable anonymous user authentication.`,
+			},
 			"enable_email_link_signin": {
 				Type:        schema.TypeBool,
 				Optional:    true,
@@ -240,6 +245,12 @@ func resourceIdentityPlatformTenantCreate(d *schema.ResourceData, meta interface
 		return err
 	} else if v, ok := d.GetOkExists("enable_email_link_signin"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableEmailLinkSigninProp)) && (ok || !reflect.DeepEqual(v, enableEmailLinkSigninProp)) {
 		obj["enableEmailLinkSignin"] = enableEmailLinkSigninProp
+	}
+	enableAnonymousUserProp, err := expandIdentityPlatformTenantEnableAnonymousUser(d.Get("enable_anonymous_user"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_anonymous_user"); !tpgresource.IsEmptyValue(reflect.ValueOf(enableAnonymousUserProp)) && (ok || !reflect.DeepEqual(v, enableAnonymousUserProp)) {
+		obj["enableAnonymousUser"] = enableAnonymousUserProp
 	}
 	disableAuthProp, err := expandIdentityPlatformTenantDisableAuth(d.Get("disable_auth"), d, config)
 	if err != nil {
@@ -467,6 +478,12 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 	} else if v, ok := d.GetOkExists("enable_email_link_signin"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableEmailLinkSigninProp)) {
 		obj["enableEmailLinkSignin"] = enableEmailLinkSigninProp
 	}
+	enableAnonymousUserProp, err := expandIdentityPlatformTenantEnableAnonymousUser(d.Get("enable_anonymous_user"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("enable_anonymous_user"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, enableAnonymousUserProp)) {
+		obj["enableAnonymousUser"] = enableAnonymousUserProp
+	}
 	disableAuthProp, err := expandIdentityPlatformTenantDisableAuth(d.Get("disable_auth"), d, config)
 	if err != nil {
 		return err
@@ -499,6 +516,10 @@ func resourceIdentityPlatformTenantUpdate(d *schema.ResourceData, meta interface
 
 	if d.HasChange("enable_email_link_signin") {
 		updateMask = append(updateMask, "enableEmailLinkSignin")
+	}
+
+	if d.HasChange("enable_anonymous_user") {
+		updateMask = append(updateMask, "enableAnonymousUser")
 	}
 
 	if d.HasChange("disable_auth") {
@@ -637,6 +658,10 @@ func flattenIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d *schema
 	return v
 }
 
+func flattenIdentityPlatformTenantEnableAnonymousUser(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func flattenIdentityPlatformTenantDisableAuth(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -686,6 +711,10 @@ func expandIdentityPlatformTenantAllowPasswordSignup(v interface{}, d tpgresourc
 }
 
 func expandIdentityPlatformTenantEnableEmailLinkSignin(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandIdentityPlatformTenantEnableAnonymousUser(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -773,6 +802,9 @@ func ResourceIdentityPlatformTenantFlatten(d *schema.ResourceData, meta interfac
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
 	if err = d.Set("enable_email_link_signin", flattenIdentityPlatformTenantEnableEmailLinkSignin(res["enableEmailLinkSignin"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Tenant: %s", err)
+	}
+	if err = d.Set("enable_anonymous_user", flattenIdentityPlatformTenantEnableAnonymousUser(res["enableAnonymousUser"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Tenant: %s", err)
 	}
 	if err = d.Set("disable_auth", flattenIdentityPlatformTenantDisableAuth(res["disableAuth"], d, config)); err != nil {

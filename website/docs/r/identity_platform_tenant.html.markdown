@@ -66,6 +66,10 @@ The following arguments are supported:
   (Optional)
   Whether to enable email link user authentication.
 
+* `enable_anonymous_user` -
+  (Optional)
+  Whether to enable anonymous user authentication.
+
 * `disable_auth` -
   (Optional)
   Whether authentication is disabled for the tenant. If true, the users under
