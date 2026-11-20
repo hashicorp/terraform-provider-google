@@ -74,6 +74,7 @@ Please refer to the field `effective_labels` for all of the labels present on th
 * `metastore` -
   (Optional)
   Optional. Settings to manage lake and Dataproc Metastore service instance association.
+  Structure is [documented below](#nested_metastore).
   
 * `project` -
   (Optional)
@@ -88,7 +89,7 @@ Please refer to the field `effective_labels` for all of the labels present on th
   
 
 
-The `metastore` block supports:
+<a name="nested_metastore"></a>The `metastore` block supports:
     
 * `service` -
   (Optional)
@@ -102,6 +103,7 @@ In addition to the arguments listed above, the following computed attributes are
 
 * `asset_status` -
   Output only. Aggregated status of the underlying assets of the lake.
+  Structure is [documented below](#nested_asset_status).
   
 * `create_time` -
   Output only. The time when the lake was created.
@@ -111,6 +113,7 @@ In addition to the arguments listed above, the following computed attributes are
   
 * `metastore_status` -
   Output only. Metastore status of the lake.
+  Structure is [documented below](#nested_metastore_status).
   
 * `service_account` -
   Output only. Service account associated with this lake. This service account must be authorized to access or operate on resources managed by the lake.
@@ -127,6 +130,31 @@ In addition to the arguments listed above, the following computed attributes are
 * `update_time` -
   Output only. The time when the lake was last updated.
   
+<a name="nested_asset_status"></a>The `asset_status` block contains:
+
+* `active_assets` -
+  Number of active assets.
+
+* `security_policy_applying_assets` -
+  Number of assets that are in process of updating the security policy on attached resources.
+
+* `update_time` -
+  Last update time of the status.
+
+<a name="nested_metastore_status"></a>The `metastore_status` block contains:
+
+* `endpoint` -
+  The URI of the endpoint used to access the Metastore service.
+
+* `message` -
+  Additional information about the current status.
+
+* `state` -
+  Current state of association. Possible values: STATE_UNSPECIFIED, NONE, READY, UPDATING, ERROR
+
+* `update_time` -
+  Last update time of the metastore status of the lake.
+
 ## Timeouts
 
 This resource provides the following
