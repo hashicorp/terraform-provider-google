@@ -112,6 +112,7 @@ resource "google_ces_deployment" "my-deployment" {
         channel_type = "API"
         disable_barge_in_control = true
         disable_dtmf = true
+        noise_suppression_level = "low"
         persona_property {
             persona = "CHATTY"
         }
@@ -267,6 +268,11 @@ The following arguments are supported:
 * `disable_dtmf` -
   (Optional)
   Whether to disable DTMF (dual-tone multi-frequency).
+
+* `noise_suppression_level` -
+  (Optional)
+  The noise suppression level of the channel profile.
+  Available values are "low", "moderate", "high", "very_high".
 
 * `persona_property` -
   (Optional)
