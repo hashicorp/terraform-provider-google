@@ -614,6 +614,29 @@ resource "google_filestore_instance" "default" {
 
 
 ```hcl
+data "google_project" "project" {
+  provider = google-beta
+}
+
+resource "google_project_service" "trafficdirector" {
+  provider           = google-beta
+  service            = "trafficdirector.googleapis.com"
+  disable_on_destroy = false
+}
+
+resource "google_service_account" "mesh_sa" {
+  provider     = google-beta
+  account_id   = "mesh-sa"
+  display_name = "Cloud Run Service Mesh Account"
+}
+
+resource "google_project_iam_member" "traffic_director_client" {
+  provider = google-beta
+  project  = data.google_project.project.project_id
+  role     = "roles/trafficdirector.client"
+  member   = "serviceAccount:${google_service_account.mesh_sa.email}"
+}
+
 resource "google_cloud_run_v2_service" "default" {
   provider = google-beta
   name     = "cloudrun-service"
@@ -624,8 +647,15 @@ resource "google_cloud_run_v2_service" "default" {
   launch_stage = "BETA"
 
   template {
+    service_account = google_service_account.mesh_sa.email
     containers {
       image = "us-docker.pkg.dev/cloudrun/container/hello"
+    }
+    vpc_access {
+      network_interfaces {
+        network    = "default"
+        subnetwork = "default"
+      }
     }
     service_mesh {
       mesh = google_network_services_mesh.mesh.id
@@ -634,14 +664,19 @@ resource "google_cloud_run_v2_service" "default" {
 }
 
 resource "time_sleep" "wait_for_mesh" {
-  depends_on = [google_network_services_mesh.mesh]
+  depends_on = [
+    google_network_services_mesh.mesh,
+    google_project_iam_member.traffic_director_client,
+    google_project_service.trafficdirector,
+  ]
 
-  create_duration = "1m"
+  create_duration = "10m"
 }
 
 resource "google_network_services_mesh" "mesh" {
-  provider = google-beta
-  name     = "network-services-mesh"
+  provider   = google-beta
+  name       = "network-services-mesh"
+  depends_on = [google_project_service.trafficdirector]
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
