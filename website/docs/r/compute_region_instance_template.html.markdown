@@ -611,6 +611,10 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `queue_count` - (Optional) The networking queue count that's specified by users for the network interface. Both Rx and Tx queues will be set to this number. It will be empty if not specified.
 
+* `internal_ipv6_prefix_length` - (Optional) The prefix length of the primary internal IPv6 range.
+
+* `ipv6_address` - (Optional) An IPv6 internal network address for this network interface. If not specified, Google Cloud will automatically assign an internal IPv6 address from the instance's subnetwork.
+
 <a name="nested_access_config"></a>The `access_config` block supports:
 
 * `nat_ip` - (Optional) The IP address that will be 1:1 mapped to the instance's
@@ -700,6 +704,14 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `preemption_notice_duration` - (Optional) Specifies the Metadata Service preemption notice duration before the GCE ACPI G2 Soft Off signal is triggered for Spot VMs only. If not specified, there will be no wait before the G2 Soft Off signal is triggered. Structure is [documented below](#nested_preemption_notice_duration).
 
+* `min_node_cpus` - (Optional) Minimum number of cpus for the instance.
+
+* `on_instance_stop_action` - (Optional) Specifies the action to be performed when the instance is terminated using `max_run_duration` and `STOP` `instance_termination_action`. Only support `true` `discard_local_ssd` at this point. Structure is [documented below](#nested_on_instance_stop_action).
+
+<a name="nested_on_instance_stop_action"></a>The `on_instance_stop_action` block supports:
+
+* `discard_local_ssd` - (Optional) Whether to discard local SSDs attached to the VM while terminating using `max_run_duration`. Only supports `true` at this point.
+
 <a name="nested_max_run_duration"></a>The `max_run_duration` block supports:
 
 * `nanos` - (Optional) Span of time that's a fraction of a second at nanosecond
@@ -771,9 +783,9 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 * `type` - (Required) The type of reservation from which this instance can consume resources.
 
 * `specific_reservation` - (Optional) Specifies the label selector for the reservation to use..
-    Structure is documented below.
+    Structure is [documented below](#nested_reservation_affinity_specific_reservation).
 
-The `specific_reservation` block supports:
+<a name="nested_reservation_affinity_specific_reservation"></a>The `specific_reservation` block supports:
 
 * `key` - (Required) Corresponds to the label key of a reservation resource. To target a SPECIFIC_RESERVATION by name, specify compute.googleapis.com/reservation-name as the key and specify the name of your reservation as the only value.
 
@@ -837,6 +849,20 @@ exported:
 * `tags_fingerprint` - The unique fingerprint of the tags.
 
 * `network_interface.0.parent_nic_name` - Name of the parent network interface of a dynamic network interface.
+
+* `network_interface.0.name` - The name of the network_interface.
+
+* `network_interface.0.ipv6_access_type` - One of EXTERNAL, INTERNAL to indicate whether the IP can be accessed from the Internet. This field is always inherited from its subnetwork.
+
+* `network_interface.0.access_config.0.public_ptr_domain_name` - The DNS domain name for the public PTR record.
+
+* `network_interface.0.ipv6_access_config.0.external_ipv6` - The first IPv6 address of the external IPv6 range associated with this instance, prefix length is stored in externalIpv6PrefixLength in ipv6AccessConfig. The field is output only, an IPv6 address from a subnetwork associated with the instance will be allocated dynamically.
+
+* `network_interface.0.ipv6_access_config.0.external_ipv6_prefix_length` - The prefix length of the external IPv6 range.
+
+* `network_interface.0.ipv6_access_config.0.name` - The name of this access configuration.
+
+* `network_interface.0.ipv6_access_config.0.public_ptr_domain_name` - The domain name to be used when creating DNSv6 records for the external IPv6 ranges.
 
 [1]: /docs/providers/google/r/compute_instance_group_manager.html
 [2]: /docs/language/meta-arguments/lifecycle.html
