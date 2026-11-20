@@ -15,6 +15,7 @@ fields:
     - api_field: channelProfile.channelType
     - api_field: channelProfile.disableBargeInControl
     - api_field: channelProfile.disableDtmf
+    - api_field: channelProfile.noiseSuppressionLevel
     - api_field: channelProfile.personaProperty.persona
     - api_field: channelProfile.profileId
     - api_field: channelProfile.webWidgetConfig.modality

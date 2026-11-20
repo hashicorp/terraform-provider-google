@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -143,6 +144,17 @@ func TestAccCESDeployment_cesDeploymentFullExample(t *testing.T) {
 		"app_version_display_name": "tf-test-my-app-version" + randomSuffix,
 		"app_version_id":           "tf-test-app-version-id" + randomSuffix,
 		"deployment_display_name":  "tf-test-my-deployment" + randomSuffix,
+		"noise_suppression_level":  "low",
+		"random_suffix":            randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"app_display_name":         "tf-test-my-app" + randomSuffix,
+		"app_id":                   "tf-test-app-id" + randomSuffix,
+		"app_version_display_name": "tf-test-my-app-version" + randomSuffix,
+		"app_version_id":           "tf-test-app-version-id" + randomSuffix,
+		"deployment_display_name":  "tf-test-my-deployment" + randomSuffix,
+		"noise_suppression_level":  "high",
 		"random_suffix":            randomSuffix,
 	}
 
@@ -153,6 +165,26 @@ func TestAccCESDeployment_cesDeploymentFullExample(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCESDeployment_cesDeploymentFullExample(context),
+			},
+			{
+				ResourceName:            "google_ces_deployment.my-deployment",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"app", "app_version", "instagram_credentials", "location", "whatsapp_credentials"},
+			},
+			{
+				ResourceName:       "google_ces_deployment.my-deployment",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccCESDeployment_cesDeploymentFullExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_ces_deployment.my-deployment", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_ces_deployment.my-deployment",
@@ -196,6 +228,7 @@ resource "google_ces_deployment" "my-deployment" {
         channel_type = "API"
         disable_barge_in_control = true
         disable_dtmf = true
+        noise_suppression_level = "%{noise_suppression_level}"
         persona_property {
             persona = "CHATTY"
         }
