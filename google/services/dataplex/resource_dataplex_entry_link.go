@@ -372,6 +372,33 @@ Empty path denotes that the Entry itself is referenced in the Entry Link.`,
 										StateFunc:    func(v interface{}) string { s, _ := structure.NormalizeJsonString(v); return s },
 										Description:  `The content of the aspect in JSON form, according to its aspect type schema. The maximum size of the field is 120KB (encoded as UTF-8).`,
 									},
+									"aspect_source": {
+										Type:        schema.TypeList,
+										Optional:    true,
+										Description: `Information related to the source system of the aspect.`,
+										MaxItems:    1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"create_time": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.IsRFC3339Time,
+													Description:  `The time the aspect was created in the source system.`,
+												},
+												"data_version": {
+													Type:        schema.TypeString,
+													Optional:    true,
+													Description: `The version of the data format used to produce this data. This field is used to indicated when the underlying data format changes (e.g., schema modifications, changes to the source URL format definition, etc).`,
+												},
+												"update_time": {
+													Type:         schema.TypeString,
+													Optional:     true,
+													ValidateFunc: validation.IsRFC3339Time,
+													Description:  `The time the aspect was last updated in the source system.`,
+												},
+											},
+										},
+									},
 									"aspect_type": {
 										Type:        schema.TypeString,
 										Computed:    true,
@@ -939,7 +966,39 @@ func flattenDataplexEntryLinkAspectsAspect(v interface{}, d *schema.ResourceData
 		flattenDataplexEntryLinkAspectsAspectUpdateTime(original["updateTime"], d, config)
 	transformed["data"] =
 		flattenDataplexEntryLinkAspectsAspectData(original["data"], d, config)
+	transformed["aspect_source"] =
+		flattenDataplexEntryLinkAspectsAspectAspectSource(original["aspectSource"], d, config)
 	return []interface{}{transformed}
+}
+
+func flattenDataplexEntryLinkAspectsAspectAspectSource(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["create_time"] =
+		flattenDataplexEntryLinkAspectsAspectAspectSourceCreateTime(original["createTime"], d, config)
+	transformed["update_time"] =
+		flattenDataplexEntryLinkAspectsAspectAspectSourceUpdateTime(original["updateTime"], d, config)
+	transformed["data_version"] =
+		flattenDataplexEntryLinkAspectsAspectAspectSourceDataVersion(original["dataVersion"], d, config)
+	return []interface{}{transformed}
+}
+
+func flattenDataplexEntryLinkAspectsAspectAspectSourceCreateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexEntryLinkAspectsAspectAspectSourceUpdateTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataplexEntryLinkAspectsAspectAspectSourceDataVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
 }
 
 func flattenDataplexEntryLinkAspectsAspectAspectType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1107,6 +1166,13 @@ func expandDataplexEntryLinkAspectsAspect(v interface{}, d tpgresource.Terraform
 		transformed["data"] = transformedData
 	}
 
+	transformedAspectSource, err := expandDataplexEntryLinkAspectsAspectAspectSource(original["aspect_source"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedAspectSource); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["aspectSource"] = transformedAspectSource
+	}
+
 	return transformed, nil
 }
 
@@ -1136,6 +1202,54 @@ func expandDataplexEntryLinkAspectsAspectData(v interface{}, d tpgresource.Terra
 		return nil, err
 	}
 	return j, nil
+}
+
+func expandDataplexEntryLinkAspectsAspectAspectSource(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedCreateTime, err := expandDataplexEntryLinkAspectsAspectAspectSourceCreateTime(original["create_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedCreateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["createTime"] = transformedCreateTime
+	}
+
+	transformedUpdateTime, err := expandDataplexEntryLinkAspectsAspectAspectSourceUpdateTime(original["update_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedUpdateTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["updateTime"] = transformedUpdateTime
+	}
+
+	transformedDataVersion, err := expandDataplexEntryLinkAspectsAspectAspectSourceDataVersion(original["data_version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedDataVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["dataVersion"] = transformedDataVersion
+	}
+
+	return transformed, nil
+}
+
+func expandDataplexEntryLinkAspectsAspectAspectSourceCreateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexEntryLinkAspectsAspectAspectSourceUpdateTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataplexEntryLinkAspectsAspectAspectSourceDataVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
 }
 
 func resourceDataplexEntryLinkEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
