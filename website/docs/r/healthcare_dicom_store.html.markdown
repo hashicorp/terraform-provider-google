@@ -65,6 +65,38 @@ resource "google_healthcare_dataset" "dataset" {
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
+  <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=healthcare_dicom_store_notification_configs&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
+    <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
+  </a>
+</div>
+
+## Example Usage - Healthcare Dicom Store Notification Configs
+
+
+```hcl
+resource "google_healthcare_dicom_store" "default" {
+  name    = "example-dicom-store"
+  dataset = google_healthcare_dataset.dataset.id
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic.id
+  }
+
+  labels = {
+    label1 = "labelvalue1"
+  }
+}
+
+resource "google_pubsub_topic" "topic" {
+  name = "dicom-notifications"
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "example-dataset"
+  location = "us-central1"
+}
+```
+<div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
   <a href="https://console.cloud.google.com/cloudshell/open?cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fterraform-google-modules%2Fdocs-examples.git&cloudshell_image=gcr.io%2Fcloudshell-images%2Fcloudshell%3Alatest&cloudshell_print=.%2Fmotd&cloudshell_tutorial=.%2Ftutorial.md&cloudshell_working_dir=healthcare_dicom_store_bq_stream&open_in_editor=main.tf" target="_blank" style="float: right; margin: 32px 0 12px 16px;">
     <img alt="Open in Cloud Shell" src="//gstatic.com/cloudssh/images/open-btn.svg" style="max-height: 44px; max-width: 100%;">
   </a>
@@ -163,6 +195,11 @@ The following arguments are supported:
   A nested object resource.
   Structure is [documented below](#nested_notification_config).
 
+* `notification_configs` -
+  (Optional)
+  Specifies where and whether to send notifications upon changes to a DICOM store.
+  Structure is [documented below](#nested_notification_configs).
+
 * `stream_configs` -
   (Optional, [Beta](../guides/provider_versions.html.markdown))
   To enable streaming to BigQuery, configure the streamConfigs object in your DICOM store.
@@ -191,6 +228,17 @@ The following arguments are supported:
 * `send_for_bulk_import` -
   (Optional)
   Indicates whether or not to send Pub/Sub notifications on bulk import. Only supported for DICOM imports.
+
+<a name="nested_notification_configs"></a>The `notification_configs` block supports:
+
+* `pubsub_topic` -
+  (Required)
+  The Cloud Pub/Sub topic that notifications of changes are published on. Supplied by the client.
+  PubsubMessage.Data will contain the resource name. PubsubMessage.MessageId is the ID of this message.
+  It is guaranteed to be unique within the topic. PubsubMessage.PublishTime is the time at which the message
+  was published. Notifications are only sent if the topic is non-empty. Topic names must be scoped to a
+  project. service-PROJECT_NUMBER@gcp-sa-healthcare.iam.gserviceaccount.com must have publisher permissions on the given
+  Cloud Pub/Sub topic. Not having adequate permissions will cause the calls that send notifications to fail.
 
 <a name="nested_stream_configs"></a>The `stream_configs` block supports:
 

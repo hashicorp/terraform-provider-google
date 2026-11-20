@@ -220,3 +220,105 @@ func testAccCheckGoogleHealthcareDicomStoreUpdate(t *testing.T, pubsubTopic stri
 		return nil
 	}
 }
+
+func TestAccHealthcareDicomStore_notificationConfigs(t *testing.T) {
+	t.Parallel()
+
+	datasetName := fmt.Sprintf("tf-test-dataset-%s", acctest.RandString(t, 10))
+	dicomStoreName := fmt.Sprintf("tf-test-dicom-store-%s", acctest.RandString(t, 10))
+	pubsubTopic1 := fmt.Sprintf("tf-test-topic1-%s", acctest.RandString(t, 10))
+	pubsubTopic2 := fmt.Sprintf("tf-test-topic2-%s", acctest.RandString(t, 10))
+	resourceName := "google_healthcare_dicom_store.default"
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckHealthcareDicomStoreDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testGoogleHealthcareDicomStore_basic(dicomStoreName, datasetName),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleHealthcareDicomStore_notificationConfigs(dicomStoreName, datasetName, pubsubTopic1),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleHealthcareDicomStore_notificationConfigsUpdate(dicomStoreName, datasetName, pubsubTopic1, pubsubTopic2),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testGoogleHealthcareDicomStore_basic(dicomStoreName, datasetName),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testGoogleHealthcareDicomStore_notificationConfigs(dicomStoreName, datasetName, pubsubTopic string) string {
+	return fmt.Sprintf(`
+resource "google_healthcare_dicom_store" "default" {
+  name    = "%s"
+  dataset = google_healthcare_dataset.dataset.id
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic1.id
+  }
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "%s"
+  location = "us-central1"
+}
+
+resource "google_pubsub_topic" "topic1" {
+  name = "%s"
+}
+`, dicomStoreName, datasetName, pubsubTopic)
+}
+
+func testGoogleHealthcareDicomStore_notificationConfigsUpdate(dicomStoreName, datasetName, pubsubTopic1, pubsubTopic2 string) string {
+	return fmt.Sprintf(`
+resource "google_healthcare_dicom_store" "default" {
+  name    = "%s"
+  dataset = google_healthcare_dataset.dataset.id
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic1.id
+  }
+
+  notification_configs {
+    pubsub_topic = google_pubsub_topic.topic2.id
+  }
+}
+
+resource "google_healthcare_dataset" "dataset" {
+  name     = "%s"
+  location = "us-central1"
+}
+
+resource "google_pubsub_topic" "topic1" {
+  name = "%s"
+}
+
+resource "google_pubsub_topic" "topic2" {
+  name = "%s"
+}
+`, dicomStoreName, datasetName, pubsubTopic1, pubsubTopic2)
+}
