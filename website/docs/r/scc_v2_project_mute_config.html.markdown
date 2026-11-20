@@ -49,6 +49,21 @@ resource "google_scc_v2_project_mute_config" "default" {
 }
 ```
 
+## Example Usage - Scc V2 Project Mute Config Dynamic
+
+
+```hcl
+resource "google_scc_v2_project_mute_config" "default" {
+  mute_config_id = "my-config"
+  project        = "my-project-name"
+  location       = "global"
+  description    = "My custom Cloud Security Command Center Finding Project mute Configuration"
+  filter         = "severity = \"HIGH\""
+  type           = "DYNAMIC"
+  expiry_time    = "2215-02-03T15:01:23Z"
+}
+```
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -74,6 +89,13 @@ The following arguments are supported:
 * `description` -
   (Optional)
   A description of the mute config.
+
+* `expiry_time` -
+  (Optional)
+  Optional. The expiry of the mute config. Only applicable for dynamic configs.
+  If the expiry is set, when the config expires, it is removed from all findings.
+  A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+  nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".
 
 * `location` -
   (Optional)

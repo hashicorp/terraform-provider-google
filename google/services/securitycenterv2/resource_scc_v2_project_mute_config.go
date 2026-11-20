@@ -164,6 +164,15 @@ project = Y scope, it might not match any findings.`,
 				Optional:    true,
 				Description: `A description of the mute config.`,
 			},
+			"expiry_time": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Description: `Optional. The expiry of the mute config. Only applicable for dynamic configs.
+If the expiry is set, when the config expires, it is removed from all findings.
+
+A timestamp in RFC3339 UTC "Zulu" format, with nanosecond resolution and up to
+nine fractional digits. Examples: "2014-10-02T15:01:23Z" and "2014-10-02T15:01:23.045123456Z".`,
+			},
 			"location": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -247,6 +256,12 @@ func resourceSecurityCenterV2ProjectMuteConfigCreate(d *schema.ResourceData, met
 		return err
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(typeProp)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
+	}
+	expiryTimeProp, err := expandSecurityCenterV2ProjectMuteConfigExpiryTime(d.Get("expiry_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("expiry_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(expiryTimeProp)) && (ok || !reflect.DeepEqual(v, expiryTimeProp)) {
+		obj["expiryTime"] = expiryTimeProp
 	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/muteConfigs?muteConfigId={{mute_config_id}}")
@@ -472,6 +487,12 @@ func resourceSecurityCenterV2ProjectMuteConfigUpdate(d *schema.ResourceData, met
 	} else if v, ok := d.GetOkExists("type"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, typeProp)) {
 		obj["type"] = typeProp
 	}
+	expiryTimeProp, err := expandSecurityCenterV2ProjectMuteConfigExpiryTime(d.Get("expiry_time"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("expiry_time"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, expiryTimeProp)) {
+		obj["expiryTime"] = expiryTimeProp
+	}
 
 	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/locations/{{location}}/muteConfigs/{{mute_config_id}}")
 	if err != nil {
@@ -492,6 +513,10 @@ func resourceSecurityCenterV2ProjectMuteConfigUpdate(d *schema.ResourceData, met
 
 	if d.HasChange("type") {
 		updateMask = append(updateMask, "type")
+	}
+
+	if d.HasChange("expiry_time") {
+		updateMask = append(updateMask, "expiryTime")
 	}
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
 	// won't set it
@@ -631,6 +656,10 @@ func flattenSecurityCenterV2ProjectMuteConfigType(v interface{}, d *schema.Resou
 	return v
 }
 
+func flattenSecurityCenterV2ProjectMuteConfigExpiryTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandSecurityCenterV2ProjectMuteConfigDescription(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -640,6 +669,10 @@ func expandSecurityCenterV2ProjectMuteConfigFilter(v interface{}, d tpgresource.
 }
 
 func expandSecurityCenterV2ProjectMuteConfigType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandSecurityCenterV2ProjectMuteConfigExpiryTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
@@ -665,6 +698,9 @@ func ResourceSecurityCenterV2ProjectMuteConfigFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
 	}
 	if err = d.Set("type", flattenSecurityCenterV2ProjectMuteConfigType(res["type"], d, config)); err != nil {
+		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
+	}
+	if err = d.Set("expiry_time", flattenSecurityCenterV2ProjectMuteConfigExpiryTime(res["expiryTime"], d, config)); err != nil {
 		return fmt.Errorf("Error reading ProjectMuteConfig: %s", err)
 	}
 
