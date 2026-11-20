@@ -87,6 +87,260 @@ func waitForDataConnectorReady(d *schema.ResourceData, config *transport_tpg.Con
 	})
 }
 
+// Placeholder parent entities for publicly supported hierarchical Discovery Engine connectors.
+// Because the decoder strips empty placeholder entities from state, DiffSuppressFunc suppresses
+// diffs when users still declare those empty placeholders in config as a workaround.
+var dataConnectorPlaceholderEntities = map[string]map[string]bool{
+	"outlook":    {"root": true},
+	"sharepoint": {"site": true},
+	"servicenow": {"knowledge_base": true},
+	"teams":      {"root": true},
+}
+
+type dataConnectorEntityConfig struct {
+	entityName          string
+	params              string
+	keyPropertyMappings map[string]string
+	kpmOmitted          bool
+	hasUnknown          bool
+}
+
+func dataConnectorEntitiesDiffSuppress(k, old, new string, d *schema.ResourceData) bool {
+	return DataConnectorEntitiesDiffSuppressFunc(k, old, new, d)
+}
+
+func DataConnectorEntitiesDiffSuppressFunc(k, _, _ string, d tpgresource.TerraformResourceDataChange) bool {
+	if k != "entities.#" && !strings.HasPrefix(k, "entities.") {
+		return false
+	}
+
+	oldDSRaw, newDSRaw := d.GetChange("data_source")
+	oldDS, _ := oldDSRaw.(string)
+	newDS, _ := newDSRaw.(string)
+	// Skip create (oldDS == "") so configured entities remain in the initial plan.
+	if oldDS == "" || oldDS != newDS {
+		return false
+	}
+
+	placeholders := dataConnectorPlaceholderEntities[strings.ToLower(oldDS)]
+	if len(placeholders) == 0 {
+		return false
+	}
+
+	oldRaw, newRaw := d.GetChange("entities")
+	oldList := toDataConnectorEntityConfigs(oldRaw)
+	newList, ok := extractDataConnectorConfiguredEntities(d, newRaw)
+	if !ok || len(newList) <= len(oldList) {
+		return false
+	}
+
+	filteredNew := make([]dataConnectorEntityConfig, 0, len(newList))
+	for _, entity := range newList {
+		if isEmptyDataConnectorPlaceholderEntity(entity, placeholders) {
+			continue
+		}
+		filteredNew = append(filteredNew, entity)
+	}
+	if len(filteredNew) != len(oldList) {
+		return false
+	}
+
+	// If every non-placeholder entity matches state, suppress the entire list diff regardless of
+	// where the workaround placeholder block appears in config.
+	allEqual := true
+	for i := range oldList {
+		if !dataConnectorEntityConfigsEqual(oldList[i], filteredNew[i]) {
+			allEqual = false
+			break
+		}
+	}
+	if allEqual {
+		return true
+	}
+
+	// Otherwise, if the empty placeholder block(s) are trailing and all prefix entity names match,
+	// suppress only the list length and trailing placeholder indices so in-place param or
+	// key_property_mappings updates on aligned entities still plan normally without ForceNew.
+	for i := 0; i < len(oldList); i++ {
+		if isEmptyDataConnectorPlaceholderEntity(newList[i], placeholders) {
+			return false
+		}
+		if oldList[i].entityName != newList[i].entityName {
+			return false
+		}
+	}
+
+	if k == "entities.#" {
+		return true
+	}
+	parts := strings.Split(k, ".")
+	if len(parts) >= 2 {
+		if idx, err := strconv.Atoi(parts[1]); err == nil && idx >= len(oldList) {
+			return true
+		}
+	}
+	return false
+}
+
+// extractDataConnectorConfiguredEntities reads the raw HCL entities blocks from ResourceData when
+// available so Optional+Computed fields (like key_property_mappings) are not copied from prior
+// state by list index, and omitted blocks (null) can be distinguished from explicit empty maps ({}).
+func extractDataConnectorConfiguredEntities(d tpgresource.TerraformResourceDataChange, fallbackRaw interface{}) ([]dataConnectorEntityConfig, bool) {
+	if rd, ok := d.(*schema.ResourceData); ok && rd != nil {
+		rawCfg := rd.GetRawConfig()
+		if !rawCfg.IsNull() {
+			rawCfg, _ = rawCfg.UnmarkDeep()
+			if !rawCfg.IsKnown() {
+				return nil, false
+			}
+			if !rawCfg.Type().IsObjectType() || !rawCfg.Type().HasAttribute("entities") {
+				return nil, false
+			}
+			rawEntities := rawCfg.GetAttr("entities")
+			if rawEntities.IsNull() {
+				return nil, true
+			}
+			if !rawEntities.IsKnown() {
+				return nil, false
+			}
+			if !rawEntities.Type().IsListType() && !rawEntities.Type().IsTupleType() {
+				return nil, false
+			}
+			elems := rawEntities.AsValueSlice()
+			out := make([]dataConnectorEntityConfig, 0, len(elems))
+			for _, elem := range elems {
+				if elem.IsNull() || !elem.IsKnown() || !elem.Type().IsObjectType() {
+					return nil, false
+				}
+				var cfg dataConnectorEntityConfig
+				if elem.Type().HasAttribute("entity_name") {
+					nameVal := elem.GetAttr("entity_name")
+					if !nameVal.IsKnown() {
+						return nil, false
+					}
+					if !nameVal.IsNull() {
+						cfg.entityName = nameVal.AsString()
+					}
+				}
+				if elem.Type().HasAttribute("params") {
+					paramsVal := elem.GetAttr("params")
+					if !paramsVal.IsKnown() {
+						cfg.hasUnknown = true
+					} else if !paramsVal.IsNull() {
+						cfg.params = paramsVal.AsString()
+					}
+				}
+				if elem.Type().HasAttribute("key_property_mappings") {
+					kpmVal := elem.GetAttr("key_property_mappings")
+					if !kpmVal.IsKnown() {
+						cfg.hasUnknown = true
+					} else if kpmVal.IsNull() {
+						cfg.kpmOmitted = true
+					} else if kpmVal.Type().IsMapType() || kpmVal.Type().IsObjectType() {
+						kpmMap := make(map[string]string, kpmVal.LengthInt())
+						for mk, mv := range kpmVal.AsValueMap() {
+							if !mv.IsKnown() {
+								cfg.hasUnknown = true
+							} else if !mv.IsNull() {
+								kpmMap[mk] = mv.AsString()
+							}
+						}
+						cfg.keyPropertyMappings = kpmMap
+					}
+				} else {
+					cfg.kpmOmitted = true
+				}
+				out = append(out, cfg)
+			}
+			return out, true
+		}
+	}
+	return toDataConnectorEntityConfigs(fallbackRaw), true
+}
+
+func toDataConnectorEntityConfigs(raw interface{}) []dataConnectorEntityConfig {
+	items, ok := raw.([]interface{})
+	if !ok {
+		return nil
+	}
+	out := make([]dataConnectorEntityConfig, 0, len(items))
+	for _, item := range items {
+		m, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		var cfg dataConnectorEntityConfig
+		cfg.entityName, _ = m["entity_name"].(string)
+		cfg.params, _ = m["params"].(string)
+		if kpm, ok := m["key_property_mappings"].(map[string]interface{}); ok && len(kpm) > 0 {
+			cfg.keyPropertyMappings = make(map[string]string, len(kpm))
+			for mk, mv := range kpm {
+				if s, ok := mv.(string); ok {
+					cfg.keyPropertyMappings[mk] = s
+				}
+			}
+		} else {
+			cfg.kpmOmitted = true
+		}
+		out = append(out, cfg)
+	}
+	return out
+}
+
+func normalizeDataConnectorEntityParams(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" || s == "{}" {
+		return ""
+	}
+	if normalized, err := structure.NormalizeJsonString(s); err == nil {
+		if normalized == "{}" {
+			return ""
+		}
+		return normalized
+	}
+	return s
+}
+
+func isEmptyDataConnectorPlaceholderEntity(entity dataConnectorEntityConfig, placeholders map[string]bool) bool {
+	if entity.hasUnknown {
+		return false
+	}
+	if !placeholders[strings.ToLower(entity.entityName)] {
+		return false
+	}
+	if normalizeDataConnectorEntityParams(entity.params) != "" {
+		return false
+	}
+	if len(entity.keyPropertyMappings) > 0 {
+		return false
+	}
+	return true
+}
+
+func dataConnectorEntityConfigsEqual(oldEntity, newEntity dataConnectorEntityConfig) bool {
+	if newEntity.hasUnknown {
+		return false
+	}
+	if oldEntity.entityName != newEntity.entityName {
+		return false
+	}
+	if normalizeDataConnectorEntityParams(oldEntity.params) != normalizeDataConnectorEntityParams(newEntity.params) {
+		return false
+	}
+	// key_property_mappings is Optional+Computed (default_from_api), so an omitted attribute
+	// (null in raw HCL) preserves the existing server-side map, whereas an explicit `{}` clears it.
+	if newEntity.kpmOmitted {
+		return true
+	}
+	if len(oldEntity.keyPropertyMappings) != len(newEntity.keyPropertyMappings) {
+		return false
+	}
+	if len(oldEntity.keyPropertyMappings) == 0 {
+		return true
+	}
+	return reflect.DeepEqual(oldEntity.keyPropertyMappings, newEntity.keyPropertyMappings)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -416,9 +670,10 @@ used to configure where data is served.`,
 				},
 			},
 			"entities": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Description: `List of entities from the connected data source to ingest.`,
+				Type:             schema.TypeList,
+				Optional:         true,
+				DiffSuppressFunc: dataConnectorEntitiesDiffSuppress,
+				Description:      `List of entities from the connected data source to ingest.`,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"entity_name": {
@@ -947,6 +1202,18 @@ func resourceDiscoveryEngineDataConnectorRead(d *schema.ResourceData, meta inter
 	}
 
 	log.Printf("[DEBUG] Finished reading DiscoveryEngineDataConnector %q: %#v", d.Id(), res)
+
+	res, err = resourceDiscoveryEngineDataConnectorDecoder(d, meta, res)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		// Decoding the object has resulted in it being gone. It may be marked deleted
+		log.Printf("[DEBUG] Removing DiscoveryEngineDataConnector because it no longer exists.")
+		d.SetId("")
+		return nil
+	}
 
 	// Explicitly set virtual fields to default values if unset
 	if _, ok := d.GetOkExists("deletion_policy"); !ok {
@@ -2069,6 +2336,40 @@ func expandDiscoveryEngineDataConnectorMetadataAuthor(v interface{}, d tpgresour
 
 func expandDiscoveryEngineDataConnectorMetadataNote(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
+}
+
+func resourceDiscoveryEngineDataConnectorDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
+	entitiesRaw, ok := res["entities"].([]interface{})
+	if !ok || len(entitiesRaw) == 0 {
+		return res, nil
+	}
+
+	filtered := make([]interface{}, 0, len(entitiesRaw))
+	for _, raw := range entitiesRaw {
+		entityMap, ok := raw.(map[string]interface{})
+		if !ok {
+			filtered = append(filtered, raw)
+			continue
+		}
+
+		// Server-synthesized placeholder/parent entities (such as "root" for outlook and "site"
+		// for sharepoint) have no backing dataStore. Strip them unconditionally when they carry no
+		// parent-level params or keyPropertyMappings so existing states containing stale placeholders
+		// heal on refresh, while preserving placeholders with explicit parent filters/mappings.
+		dataStore, _ := entityMap["dataStore"].(string)
+		if dataStore == "" {
+			paramsMap, _ := entityMap["params"].(map[string]interface{})
+			kpmMap, _ := entityMap["keyPropertyMappings"].(map[string]interface{})
+			if len(paramsMap) == 0 && len(kpmMap) == 0 {
+				continue
+			}
+		}
+
+		filtered = append(filtered, raw)
+	}
+
+	res["entities"] = filtered
+	return res, nil
 }
 
 func ResourceDiscoveryEngineDataConnectorUpgradeV0(_ context.Context, rawState map[string]interface{}, meta interface{}) (map[string]interface{}, error) {
