@@ -1,0 +1,42 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_vertex_ai_model
+generation_type: mmv1
+source_file: products/vertexai/Model.yaml
+api_service_name: aiplatform.googleapis.com
+api_version: v1
+api_resource_type_kind: Model
+fields:
+    - api_field: artifactUri
+    - api_field: createTime
+    - api_field: customServiceAccount
+    - api_field: description
+    - api_field: displayName
+    - field: effective_labels
+      provider_only: true
+    - api_field: encryptionSpec.kmsKeyName
+    - api_field: etag
+    - api_field: labels
+    - api_field: metadataSchemaUri
+    - api_field: modelId
+    - api_field: name
+    - api_field: pipelineJob
+    - api_field: predictSchemata.instanceSchemaUri
+    - api_field: predictSchemata.parametersSchemaUri
+    - api_field: predictSchemata.predictionSchemaUri
+    - field: region
+      provider_only: true
+    - api_field: sourceModel
+    - api_field: supportedExportFormats.exportableContents
+    - api_field: supportedExportFormats.id
+    - field: terraform_labels
+      provider_only: true
+    - api_field: trainingPipeline
+    - api_field: updateTime
+    - api_field: versionAliases
+    - api_field: versionCreateTime
+    - api_field: versionDescription
+    - api_field: versionId
+    - api_field: versionUpdateTime
+    - field: deletion_policy
+      provider_only: true
