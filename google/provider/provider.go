@@ -296,6 +296,11 @@ func Provider() *schema.Provider {
 				Optional:     true,
 				ValidateFunc: ValidateCustomEndpoint,
 			},
+			"assured_workloads_v2_custom_endpoint": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: ValidateCustomEndpoint,
+			},
 			"backup_dr_custom_endpoint": &schema.Schema{
 				Type:         schema.TypeString,
 				Optional:     true,

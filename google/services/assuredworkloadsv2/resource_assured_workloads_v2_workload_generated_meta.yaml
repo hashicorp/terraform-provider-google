@@ -1,0 +1,48 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_assured_workloads_v2_workload
+generation_type: mmv1
+source_file: products/assuredworkloadsv2/Workload.yaml
+api_service_name: assuredworkloads.googleapis.com
+api_version: v2
+api_resource_type_kind: Workload
+fields:
+    - api_field: cloudControlConfigs.cloudControl
+    - api_field: cloudControlConfigs.cloudControlRevision
+    - api_field: cloudControlConfigs.enforcementMode
+    - api_field: cloudControlConfigs.parameters.name
+    - api_field: cloudControlConfigs.parameters.parameterValue.boolValue
+    - api_field: cloudControlConfigs.parameters.parameterValue.numberValue
+    - api_field: cloudControlConfigs.parameters.parameterValue.oneofValue.name
+    - api_field: cloudControlConfigs.parameters.parameterValue.oneofValue.parameterValue.boolValue
+    - api_field: cloudControlConfigs.parameters.parameterValue.oneofValue.parameterValue.numberValue
+    - api_field: cloudControlConfigs.parameters.parameterValue.oneofValue.parameterValue.stringListValue.values
+    - api_field: cloudControlConfigs.parameters.parameterValue.oneofValue.parameterValue.stringValue
+    - api_field: cloudControlConfigs.parameters.parameterValue.stringListValue.values
+    - api_field: cloudControlConfigs.parameters.parameterValue.stringValue
+    - api_field: computedTargetResource
+    - api_field: createTime
+    - api_field: description
+    - api_field: etag
+    - api_field: framework.framework
+    - api_field: framework.majorRevisionId
+    - api_field: kajEnrollmentType
+    - field: location
+      provider_only: true
+    - api_field: name
+    - field: organization
+      provider_only: true
+    - api_field: resourceConfig.existingFolder
+    - api_field: resourceConfig.existingProject
+    - api_field: resourceConfig.newFolderConfig.displayName
+    - api_field: resourceConfig.newFolderConfig.parent
+    - api_field: resourceConfig.newProjectConfig.billingAccount
+    - api_field: resourceConfig.newProjectConfig.displayName
+    - api_field: resourceConfig.newProjectConfig.parent
+    - api_field: state
+    - api_field: targetResourceDisplayName
+    - api_field: updateTime
+    - field: workload_id
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true

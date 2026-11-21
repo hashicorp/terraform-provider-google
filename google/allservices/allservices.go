@@ -34,6 +34,7 @@ import (
 	_ "github.com/hashicorp/terraform-provider-google/google/services/apphub"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/artifactregistry"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/assuredworkloads"
+	_ "github.com/hashicorp/terraform-provider-google/google/services/assuredworkloadsv2"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/backupdr"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/beyondcorp"
 	_ "github.com/hashicorp/terraform-provider-google/google/services/biglake"
