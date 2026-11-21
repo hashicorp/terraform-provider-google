@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -1175,6 +1176,262 @@ resource "google_data_loss_prevention_job_trigger" "timespan_config_big_query" {
             }
         }
 }
+}
+`, context)
+}
+
+func TestAccDataLossPreventionJobTrigger_dlpJobTriggerMinLikelihoodPerInfoTypeExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"project":       envvar.GetTestProjectFromEnv(),
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckDataLossPreventionJobTriggerDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerMinLikelihoodPerInfoTypeExample(context),
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.min_likelihood_per_info_type",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.min_likelihood_per_info_type",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerMinLikelihoodPerInfoTypeUpdateExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_data_loss_prevention_job_trigger.min_likelihood_per_info_type", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.min_likelihood_per_info_type",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.min_likelihood_per_info_type",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDataLossPreventionJobTrigger_dlpJobTriggerWithoutMinLikelihoodPerInfoTypeExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_data_loss_prevention_job_trigger.min_likelihood_per_info_type", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_data_loss_prevention_job_trigger.min_likelihood_per_info_type",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"parent", "trigger_id"},
+			},
+			{
+				ResourceName:       "google_data_loss_prevention_job_trigger.min_likelihood_per_info_type",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerMinLikelihoodPerInfoTypeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "min_likelihood_per_info_type" {
+  parent       = "projects/%{project}"
+  description  = "Description"
+  display_name = "Displayname"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+    inspect_config {
+      info_types {
+        name = "EMAIL_ADDRESS"
+      }
+      info_types {
+        name    = "PERSON_NAME"
+        version = "latest"
+      }
+      info_types {
+        name = "PHONE_NUMBER"
+      }
+      min_likelihood_per_info_type {
+        info_type {
+          name    = "PERSON_NAME"
+          version = "latest"
+          sensitivity_score {
+            score = "SENSITIVITY_MODERATE"
+          }
+        }
+        min_likelihood = "UNLIKELY"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerMinLikelihoodPerInfoTypeUpdateExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "min_likelihood_per_info_type" {
+  parent       = "projects/%{project}"
+  description  = "Updated description"
+  display_name = "Updated displayname"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+    inspect_config {
+      info_types {
+        name    = "PERSON_NAME"
+        version = "latest"
+      }
+      info_types {
+        name    = "PHONE_NUMBER"
+        version = "latest"
+      }
+      min_likelihood_per_info_type {
+        info_type {
+          name    = "PERSON_NAME"
+          version = "latest"
+          sensitivity_score {
+            score = "SENSITIVITY_HIGH"
+          }
+        }
+        min_likelihood = "POSSIBLE"
+      }
+      min_likelihood_per_info_type {
+        info_type {
+          name    = "PHONE_NUMBER"
+          version = "latest"
+        }
+        min_likelihood = "VERY_LIKELY"
+      }
+    }
+  }
+}
+`, context)
+}
+
+func testAccDataLossPreventionJobTrigger_dlpJobTriggerWithoutMinLikelihoodPerInfoTypeExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_data_loss_prevention_job_trigger" "min_likelihood_per_info_type" {
+  parent       = "projects/%{project}"
+  description  = "Updated description"
+  display_name = "Updated displayname"
+
+  triggers {
+    schedule {
+      recurrence_period_duration = "86400s"
+    }
+  }
+
+  inspect_job {
+    inspect_template_name = "fake"
+    actions {
+      save_findings {
+        output_config {
+          table {
+            project_id = "project"
+            dataset_id = "dataset"
+          }
+        }
+      }
+    }
+    storage_config {
+      cloud_storage_options {
+        file_set {
+          url = "gs://mybucket/directory/"
+        }
+      }
+    }
+    inspect_config {
+      info_types {
+        name = "EMAIL_ADDRESS"
+      }
+      info_types {
+        name    = "PERSON_NAME"
+        version = "latest"
+      }
+      info_types {
+        name = "PHONE_NUMBER"
+      }
+    }
+  }
 }
 `, context)
 }

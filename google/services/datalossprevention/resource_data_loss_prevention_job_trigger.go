@@ -1134,6 +1134,61 @@ at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built
 										Description:  `Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info Default value: "POSSIBLE" Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
 										Default:      "POSSIBLE",
 									},
+									"min_likelihood_per_info_type": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `Minimum likelihood per infotype. For each infotype, a user can specify a minimum likelihood.
+The system only returns a finding if its likelihood is above this threshold. If this field
+is not set, the system uses the InspectConfig min_likelihood.`,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"min_likelihood": {
+													Type:         schema.TypeString,
+													Required:     true,
+													ValidateFunc: verify.ValidateEnum([]string{"VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"}),
+													Description:  `Only returns findings equal or above this threshold. See https://cloud.google.com/dlp/docs/likelihood for more info. Possible values: ["VERY_UNLIKELY", "UNLIKELY", "POSSIBLE", "LIKELY", "VERY_LIKELY"]`,
+												},
+												"info_type": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Type of information the likeliness threshold applies to. Only one likelihood per info_type should be provided.
+If InfoTypeLikelihood does not have an info_type, the configuration fails.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"name": {
+																Type:     schema.TypeString,
+																Required: true,
+																Description: `Name of the information type. Either a name of your choosing when creating a CustomInfoType, or one of the names listed
+at https://cloud.google.com/dlp/docs/infotypes-reference when specifying a built-in type.`,
+															},
+															"sensitivity_score": {
+																Type:        schema.TypeList,
+																Optional:    true,
+																Description: `Optional custom sensitivity for this InfoType. This only applies to data profiling.`,
+																MaxItems:    1,
+																Elem: &schema.Resource{
+																	Schema: map[string]*schema.Schema{
+																		"score": {
+																			Type:         schema.TypeString,
+																			Required:     true,
+																			ValidateFunc: verify.ValidateEnum([]string{"SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"}),
+																			Description:  `The sensitivity score applied to the resource. Possible values: ["SENSITIVITY_LOW", "SENSITIVITY_MODERATE", "SENSITIVITY_HIGH"]`,
+																		},
+																	},
+																},
+															},
+															"version": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Version name for this InfoType.`,
+															},
+														},
+													},
+												},
+											},
+										},
+									},
 									"rule_set": {
 										Type:     schema.TypeList,
 										Optional: true,
@@ -2061,6 +2116,8 @@ func flattenDataLossPreventionJobTriggerInspectJobInspectConfig(v interface{}, d
 		flattenDataLossPreventionJobTriggerInspectJobInspectConfigIncludeQuote(original["includeQuote"], d, config)
 	transformed["min_likelihood"] =
 		flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihood(original["minLikelihood"], d, config)
+	transformed["min_likelihood_per_info_type"] =
+		flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoType(original["minLikelihoodPerInfoType"], d, config)
 	transformed["limits"] =
 		flattenDataLossPreventionJobTriggerInspectJobInspectConfigLimits(original["limits"], d, config)
 	transformed["info_types"] =
@@ -2080,6 +2137,72 @@ func flattenDataLossPreventionJobTriggerInspectJobInspectConfigIncludeQuote(v in
 }
 
 func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	l := v.([]interface{})
+	transformed := make([]interface{}, 0, len(l))
+	for i, raw := range l {
+		_ = i
+		original := raw.(map[string]interface{})
+		if len(original) < 1 {
+			// Do not include empty json objects coming back from the api
+			continue
+		}
+		transformed = append(transformed, map[string]interface{}{
+			"info_type":      flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoType(original["infoType"], d, config),
+			"min_likelihood": flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(original["minLikelihood"], d, config),
+		})
+	}
+	return transformed
+}
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoType(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["name"] =
+		flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(original["name"], d, config)
+	transformed["version"] =
+		flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(original["version"], d, config)
+	transformed["sensitivity_score"] =
+		flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(original["sensitivityScore"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["score"] =
+		flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(original["score"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -3808,6 +3931,13 @@ func expandDataLossPreventionJobTriggerInspectJobInspectConfig(v interface{}, d 
 		transformed["minLikelihood"] = transformedMinLikelihood
 	}
 
+	transformedMinLikelihoodPerInfoType, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoType(original["min_likelihood_per_info_type"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedMinLikelihoodPerInfoType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["minLikelihoodPerInfoType"] = transformedMinLikelihoodPerInfoType
+	}
+
 	transformedLimits, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigLimits(original["limits"], d, config)
 	if err != nil {
 		return nil, err
@@ -3848,6 +3978,112 @@ func expandDataLossPreventionJobTriggerInspectJobInspectConfigIncludeQuote(v int
 }
 
 func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	req := make([]interface{}, 0, len(l))
+	for _, raw := range l {
+		if raw == nil {
+			continue
+		}
+		original := raw.(map[string]interface{})
+		transformed := make(map[string]interface{})
+
+		transformedInfoType, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoType(original["info_type"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedInfoType); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["infoType"] = transformedInfoType
+		}
+
+		transformedMinLikelihood, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(original["min_likelihood"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedMinLikelihood); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["minLikelihood"] = transformedMinLikelihood
+		}
+
+		req = append(req, transformed)
+	}
+	return req, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoType(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedName, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(original["name"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedName); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["name"] = transformedName
+	}
+
+	transformedVersion, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(original["version"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedVersion); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["version"] = transformedVersion
+	}
+
+	transformedSensitivityScore, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(original["sensitivity_score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSensitivityScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["sensitivityScore"] = transformedSensitivityScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeVersion(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedScore, err := expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(original["score"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScore); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["score"] = transformedScore
+	}
+
+	return transformed, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeInfoTypeSensitivityScoreScore(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDataLossPreventionJobTriggerInspectJobInspectConfigMinLikelihoodPerInfoTypeMinLikelihood(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
