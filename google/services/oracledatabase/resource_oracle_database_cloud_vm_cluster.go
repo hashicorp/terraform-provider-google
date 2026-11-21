@@ -199,6 +199,16 @@ projects/{project}/locations/{location}/odbNetworks/{odb_network}/odbSubnets/{od
 Format:
 projects/{project}/locations/{location}/exascaleDbStorageVaults/{exascale_db_storage_vault}`,
 			},
+			"identity_connector_disabled": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+				Description: `If set to true, disables the automatic provisioning of the Workload
+Identity Connector during creation. If set to false or omitted, the
+Workload Identity Connector will be automatically provisioned by default.
+Note: Provisioning the Workload Identity Connector is a prerequisite for
+enabling Google Cloud CMEK.`,
+			},
 			"labels": {
 				Type:     schema.TypeMap,
 				Optional: true,
@@ -585,10 +595,31 @@ PARTIALLY_CONNECTED
 DISCONNECTED
 UNKNOWN`,
 						},
+						"identity_connector_id": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The unique partner identifier for the Identity Connector, used to
+establish secure cross-cloud access between Google Cloud and OCI. This
+corresponds directly to the ID of the OracleDbGcpIdentityConnector
+resource in Oracle Cloud Infrastructure (OCI).`,
+						},
+						"lifecycle_state_details": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `Additional information about the current lifecycle state.`,
+						},
 						"service_agent_email": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `A google managed service account on which customers can grant roles to access resources in the customer project.`,
+						},
+						"workload_identity_pool": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `The resource name of the Workload Identity Pool configured for identity
+federation with OCI. This exact pool name can be used to configure VPC
+Service Controls (VPC-SC) egress rules. Format:
+'projects/{project}/locations/global/workloadIdentityPools/{workload_identity_pool}'`,
 						},
 					},
 				},
@@ -702,6 +733,12 @@ func resourceOracleDatabaseCloudVmClusterCreate(d *schema.ResourceData, meta int
 		return err
 	} else if v, ok := d.GetOkExists("odb_dns_zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(odbDnsZoneProp)) && (ok || !reflect.DeepEqual(v, odbDnsZoneProp)) {
 		obj["odbDnsZone"] = odbDnsZoneProp
+	}
+	identityConnectorDisabledProp, err := expandOracleDatabaseCloudVmClusterIdentityConnectorDisabled(d.Get("identity_connector_disabled"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("identity_connector_disabled"); !tpgresource.IsEmptyValue(reflect.ValueOf(identityConnectorDisabledProp)) && (ok || !reflect.DeepEqual(v, identityConnectorDisabledProp)) {
+		obj["identityConnectorDisabled"] = identityConnectorDisabledProp
 	}
 	exascaleDbStorageVaultProp, err := expandOracleDatabaseCloudVmClusterExascaleDbStorageVault(d.Get("exascale_db_storage_vault"), d, config)
 	if err != nil {
@@ -1510,6 +1547,12 @@ func flattenOracleDatabaseCloudVmClusterIdentityConnector(v interface{}, d *sche
 		flattenOracleDatabaseCloudVmClusterIdentityConnectorServiceAgentEmail(original["serviceAgentEmail"], d, config)
 	transformed["connection_state"] =
 		flattenOracleDatabaseCloudVmClusterIdentityConnectorConnectionState(original["connectionState"], d, config)
+	transformed["workload_identity_pool"] =
+		flattenOracleDatabaseCloudVmClusterIdentityConnectorWorkloadIdentityPool(original["workloadIdentityPool"], d, config)
+	transformed["identity_connector_id"] =
+		flattenOracleDatabaseCloudVmClusterIdentityConnectorIdentityConnectorId(original["identityConnectorId"], d, config)
+	transformed["lifecycle_state_details"] =
+		flattenOracleDatabaseCloudVmClusterIdentityConnectorLifecycleStateDetails(original["lifecycleStateDetails"], d, config)
 	return []interface{}{transformed}
 }
 func flattenOracleDatabaseCloudVmClusterIdentityConnectorServiceAgentEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -1517,6 +1560,18 @@ func flattenOracleDatabaseCloudVmClusterIdentityConnectorServiceAgentEmail(v int
 }
 
 func flattenOracleDatabaseCloudVmClusterIdentityConnectorConnectionState(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterIdentityConnectorWorkloadIdentityPool(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterIdentityConnectorIdentityConnectorId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenOracleDatabaseCloudVmClusterIdentityConnectorLifecycleStateDetails(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2053,6 +2108,10 @@ func expandOracleDatabaseCloudVmClusterBackupOdbSubnet(v interface{}, d tpgresou
 }
 
 func expandOracleDatabaseCloudVmClusterOdbDnsZone(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandOracleDatabaseCloudVmClusterIdentityConnectorDisabled(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
