@@ -18,12 +18,17 @@ fields:
       provider_only: true
     - api_field: name
     - api_field: notificationPubsubTopic
+    - api_field: paramConfig.secretManagerManagedParams
     - api_field: params
     - api_field: schedule
     - api_field: scheduleOptions.disableAutoScheduling
     - api_field: scheduleOptions.endTime
     - api_field: scheduleOptions.startTime
     - api_field: scheduleOptionsV2.eventDrivenSchedule.pubsubSubscription
+    - api_field: scheduleOptionsV2.manualSchedule
+    - api_field: scheduleOptionsV2.timeBasedSchedule.endTime
+    - api_field: scheduleOptionsV2.timeBasedSchedule.schedule
+    - api_field: scheduleOptionsV2.timeBasedSchedule.startTime
     - field: sensitive_params.secret_access_key
       provider_only: true
     - field: sensitive_params.secret_access_key_wo

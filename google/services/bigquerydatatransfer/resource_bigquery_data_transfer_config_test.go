@@ -897,3 +897,238 @@ resource "google_bigquery_data_transfer_config" "query_config" {
 }
 `, service_account, service_account, service_account, random_suffix, random_suffix, service_account)
 }
+
+func TestAccBigqueryDataTransferConfig_scheduleOptionsV2(t *testing.T) {
+	// Uses time.Now
+	acctest.SkipIfVcr(t)
+	randomSuffix := acctest.RandString(t, 10)
+	now := time.Now().UTC()
+	firstStartTime := now.Add(1 * time.Hour).Format(time.RFC3339)
+	firstEndTime := now.AddDate(0, 1, 0).Format(time.RFC3339)
+	secondStartTime := now.Add(2 * time.Hour).Format(time.RFC3339)
+	secondEndTime := now.AddDate(0, 2, 0).Format(time.RFC3339)
+
+	// The API mirrors time_based_schedule and manual_schedule into v1 schedule and
+	// schedule_options fields on GET, so unconfigured import defaults to the v1 fields.
+	importIgnore := []string{"location", "schedule", "schedule_options", "schedule_options_v2"}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduleOptionsV2TimeBased(randomSuffix, "first", firstStartTime, firstEndTime, `["secret_param_1"]`),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.v2_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: importIgnore,
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduleOptionsV2TimeBased(randomSuffix, "second", secondStartTime, secondEndTime, `["secret_param_1", "secret_param_2"]`),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.v2_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: importIgnore,
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_scheduleOptionsV2Manual(randomSuffix),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.v2_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: importIgnore,
+			},
+		},
+	})
+}
+
+func TestAccBigqueryDataTransferConfig_eventDrivenSchedule(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckBigqueryDataTransferConfigDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBigqueryDataTransferConfig_eventDrivenSchedule(randomSuffix, "sub1"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.event_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				Config: testAccBigqueryDataTransferConfig_eventDrivenSchedule(randomSuffix, "sub2"),
+			},
+			{
+				ResourceName:            "google_bigquery_data_transfer_config.event_config",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+		},
+	})
+}
+
+func testAccBigqueryDataTransferConfig_scheduleOptionsV2TimeBased(randomSuffix, scheduleOrd, startTime, endTime, secretParams string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "v2_dataset" {
+  dataset_id    = "tf_test_v2_%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "asia-northeast1"
+}
+
+resource "google_bigquery_table" "v2_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.v2_dataset.dataset_id
+  table_id   = "my_v2_table"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
+resource "google_bigquery_data_transfer_config" "v2_config" {
+  display_name           = "tf-test-v2-%s"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  destination_dataset_id = google_bigquery_dataset.v2_dataset.dataset_id
+
+  schedule_options_v2 {
+    time_based_schedule {
+      schedule   = "%s sunday of quarter 00:00"
+      start_time = "%s"
+      end_time   = "%s"
+    }
+  }
+
+  param_config {
+    secret_manager_managed_params = %s
+  }
+
+  params = {
+    destination_table_name_template = google_bigquery_table.v2_table.table_id
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT 1 AS x"
+  }
+}
+`, randomSuffix, randomSuffix, scheduleOrd, startTime, endTime, secretParams)
+}
+
+func testAccBigqueryDataTransferConfig_scheduleOptionsV2Manual(randomSuffix string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "v2_dataset" {
+  dataset_id    = "tf_test_v2_%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "asia-northeast1"
+}
+
+resource "google_bigquery_table" "v2_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.v2_dataset.dataset_id
+  table_id   = "my_v2_table"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
+resource "google_bigquery_data_transfer_config" "v2_config" {
+  display_name           = "tf-test-v2-%s"
+  location               = "asia-northeast1"
+  data_source_id         = "scheduled_query"
+  destination_dataset_id = google_bigquery_dataset.v2_dataset.dataset_id
+
+  schedule_options_v2 {
+    manual_schedule {}
+  }
+
+  param_config {
+    secret_manager_managed_params = ["secret_param_2"]
+  }
+
+  params = {
+    destination_table_name_template = google_bigquery_table.v2_table.table_id
+    write_disposition               = "WRITE_APPEND"
+    query                           = "SELECT 1 AS x"
+  }
+}
+`, randomSuffix, randomSuffix)
+}
+
+func testAccBigqueryDataTransferConfig_eventDrivenSchedule(randomSuffix, subRef string) string {
+	return fmt.Sprintf(`
+resource "google_bigquery_dataset" "event_dataset" {
+  dataset_id    = "tf_test_event_%s"
+  friendly_name = "foo"
+  description   = "bar"
+  location      = "US"
+}
+
+resource "google_bigquery_table" "event_table" {
+  deletion_protection = false
+
+  dataset_id = google_bigquery_dataset.event_dataset.dataset_id
+  table_id   = "event_table_%s"
+  schema     = <<EOF
+  [
+    { "name": "name", "type": "STRING" },
+    { "name": "x", "type": "INTEGER" }
+  ]
+  EOF
+}
+
+resource "google_pubsub_topic" "event_topic" {
+  name = "tf-test-event-topic-%s"
+}
+
+resource "google_pubsub_subscription" "sub1" {
+  name  = "tf-test-event-sub1-%s"
+  topic = google_pubsub_topic.event_topic.id
+}
+
+resource "google_pubsub_subscription" "sub2" {
+  name  = "tf-test-event-sub2-%s"
+  topic = google_pubsub_topic.event_topic.id
+}
+
+resource "google_bigquery_data_transfer_config" "event_config" {
+  display_name           = "tf-test-event-%s"
+  data_source_id         = "google_cloud_storage"
+  destination_dataset_id = google_bigquery_dataset.event_dataset.dataset_id
+  location               = google_bigquery_dataset.event_dataset.location
+
+  schedule_options_v2 {
+    event_driven_schedule {
+      pubsub_subscription = google_pubsub_subscription.%s.id
+    }
+  }
+
+  params = {
+    data_path_template              = "gs://bq-bucket-%s/*.json"
+    destination_table_name_template = google_bigquery_table.event_table.table_id
+    file_format                     = "JSON"
+    max_bad_records                 = 0
+    write_disposition               = "APPEND"
+  }
+}
+`, randomSuffix, randomSuffix, randomSuffix, randomSuffix, randomSuffix, randomSuffix, subRef, randomSuffix)
+}
