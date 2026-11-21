@@ -196,6 +196,70 @@ resource "google_storage_batch_operations_job" "tf-job" {
 `, context)
 }
 
+func TestAccStorageBatchOperationsJob_storageBatchOperationsRewriteStorageClassExample(t *testing.T) {
+	t.Parallel()
+
+	randomSuffix := acctest.RandString(t, 10)
+
+	context := map[string]interface{}{
+		"bucket_name":   "tf-test-tf-sample-bucket" + randomSuffix,
+		"job_id":        "tf-test-tf-job" + randomSuffix,
+		"random_suffix": randomSuffix,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckStorageBatchOperationsJobDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccStorageBatchOperationsJob_storageBatchOperationsRewriteStorageClassExample(context),
+			},
+			{
+				ResourceName:            "google_storage_batch_operations_job.tf-job",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"delete_protection", "job_id"},
+			},
+			{
+				ResourceName:       "google_storage_batch_operations_job.tf-job",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+		},
+	})
+}
+
+func testAccStorageBatchOperationsJob_storageBatchOperationsRewriteStorageClassExample(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+resource "google_storage_bucket" "bucket" {
+  name                        = "%{bucket_name}"
+  location                    = "us-central1"
+  uniform_bucket_level_access = true
+  force_destroy               = true
+}
+
+resource "google_storage_batch_operations_job" "tf-job" {
+  job_id = "%{job_id}"
+  bucket_list {
+    buckets {
+      bucket = google_storage_bucket.bucket.name
+      prefix_list {
+        included_object_prefixes = [
+          "bkt"
+        ]
+      }
+    }
+  }
+  rewrite_object {
+    storage_class = "NEARLINE"
+  }
+  delete_protection = false
+}
+`, context)
+}
+
 func testAccCheckStorageBatchOperationsJobDestroyProducer(t *testing.T) func(s *terraform.State) error {
 	return func(s *terraform.State) error {
 		for name, rs := range s.RootModule().Resources {

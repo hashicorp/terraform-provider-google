@@ -31,6 +31,7 @@ fields:
     - api_field: putObjectHold.eventBasedHold
     - api_field: putObjectHold.temporaryHold
     - api_field: rewriteObject.kmsKey
+    - api_field: rewriteObject.storageClass
     - api_field: scheduleTime
     - api_field: state
     - api_field: updateTime
