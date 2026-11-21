@@ -249,8 +249,15 @@ The following arguments are supported:
 <a name="nested_rewrite_object"></a>The `rewrite_object` block supports:
 
 * `kms_key` -
-  (Required)
+  (Optional)
   valid kms key
+
+* `storage_class` -
+  (Optional)
+  Rewrites the object to the specified storage class.
+  Setting this field will perform a full byte copy of the object if the storage class is different from the object's current storage class.
+  If Autoclass is enabled on the bucket, storage class changes are ignored by Cloud Storage.
+  Possible values are: `STANDARD`, `NEARLINE`, `COLDLINE`, `ARCHIVE`.
 
 <a name="nested_put_object_hold"></a>The `put_object_hold` block supports:
 

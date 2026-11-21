@@ -370,10 +370,21 @@ See [LoggingConfig](https://cloud.google.com/storage/docs/batch-operations/refer
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"kms_key": {
-							Type:        schema.TypeString,
-							Required:    true,
-							ForceNew:    true,
-							Description: `valid kms key`,
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							Description:  `valid kms key`,
+							AtLeastOneOf: []string{"rewrite_object.0.kms_key", "rewrite_object.0.storage_class"},
+						},
+						"storage_class": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							ForceNew:     true,
+							ValidateFunc: verify.ValidateEnum([]string{"STANDARD", "NEARLINE", "COLDLINE", "ARCHIVE", ""}),
+							Description: `Rewrites the object to the specified storage class.
+Setting this field will perform a full byte copy of the object if the storage class is different from the object's current storage class.
+If Autoclass is enabled on the bucket, storage class changes are ignored by Cloud Storage. Possible values: ["STANDARD", "NEARLINE", "COLDLINE", "ARCHIVE"]`,
+							AtLeastOneOf: []string{"rewrite_object.0.kms_key", "rewrite_object.0.storage_class"},
 						},
 					},
 				},
@@ -933,9 +944,15 @@ func flattenStorageBatchOperationsJobRewriteObject(v interface{}, d *schema.Reso
 	transformed := make(map[string]interface{})
 	transformed["kms_key"] =
 		flattenStorageBatchOperationsJobRewriteObjectKmsKey(original["kmsKey"], d, config)
+	transformed["storage_class"] =
+		flattenStorageBatchOperationsJobRewriteObjectStorageClass(original["storageClass"], d, config)
 	return []interface{}{transformed}
 }
 func flattenStorageBatchOperationsJobRewriteObjectKmsKey(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenStorageBatchOperationsJobRewriteObjectStorageClass(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -1254,10 +1271,21 @@ func expandStorageBatchOperationsJobRewriteObject(v interface{}, d tpgresource.T
 		transformed["kmsKey"] = transformedKmsKey
 	}
 
+	transformedStorageClass, err := expandStorageBatchOperationsJobRewriteObjectStorageClass(original["storage_class"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStorageClass); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["storageClass"] = transformedStorageClass
+	}
+
 	return transformed, nil
 }
 
 func expandStorageBatchOperationsJobRewriteObjectKmsKey(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandStorageBatchOperationsJobRewriteObjectStorageClass(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
 
