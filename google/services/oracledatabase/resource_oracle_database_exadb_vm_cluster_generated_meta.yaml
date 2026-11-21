@@ -21,7 +21,11 @@ fields:
       provider_only: true
     - api_field: gcpOracleZone
     - api_field: identityConnector.connectionState
+    - api_field: identityConnector.identityConnectorId
+    - api_field: identityConnector.lifecycleStateDetails
     - api_field: identityConnector.serviceAgentEmail
+    - api_field: identityConnector.workloadIdentityPool
+    - api_field: identityConnectorDisabled
     - api_field: labels
     - field: location
       provider_only: true

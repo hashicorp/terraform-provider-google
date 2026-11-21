@@ -101,6 +101,7 @@ resource "google_oracle_database_exadb_vm_cluster" "my_exadb_vm_cluster"{
     labels = {
         "label-one" = "value-one"
     }
+    identity_connector_disabled = true
     properties {
         ssh_public_keys = ["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz1X2744t+6vRLmE5u6nHi6/QWh8bQDgHmd+OIxRQIGA/IWUtCs2FnaCNZcqvZkaeyjk5v0lTA/n+9jvO42Ipib53athrfVG8gRt8fzPL66C6ZqHq+6zZophhrCdfJh/0G4x9xJh5gdMprlaCR1P8yAaVvhBQSKGc4SiIkyMNBcHJ5YTtMQMTfxaB4G1sHZ6SDAY9a6Cq/zNjDwfPapWLsiP4mRhE5SSjJX6l6EYbkm0JeLQg+AbJiNEPvrvDp1wtTxzlPJtIivthmLMThFxK7+DkrYFuLvN5AHUdo9KTDLvHtDCvV70r8v0gafsrKkM/OE9Jtzoo0e1N/5K/ZdyFRbAkFT4QSF3nwpbmBWLf2Evg//YyEuxnz4CwPqFST2mucnrCCGCVWp1vnHZ0y30nM35njLOmWdRDFy5l27pKUTwLp02y3UYiiZyP7d3/u5pKiN4vC27VuvzprSdJxWoAvluOiDeRh+/oeQDowxoT/Oop8DzB9uJmjktXw8jyMW2+Rpg+ENQqeNgF1OGlEzypaWiRskEFlkpLb4v/s3ZDYkL1oW0Nv/J8LTjTOTEaYt2Udjoe9x2xWiGnQixhdChWuG+MaoWffzUgx1tsVj/DBXijR5DjkPkrA1GA98zd3q8GKEaAdcDenJjHhNYSd4+rE9pIsnYn7fo5X/tFfcQH1XQ== nobody@google.com"]
         time_zone {
@@ -196,6 +197,14 @@ The following arguments are supported:
   Format: projects/{project}/locations/{location}/odbNetworks/{odb_network}
   It is optional but if specified, this should match the parent ODBNetwork of
   the OdbSubnet.
+
+* `identity_connector_disabled` -
+  (Optional)
+  If set to true, disables the automatic provisioning of the Workload
+  Identity Connector during creation. If set to false or omitted, the
+  Workload Identity Connector will be automatically provisioned by default.
+  Note: Provisioning the Workload Identity Connector is a prerequisite for
+  enabling Google Cloud CMEK.
 
 * `project` - (Optional) The ID of the project in which the resource belongs.
     If it is not provided, the provider project is used.
@@ -403,6 +412,24 @@ In addition to the arguments listed above, the following computed attributes are
   PARTIALLY_CONNECTED
   DISCONNECTED
   UNKNOWN
+
+* `workload_identity_pool` -
+  (Output)
+  The resource name of the Workload Identity Pool configured for identity
+  federation with OCI. This exact pool name can be used to configure VPC
+  Service Controls (VPC-SC) egress rules. Format:
+  `projects/{project}/locations/global/workloadIdentityPools/{workload_identity_pool}`
+
+* `identity_connector_id` -
+  (Output)
+  The unique partner identifier for the Identity Connector, used to
+  establish secure cross-cloud access between Google Cloud and OCI. This
+  corresponds directly to the ID of the OracleDbGcpIdentityConnector
+  resource in Oracle Cloud Infrastructure (OCI).
+
+* `lifecycle_state_details` -
+  (Output)
+  Additional information about the current lifecycle state.
 
 ## Timeouts
 

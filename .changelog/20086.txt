@@ -1,0 +1,11 @@
+```release-note:enhancement
+oracledatabase: added `identity_connector_disabled`, `identity_connector.workload_identity_pool`, `identity_connector.identity_connector_id`, and `identity_connector.lifecycle_state_details` fields to `google_oracle_database_cloud_vm_cluster` resource
+```
+
+```release-note:enhancement
+oracledatabase: added `identity_connector_disabled`, `identity_connector.workload_identity_pool`, `identity_connector.identity_connector_id`, and `identity_connector.lifecycle_state_details` fields to `google_oracle_database_exadb_vm_cluster` resource
+```
+
+```release-note:enhancement
+oracledatabase: added `identity_connector` output fields to `google_oracle_database_cloud_vm_cluster` and `google_oracle_database_cloud_vm_clusters` datasources
+```
