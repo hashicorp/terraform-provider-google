@@ -1,0 +1,16 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_oracle_database_cloud_vm_cluster_identity_connector
+generation_type: mmv1
+source_file: products/oracledatabase/CloudVmClusterIdentityConnector.yaml
+api_service_name: oracledatabase.googleapis.com
+api_version: v1
+api_resource_type_kind: CloudVmClusterIdentityConnector
+fields:
+    - field: cloud_vm_cluster
+      provider_only: true
+    - api_field: enabled
+    - field: location
+      provider_only: true
+    - field: deletion_policy
+      provider_only: true
