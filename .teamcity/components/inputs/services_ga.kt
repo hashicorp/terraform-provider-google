@@ -86,6 +86,11 @@ var ServicesListGa = mapOf(
         "displayName" to "Assuredworkloads",
         "path" to "./google/services/assuredworkloads"
     ),
+    "assuredworkloadsv2" to mapOf(
+        "name" to "assuredworkloadsv2",
+        "displayName" to "Assuredworkloadsv2",
+        "path" to "./google/services/assuredworkloadsv2"
+    ),
     "backupdr" to mapOf(
         "name" to "backupdr",
         "displayName" to "Backupdr",

@@ -70,6 +70,7 @@ type ProviderModel struct {
 	ApphubCustomEndpoint                   types.String `tfsdk:"apphub_custom_endpoint"`
 	ArtifactRegistryCustomEndpoint         types.String `tfsdk:"artifact_registry_custom_endpoint"`
 	AssuredWorkloadsCustomEndpoint         types.String `tfsdk:"assured_workloads_custom_endpoint"`
+	AssuredWorkloadsV2CustomEndpoint       types.String `tfsdk:"assured_workloads_v2_custom_endpoint"`
 	BackupDRCustomEndpoint                 types.String `tfsdk:"backup_dr_custom_endpoint"`
 	BeyondcorpCustomEndpoint               types.String `tfsdk:"beyondcorp_custom_endpoint"`
 	BiglakeCustomEndpoint                  types.String `tfsdk:"biglake_custom_endpoint"`

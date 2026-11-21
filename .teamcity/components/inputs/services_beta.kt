@@ -91,6 +91,11 @@ var ServicesListBeta = mapOf(
         "displayName" to "Assuredworkloads",
         "path" to "./google-beta/services/assuredworkloads"
     ),
+    "assuredworkloadsv2" to mapOf(
+        "name" to "assuredworkloadsv2",
+        "displayName" to "Assuredworkloadsv2",
+        "path" to "./google-beta/services/assuredworkloadsv2"
+    ),
     "backupdr" to mapOf(
         "name" to "backupdr",
         "displayName" to "Backupdr",

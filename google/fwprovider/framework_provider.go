@@ -314,6 +314,12 @@ func (p *FrameworkProvider) Schema(_ context.Context, _ provider.SchemaRequest, 
 					transport_tpg.CustomEndpointValidator(),
 				},
 			},
+			"assured_workloads_v2_custom_endpoint": &schema.StringAttribute{
+				Optional: true,
+				Validators: []validator.String{
+					transport_tpg.CustomEndpointValidator(),
+				},
+			},
 			"backup_dr_custom_endpoint": &schema.StringAttribute{
 				Optional: true,
 				Validators: []validator.String{
