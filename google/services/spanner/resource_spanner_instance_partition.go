@@ -53,6 +53,78 @@ import (
 	"google.golang.org/api/googleapi"
 )
 
+// spannerBackupReferencesInstancePartition reports whether a backup stores data in
+// the instance partition with the given ID. The backup must belong to the
+// partition's instance, because only the ID is compared.
+func spannerBackupReferencesInstancePartition(backup map[string]interface{}, partitionId string) bool {
+	if partitionId == "" {
+		return false
+	}
+	refs, _ := backup["instancePartitions"].([]interface{})
+	for _, raw := range refs {
+		ref, _ := raw.(map[string]interface{})
+		name, _ := ref["instancePartition"].(string)
+		if name != "" && tpgresource.GetResourceNameFromSelfLink(name) == partitionId {
+			return true
+		}
+	}
+	return false
+}
+
+func deleteBackupsReferencingSpannerInstancePartition(d *schema.ResourceData, config *transport_tpg.Config, userAgent, billingProject string) error {
+	listUrl, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/instances/{{instance}}/backups")
+	if err != nil {
+		return err
+	}
+	partitionId := d.Get("name").(string)
+
+	// List every page before deleting, so that deletions cannot shift later pages.
+	var backups []interface{}
+	pageToken := ""
+	for {
+		url := listUrl
+		if pageToken != "" {
+			url, err = transport_tpg.AddQueryParams(listUrl, map[string]string{"pageToken": pageToken})
+			if err != nil {
+				return err
+			}
+		}
+		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+			Config:    config,
+			Method:    "GET",
+			Project:   billingProject,
+			RawURL:    url,
+			UserAgent: userAgent,
+			Timeout:   d.Timeout(schema.TimeoutDelete),
+		})
+		if err != nil {
+			// The instance is gone, and its backups with it.
+			if transport_tpg.IsGoogleApiErrorWithCode(err, 404) {
+				return nil
+			}
+			return fmt.Errorf("Error listing backups that reference InstancePartition %q: %s", d.Id(), err)
+		}
+
+		items, _ := res["backups"].([]interface{})
+		for _, raw := range items {
+			if backup, ok := raw.(map[string]interface{}); ok && spannerBackupReferencesInstancePartition(backup, partitionId) {
+				backups = append(backups, backup)
+			}
+		}
+
+		pageToken, _ = res["nextPageToken"].(string)
+		if pageToken == "" {
+			break
+		}
+	}
+
+	if len(backups) == 0 {
+		return nil
+	}
+
+	return deleteSpannerBackups(d, config, map[string]interface{}{"backups": backups}, userAgent, billingProject)
+}
+
 var (
 	_ = bytes.Clone
 	_ = context.WithCancel
@@ -297,16 +369,10 @@ READY: The instance partition has been allocated resources and is ready for use.
 				ForceNew: true,
 			},
 			"deletion_policy": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
-				Description: `Whether Terraform will be prevented from destroying the instance. Defaults to "DELETE".
-When a 'terraform destroy' or 'terraform apply' would delete the instance,
-the command will fail if this field is set to "PREVENT" in Terraform state.
-When set to "ABANDON", the command will remove the resource from Terraform
-management without updating or deleting the resource in the API.
-When set to "DELETE", deleting the resource is allowed.
-`,
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: `This field uses a custom implementation please refer to documentation under /hashicorp/terraform-provider-google-beta/website/docs/r/spanner_instance_partition.html.markdown for specifics`,
 			},
 		},
 		UseJSONNumber: true,
@@ -742,6 +808,11 @@ func resourceSpannerInstancePartitionDelete(d *schema.ResourceData, meta interfa
 	}
 
 	headers := make(http.Header)
+	if d.Get("deletion_policy").(string) == "FORCE" {
+		if err := deleteBackupsReferencingSpannerInstancePartition(d, config, userAgent, billingProject); err != nil {
+			return err
+		}
+	}
 
 	log.Printf("[DEBUG] Deleting InstancePartition %q", d.Id())
 	res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
@@ -778,6 +849,8 @@ func resourceSpannerInstancePartitionImport(d *schema.ResourceData, meta interfa
 		return nil, fmt.Errorf("Error constructing id: %s", err)
 	}
 	d.SetId(id)
+
+	// Explicitly set virtual fields to default values on import
 
 	return []*schema.ResourceData{d}, nil
 }
