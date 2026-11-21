@@ -306,6 +306,27 @@ Examples: US, EU, asia-northeast1. The default value is US.`,
 				Description: `Pub/Sub topic where notifications will be sent after transfer runs
 associated with this transfer config finish.`,
 			},
+			"param_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `The config for values in 'params'.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"secret_manager_managed_params": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `The list of parameters that are stored in Secret Manager. The value of a
+parameter included in this list will be interpreted as a Secret Manager
+key version resource name instead of a raw value. The raw value will be
+retrieved from Secret Manager upon execution.`,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
 			"schedule": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -363,17 +384,16 @@ limited by this option.`,
 			"schedule_options_v2": {
 				Type:     schema.TypeList,
 				Optional: true,
-				Description: `Options customizing the type of data transfer schedule.
-Only the event-driven schedule is exposed here; time-based and manual
-schedules are configured through the 'schedule' and 'schedule_options'
-fields instead. This field cannot be used together with 'schedule' or
-'schedule_options'.`,
+				Description: `Options customizing different types of data transfer schedule.
+This field supports existing time-based and manual transfer schedule. Also
+supports Event-Driven transfer schedule. ScheduleOptionsV2 cannot be used
+together with schedule_options/schedule.`,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"event_driven_schedule": {
 							Type:     schema.TypeList,
-							Required: true,
+							Optional: true,
 							Description: `Event-driven transfer schedule options. If set, the transfer will be
 scheduled upon events arriving.`,
 							MaxItems: 1,
@@ -388,6 +408,62 @@ projects/{project}/subscriptions/{subscription}.`,
 									},
 								},
 							},
+							ExactlyOneOf: []string{"schedule_options_v2.0.event_driven_schedule", "schedule_options_v2.0.manual_schedule", "schedule_options_v2.0.time_based_schedule"},
+						},
+						"manual_schedule": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Description: `Manual transfer schedule. If set, the transfer run will not be
+auto-scheduled by the system, unless the client invokes
+StartManualTransferRuns. This is equivalent to
+disable_auto_scheduling = true.`,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{},
+							},
+							ExactlyOneOf: []string{"schedule_options_v2.0.event_driven_schedule", "schedule_options_v2.0.manual_schedule", "schedule_options_v2.0.time_based_schedule"},
+						},
+						"time_based_schedule": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Time based transfer schedule options. This is the default schedule option.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"end_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Defines time to stop scheduling transfer runs. A transfer run cannot be
+scheduled at or after the end time. The end time can be changed at any
+moment.`,
+										AtLeastOneOf: []string{"schedule_options_v2.0.time_based_schedule.0.end_time", "schedule_options_v2.0.time_based_schedule.0.schedule", "schedule_options_v2.0.time_based_schedule.0.start_time"},
+									},
+									"schedule": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Data transfer schedule. If the data source does not support a custom
+schedule, this should be empty. If it is empty, the default value for
+the data source will be used. The specified times are in UTC. Examples
+of valid format: 1st,3rd monday of month 15:30, every wed,fri of jan,
+jun 13:15, and first sunday of quarter 00:00. See more explanation
+about the format here:
+https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
+NOTE: The minimum interval time between recurring transfers depends
+on the data source; refer to the documentation for your data source.`,
+										AtLeastOneOf: []string{"schedule_options_v2.0.time_based_schedule.0.end_time", "schedule_options_v2.0.time_based_schedule.0.schedule", "schedule_options_v2.0.time_based_schedule.0.start_time"},
+									},
+									"start_time": {
+										Type:     schema.TypeString,
+										Optional: true,
+										Description: `Specifies time to start scheduling transfer runs. The first run will be
+scheduled at or after the start time according to a recurrence pattern
+defined in the schedule string. The start time can be changed at any
+moment.`,
+										AtLeastOneOf: []string{"schedule_options_v2.0.time_based_schedule.0.end_time", "schedule_options_v2.0.time_based_schedule.0.schedule", "schedule_options_v2.0.time_based_schedule.0.start_time"},
+									},
+								},
+							},
+							ExactlyOneOf: []string{"schedule_options_v2.0.event_driven_schedule", "schedule_options_v2.0.manual_schedule", "schedule_options_v2.0.time_based_schedule"},
 						},
 					},
 				},
@@ -549,6 +625,12 @@ func resourceBigqueryDataTransferConfigCreate(d *schema.ResourceData, meta inter
 		return err
 	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramsProp)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
 		obj["params"] = paramsProp
+	}
+	paramConfigProp, err := expandBigqueryDataTransferConfigParamConfig(d.Get("param_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("param_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(paramConfigProp)) && (ok || !reflect.DeepEqual(v, paramConfigProp)) {
+		obj["paramConfig"] = paramConfigProp
 	}
 
 	obj, err = resourceBigqueryDataTransferConfigEncoder(d, meta, obj)
@@ -831,6 +913,12 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	} else if v, ok := d.GetOkExists("params"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, paramsProp)) {
 		obj["params"] = paramsProp
 	}
+	paramConfigProp, err := expandBigqueryDataTransferConfigParamConfig(d.Get("param_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("param_config"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, paramConfigProp)) {
+		obj["paramConfig"] = paramConfigProp
+	}
 
 	obj, err = resourceBigqueryDataTransferConfigEncoder(d, meta, obj)
 	if err != nil {
@@ -880,6 +968,9 @@ func resourceBigqueryDataTransferConfigUpdate(d *schema.ResourceData, meta inter
 	}
 	if d.HasChange("params") {
 		updateMask = append(updateMask, "params")
+	}
+	if d.HasChange("param_config") {
+		updateMask = append(updateMask, "paramConfig")
 	}
 
 	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
@@ -1060,10 +1151,51 @@ func flattenBigqueryDataTransferConfigScheduleOptionsV2(v interface{}, d *schema
 		return nil
 	}
 	transformed := make(map[string]interface{})
+	transformed["time_based_schedule"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedSchedule(original["timeBasedSchedule"], d, config)
+	transformed["manual_schedule"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsV2ManualSchedule(original["manualSchedule"], d, config)
 	transformed["event_driven_schedule"] =
 		flattenBigqueryDataTransferConfigScheduleOptionsV2EventDrivenSchedule(original["eventDrivenSchedule"], d, config)
 	return []interface{}{transformed}
 }
+func flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["schedule"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleSchedule(original["schedule"], d, config)
+	transformed["start_time"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleStartTime(original["startTime"], d, config)
+	transformed["end_time"] =
+		flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleEndTime(original["endTime"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleStartTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleEndTime(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenBigqueryDataTransferConfigScheduleOptionsV2ManualSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	return []interface{}{transformed}
+}
+
 func flattenBigqueryDataTransferConfigScheduleOptionsV2EventDrivenSchedule(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return nil
@@ -1154,6 +1286,23 @@ func flattenBigqueryDataTransferConfigParams(v interface{}, d *schema.ResourceDa
 	return res
 }
 
+func flattenBigqueryDataTransferConfigParamConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["secret_manager_managed_params"] =
+		flattenBigqueryDataTransferConfigParamConfigSecretManagerManagedParams(original["secretManagerManagedParams"], d, config)
+	return []interface{}{transformed}
+}
+func flattenBigqueryDataTransferConfigParamConfigSecretManagerManagedParams(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
 func expandBigqueryDataTransferConfigDisplayName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -1230,12 +1379,92 @@ func expandBigqueryDataTransferConfigScheduleOptionsV2(v interface{}, d tpgresou
 	original := raw.(map[string]interface{})
 	transformed := make(map[string]interface{})
 
+	transformedTimeBasedSchedule, err := expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedSchedule(original["time_based_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedTimeBasedSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["timeBasedSchedule"] = transformedTimeBasedSchedule
+	}
+
+	transformedManualSchedule, err := expandBigqueryDataTransferConfigScheduleOptionsV2ManualSchedule(original["manual_schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["manualSchedule"] = transformedManualSchedule
+	}
+
 	transformedEventDrivenSchedule, err := expandBigqueryDataTransferConfigScheduleOptionsV2EventDrivenSchedule(original["event_driven_schedule"], d, config)
 	if err != nil {
 		return nil, err
 	} else if val := reflect.ValueOf(transformedEventDrivenSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 		transformed["eventDrivenSchedule"] = transformedEventDrivenSchedule
 	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSchedule, err := expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleSchedule(original["schedule"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSchedule); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["schedule"] = transformedSchedule
+	}
+
+	transformedStartTime, err := expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleStartTime(original["start_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedStartTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["startTime"] = transformedStartTime
+	}
+
+	transformedEndTime, err := expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleEndTime(original["end_time"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEndTime); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["endTime"] = transformedEndTime
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleStartTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsV2TimeBasedScheduleEndTime(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandBigqueryDataTransferConfigScheduleOptionsV2ManualSchedule(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	transformed := make(map[string]interface{})
 
 	return transformed, nil
 }
@@ -1341,6 +1570,32 @@ func expandBigqueryDataTransferConfigParams(v interface{}, d tpgresource.Terrafo
 	return m, nil
 }
 
+func expandBigqueryDataTransferConfigParamConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedSecretManagerManagedParams, err := expandBigqueryDataTransferConfigParamConfigSecretManagerManagedParams(original["secret_manager_managed_params"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["secretManagerManagedParams"] = transformedSecretManagerManagedParams
+	}
+
+	return transformed, nil
+}
+
+func expandBigqueryDataTransferConfigParamConfigSecretManagerManagedParams(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func resourceBigqueryDataTransferConfigEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
 	paramMap, ok := obj["params"]
 	if !ok {
@@ -1412,15 +1667,18 @@ func resourceBigqueryDataTransferConfigDecoder(d *schema.ResourceData, meta inte
 		res["params"] = params
 	}
 
-	// Legacy schedule fields are mirrored into scheduleOptionsV2 by the API.
-	// Drop that mirror because the schema exposes those values through the legacy
-	// fields and only models event-driven schedules in scheduleOptionsV2.
-	if v, ok := res["scheduleOptionsV2"]; ok {
-		if scheduleOptionsV2, ok := v.(map[string]interface{}); ok {
-			if _, hasEventDrivenSchedule := scheduleOptionsV2["eventDrivenSchedule"]; !hasEventDrivenSchedule {
-				delete(res, "scheduleOptionsV2")
-			}
-		}
+	// The BigQuery Data Transfer API mirrors time-based and manual schedules
+	// between v1 (`schedule`, `scheduleOptions`) and v2 (`scheduleOptionsV2`) on
+	// read. Filter out the unconfigured representation so the mutually exclusive
+	// schema fields do not conflict or cause diffs after read.
+	if v, ok := d.Get("schedule_options_v2").([]interface{}); ok && len(v) > 0 && v[0] != nil {
+		delete(res, "schedule")
+		delete(res, "scheduleOptions")
+	} else if v2Map, ok := res["scheduleOptionsV2"].(map[string]interface{}); ok && v2Map["eventDrivenSchedule"] != nil {
+		delete(res, "schedule")
+		delete(res, "scheduleOptions")
+	} else {
+		delete(res, "scheduleOptionsV2")
 	}
 
 	return res, nil
@@ -1647,6 +1905,9 @@ func ResourceBigqueryDataTransferConfigFlatten(d *schema.ResourceData, meta inte
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
 	if err = d.Set("params", flattenBigqueryDataTransferConfigParams(res["params"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Config: %s", err)
+	}
+	if err = d.Set("param_config", flattenBigqueryDataTransferConfigParamConfig(res["paramConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Config: %s", err)
 	}
 

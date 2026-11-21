@@ -204,11 +204,10 @@ The following arguments are supported:
 
 * `schedule_options_v2` -
   (Optional)
-  Options customizing the type of data transfer schedule.
-  Only the event-driven schedule is exposed here; time-based and manual
-  schedules are configured through the `schedule` and `schedule_options`
-  fields instead. This field cannot be used together with `schedule` or
-  `schedule_options`.
+  Options customizing different types of data transfer schedule.
+  This field supports existing time-based and manual transfer schedule. Also
+  supports Event-Driven transfer schedule. ScheduleOptionsV2 cannot be used
+  together with schedule_options/schedule.
   Structure is [documented below](#nested_schedule_options_v2).
 
 * `email_preferences` -
@@ -238,6 +237,11 @@ The following arguments are supported:
 * `disabled` -
   (Optional)
   When set to true, no runs are scheduled for a given transfer.
+
+* `param_config` -
+  (Optional)
+  The config for values in `params`.
+  Structure is [documented below](#nested_param_config).
 
 * `sensitive_params` -
   (Optional)
@@ -298,12 +302,51 @@ The following arguments are supported:
 
 <a name="nested_schedule_options_v2"></a>The `schedule_options_v2` block supports:
 
+* `time_based_schedule` -
+  (Optional)
+  Time based transfer schedule options. This is the default schedule option.
+  Structure is [documented below](#nested_schedule_options_v2_time_based_schedule).
+
+* `manual_schedule` -
+  (Optional)
+  Manual transfer schedule. If set, the transfer run will not be
+  auto-scheduled by the system, unless the client invokes
+  StartManualTransferRuns. This is equivalent to
+  disable_auto_scheduling = true.
+
 * `event_driven_schedule` -
-  (Required)
+  (Optional)
   Event-driven transfer schedule options. If set, the transfer will be
   scheduled upon events arriving.
   Structure is [documented below](#nested_schedule_options_v2_event_driven_schedule).
 
+
+<a name="nested_schedule_options_v2_time_based_schedule"></a>The `time_based_schedule` block supports:
+
+* `schedule` -
+  (Optional)
+  Data transfer schedule. If the data source does not support a custom
+  schedule, this should be empty. If it is empty, the default value for
+  the data source will be used. The specified times are in UTC. Examples
+  of valid format: 1st,3rd monday of month 15:30, every wed,fri of jan,
+  jun 13:15, and first sunday of quarter 00:00. See more explanation
+  about the format here:
+  https://cloud.google.com/appengine/docs/flexible/python/scheduling-jobs-with-cron-yaml#the_schedule_format
+  NOTE: The minimum interval time between recurring transfers depends
+  on the data source; refer to the documentation for your data source.
+
+* `start_time` -
+  (Optional)
+  Specifies time to start scheduling transfer runs. The first run will be
+  scheduled at or after the start time according to a recurrence pattern
+  defined in the schedule string. The start time can be changed at any
+  moment.
+
+* `end_time` -
+  (Optional)
+  Defines time to stop scheduling transfer runs. A transfer run cannot be
+  scheduled at or after the end time. The end time can be changed at any
+  moment.
 
 <a name="nested_schedule_options_v2_event_driven_schedule"></a>The `event_driven_schedule` block supports:
 
@@ -324,6 +367,15 @@ The following arguments are supported:
 * `kms_key_name` -
   (Required)
   The name of the KMS key used for encrypting BigQuery data.
+
+<a name="nested_param_config"></a>The `param_config` block supports:
+
+* `secret_manager_managed_params` -
+  (Optional)
+  The list of parameters that are stored in Secret Manager. The value of a
+  parameter included in this list will be interpreted as a Secret Manager
+  key version resource name instead of a raw value. The raw value will be
+  retrieved from Secret Manager upon execution.
 
 <a name="nested_sensitive_params"></a>The `sensitive_params` block supports:
 
