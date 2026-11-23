@@ -1,0 +1,34 @@
+# Copyright IBM Corp. 2014, 2026
+# SPDX-License-Identifier: MPL-2.0
+resource: google_design_center_application_template
+generation_type: mmv1
+source_file: products/designcenter/ApplicationTemplate.yaml
+api_service_name: designcenter.googleapis.com
+api_version: v1
+api_resource_type_kind: ApplicationTemplate
+fields:
+    - api_field: applicationParameters.key
+    - api_field: applicationParameters.value
+      json: true
+    - field: application_template_id
+      provider_only: true
+    - api_field: compositionType
+    - api_field: createTime
+    - api_field: description
+    - api_field: displayName
+    - api_field: iacFormat
+    - api_field: inputsAsRootModuleVariables
+    - api_field: latestRevision
+    - field: location
+      provider_only: true
+    - api_field: name
+    - api_field: rootInputVariables.componentUri
+    - api_field: rootInputVariables.variable
+    - api_field: rootOutputVariables.componentUri
+    - api_field: rootOutputVariables.variable
+    - api_field: saasRuntimeContext.saasNames
+    - field: space
+      provider_only: true
+    - api_field: updateTime
+    - field: deletion_policy
+      provider_only: true
