@@ -2990,6 +2990,15 @@ resource "google_compute_instance_template" "igm-force" {
   service_account {
     scopes = ["userinfo-email", "compute-ro", "storage-ro"]
   }
+
+  scheduling {
+    graceful_shutdown {
+      enabled = true
+      max_duration {
+        seconds = 60
+      }
+    }
+  }
 }
 
 resource "google_compute_region_instance_group_manager" "igm-force" {

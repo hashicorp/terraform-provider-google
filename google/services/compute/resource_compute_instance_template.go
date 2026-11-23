@@ -51,6 +51,7 @@ var (
 		"scheduling.0.on_instance_stop_action",
 		"scheduling.0.termination_time",
 		"scheduling.0.host_error_timeout_seconds",
+		"scheduling.0.graceful_shutdown",
 		"scheduling.0.preemption_notice_duration",
 		"scheduling.0.local_ssd_recovery_timeout",
 	}
@@ -909,6 +910,51 @@ Must be from 0 to 315,576,000,000 inclusive.`,
 resolution. Durations less than one second are represented
 with a 0 seconds field and a positive nanos field. Must
 be from 0 to 999,999,999 inclusive.`,
+									},
+								},
+							},
+						},
+						"graceful_shutdown": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Settings for the instance to perform a graceful shutdown.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Opts-in for graceful shutdown.`,
+									},
+									"max_duration": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The time allotted for the instance to gracefully shut down.
+										If the graceful shutdown isn't complete after this time, then the instance
+										transitions to the STOPPING state.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"seconds": {
+													Type:     schema.TypeInt,
+													Required: true,
+													ForceNew: true,
+													Description: `Span of time at a resolution of a second.
+													The value must be between 1 and 3600, which is 3,600 seconds (one hour).`,
+												},
+												"nanos": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													ForceNew: true,
+													Description: `Span of time that's a fraction of a second at nanosecond
+													resolution. Durations less than one second are represented
+													with a 0 seconds field and a positive nanos field. Must
+													be from 0 to 999,999,999 inclusive.`,
+												},
+											},
+										},
 									},
 								},
 							},
@@ -2019,7 +2065,20 @@ func resourceComputeInstanceTemplateRead(d *schema.ResourceData, meta interface{
 			return fmt.Errorf("Error converting scheduling: %s", err)
 		}
 		scheduling := flattenScheduling(schedulingMap)
-
+		// Workaroud: API doesn't update the scheduling.graceful_shutdown.max_duration.nanos field.
+		// To avoid diff, we need to set the value from the state not from API response.
+		if nanos, ok := d.GetOk("scheduling.0.graceful_shutdown.0.max_duration.0.nanos"); ok {
+			if len(scheduling) > 0 && scheduling[0]["graceful_shutdown"] != nil {
+				if gs, ok := scheduling[0]["graceful_shutdown"].([]interface{}); ok && len(gs) > 0 && gs[0] != nil {
+					if md, ok := gs[0].(map[string]interface{})["max_duration"].([]interface{}); ok && len(md) > 0 && md[0] != nil {
+						mdMap := md[0].(map[string]interface{})
+						mdMap["nanos"] = int64(nanos.(int))
+						gs[0].(map[string]interface{})["max_duration"] = []interface{}{mdMap}
+						scheduling[0]["graceful_shutdown"] = []interface{}{gs[0]}
+					}
+				}
+			}
+		}
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
 		}

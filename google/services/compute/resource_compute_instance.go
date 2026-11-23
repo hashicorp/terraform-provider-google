@@ -185,6 +185,7 @@ var (
 		"scheduling.0.max_run_duration",
 		"scheduling.0.on_instance_stop_action",
 		"scheduling.0.host_error_timeout_seconds",
+		"scheduling.0.graceful_shutdown",
 		"scheduling.0.preemption_notice_duration",
 		"scheduling.0.local_ssd_recovery_timeout",
 	}
@@ -1307,6 +1308,47 @@ be from 0 to 999,999,999 inclusive.`,
 								},
 							},
 						},
+						"graceful_shutdown": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							Description: `Settings for the instance to perform a graceful shutdown.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										Description: `Opts-in for graceful shutdown.`,
+									},
+									"max_duration": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The time allotted for the instance to gracefully shut down.
+										If the graceful shutdown isn't complete after this time, then the instance
+										transitions to the STOPPING state.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"seconds": {
+													Type:     schema.TypeInt,
+													Required: true,
+													Description: `Span of time at a resolution of a second.
+													The value must be between 1 and 3600, which is 3,600 seconds (one hour).`,
+												},
+												"nanos": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													Description: `Span of time that's a fraction of a second at nanosecond
+													resolution. Durations less than one second are represented
+													with a 0 seconds field and a positive nanos field. Must
+													be from 0 to 999,999,999 inclusive.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 
 						"preemption_notice_duration": {
 							Type:         schema.TypeList,
@@ -2146,6 +2188,10 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
+	// Read from state before calling the helper, which will overwrite scheduling with the API
+	// response. The API doesn't persist nanos, so we restore it afterward to avoid a diff.
+	savedNanos, hadNanos := d.GetOk("scheduling.0.graceful_shutdown.0.max_duration.0.nanos")
+
 	instanceZone, _ := instance["zone"].(string)
 	zone := tpgresource.GetResourceNameFromSelfLink(instanceZone)
 
@@ -2183,6 +2229,21 @@ func resourceComputeInstanceRead(d *schema.ResourceData, meta interface{}) error
 		"type": "ssh",
 		"host": sshIP,
 	})
+
+	// Workaround: restore nanos from state since the API doesn't persist it (see comment above).
+	if hadNanos {
+		schedulingMap, _ := instance["scheduling"].(map[string]interface{})
+		scheduling := flattenScheduling(schedulingMap)
+		graceful_shutdown := scheduling[0]["graceful_shutdown"].([]interface{})[0].(map[string]interface{})
+		max_duration := graceful_shutdown["max_duration"].([]interface{})[0].(map[string]interface{})
+		max_duration["nanos"] = int64(savedNanos.(int))
+
+		graceful_shutdown["max_duration"] = []interface{}{max_duration}
+		scheduling[0]["graceful_shutdown"] = []interface{}{graceful_shutdown}
+		if err := d.Set("scheduling", scheduling); err != nil {
+			return fmt.Errorf("Error setting scheduling: %s", err)
+		}
+	}
 
 	instanceName, _ := instance["name"].(string)
 	d.SetId(fmt.Sprintf("projects/%s/zones/%s/instances/%s", project, zone, instanceName))
@@ -2396,8 +2457,19 @@ func populateComputeInstanceResourceData(d *schema.ResourceData, instance map[st
 		return fmt.Errorf("Error setting scratch_disk: %s", err)
 	}
 
+	// Workaroud: API doesn't update the scheduling.graceful_shutdown.max_duration.nanos field.
+	// To avoid diff, we need to set the value from the state not from API response.
 	schedulingMap, _ := instance["scheduling"].(map[string]interface{})
-	if err := d.Set("scheduling", flattenScheduling(schedulingMap)); err != nil {
+	scheduling := flattenScheduling(schedulingMap)
+	if nanos, ok := d.GetOk("scheduling.0.graceful_shutdown.0.max_duration.0.nanos"); ok {
+		graceful_shutdown := scheduling[0]["graceful_shutdown"].([]interface{})[0].(map[string]interface{})
+		max_duration := graceful_shutdown["max_duration"].([]interface{})[0].(map[string]interface{})
+		max_duration["nanos"] = int64(nanos.(int))
+
+		graceful_shutdown["max_duration"] = []interface{}{max_duration}
+		scheduling[0]["graceful_shutdown"] = []interface{}{graceful_shutdown}
+	}
+	if err := d.Set("scheduling", scheduling); err != nil {
 		return fmt.Errorf("Error setting scheduling: %s", err)
 	}
 

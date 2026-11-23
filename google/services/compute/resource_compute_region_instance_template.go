@@ -883,6 +883,51 @@ be from 0 to 999,999,999 inclusive.`,
 								},
 							},
 						},
+						"graceful_shutdown": {
+							Type:        schema.TypeList,
+							Optional:    true,
+							ForceNew:    true,
+							Description: `Settings for the instance to perform a graceful shutdown.`,
+							MaxItems:    1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"enabled": {
+										Type:        schema.TypeBool,
+										Required:    true,
+										ForceNew:    true,
+										Description: `Opts-in for graceful shutdown.`,
+									},
+									"max_duration": {
+										Type:     schema.TypeList,
+										Optional: true,
+										Description: `The time allotted for the instance to gracefully shut down.
+										If the graceful shutdown isn't complete after this time, then the instance
+										transitions to the STOPPING state.`,
+										MaxItems: 1,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"seconds": {
+													Type:     schema.TypeInt,
+													Required: true,
+													ForceNew: true,
+													Description: `Span of time at a resolution of a second.
+													The value must be between 1 and 3600, which is 3,600 seconds (one hour).`,
+												},
+												"nanos": {
+													Type:     schema.TypeInt,
+													Optional: true,
+													ForceNew: true,
+													Description: `Span of time that's a fraction of a second at nanosecond
+													resolution. Durations less than one second are represented
+													with a 0 seconds field and a positive nanos field. Must
+													be from 0 to 999,999,999 inclusive.`,
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 
 						"preemption_notice_duration": {
 							Type:         schema.TypeList,
@@ -1627,7 +1672,17 @@ func resourceComputeRegionInstanceTemplateRead(d *schema.ResourceData, meta inte
 	}
 	if properties["scheduling"] != nil {
 		scheduling := FlattenSchedulingHTTP(properties["scheduling"].(map[string]interface{}))
-
+		if nanos, ok := d.GetOk("scheduling.0.graceful_shutdown.0.max_duration.0.nanos"); ok {
+			if len(scheduling) > 0 && scheduling[0]["graceful_shutdown"] != nil {
+				if gs, ok := scheduling[0]["graceful_shutdown"].([]map[string]interface{}); ok && len(gs) > 0 && gs[0] != nil {
+					if md, ok := gs[0]["max_duration"].([]map[string]interface{}); ok && len(md) > 0 && md[0] != nil {
+						md[0]["nanos"] = nanos.(int)
+						gs[0]["max_duration"] = []map[string]interface{}{md[0]}
+						scheduling[0]["graceful_shutdown"] = []map[string]interface{}{gs[0]}
+					}
+				}
+			}
+		}
 		if err = d.Set("scheduling", scheduling); err != nil {
 			return fmt.Errorf("Error setting scheduling: %s", err)
 		}

@@ -303,6 +303,20 @@ The `disk_encryption_key` block supports:
 
 * `instance_termination_action` - Describe the type of termination action for `SPOT` VM. Can be `STOP` or `DELETE`.  Read more on [here](https://cloud.google.com/compute/docs/instances/create-use-spot) 
 
+* `graceful_shutdown` - Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
+
+<a name="nested_graceful_shutdown"></a>The `graceful_shutdown` block supports:
+
+* `enabled` - Opts-in for graceful shutdown.
+
+* `max_duration` - The time allotted for the instance to gracefully shut down. Structure is [documented below](#nested_max_duration).
+
+<a name="nested_max_duration"></a>The `max_duration` block supports:
+
+* `seconds` - Span of time at a resolution of a second.
+
+* `nanos` - Span of time that's a fraction of a second at nanosecond resolution.
+
 <a name="nested_guest_accelerator"></a>The `guest_accelerator` block supports:
 
 * `type` - The accelerator type resource to expose to this instance. E.g. `nvidia-tesla-k80`.
