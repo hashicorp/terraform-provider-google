@@ -1970,6 +1970,77 @@ func TestAccComputeInstanceTemplate_keyRevocationActionType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstanceTemplate_gracefulShutdown(t *testing.T) {
+	t.Parallel()
+
+	var instanceTemplate map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-instance-%s", acctest.RandString(t, 10))
+
+	acceptableByApi_1 := map[string]interface{}{
+		"instance_name": instanceName,
+		"enabled":       true,
+		"seconds":       1,
+		"nanos":         1000000,
+	}
+	invalid_1 := map[string]interface{}{
+		"instance_name": instanceName,
+		"enabled":       true,
+		"seconds":       nil,
+		"nanos":         nil,
+	}
+	invalid_2 := map[string]interface{}{
+		"instance_name": instanceName,
+		"enabled":       nil,
+		"seconds":       nil,
+		"nanos":         nil,
+	}
+	invalid_3 := map[string]interface{}{
+		"instance_name": instanceName,
+		"enabled":       true,
+		"seconds":       86400,
+		"nanos":         1000000,
+	}
+	invalid_4 := map[string]interface{}{
+		"instance_name": instanceName,
+		"enabled":       true,
+		"seconds":       0,
+		"nanos":         1000000000,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceTemplateDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstanceTemplate_gracefulShutdown(invalid_1),
+				ExpectError: regexp.MustCompile("The argument \"scheduling\\.0\\.graceful_shutdown\\.0\\.max_duration\\.0\\.seconds\" is\\s+required, but no definition was found\\."),
+			},
+			{
+				Config:      testAccComputeInstanceTemplate_gracefulShutdown(invalid_2),
+				ExpectError: regexp.MustCompile("The argument \"scheduling\\.0\\.graceful_shutdown\\.0\\.enabled\" is\\s+required, but no\\s+definition was found\\."),
+			},
+			{
+				Config:      testAccComputeInstanceTemplate_gracefulShutdown(invalid_3),
+				ExpectError: regexp.MustCompile("must be more than 1 second in the future and less than 6 hours., invalid"),
+			},
+			{
+				Config:      testAccComputeInstanceTemplate_gracefulShutdown(invalid_4),
+				ExpectError: regexp.MustCompile("Must be less than or equal to 999999999"),
+			},
+			{
+				Config: testAccComputeInstanceTemplate_gracefulShutdown(acceptableByApi_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceTemplateExists(t, "google_compute_instance_template.foobar", &instanceTemplate),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "scheduling.0.graceful_shutdown.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.seconds", "1"),
+					resource.TestCheckResourceAttr("google_compute_instance_template.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.nanos", "1000000"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstanceTemplate_schedulingPreemptionNoticeDuration(t *testing.T) {
 	t.Parallel()
 
@@ -5462,6 +5533,54 @@ resource "google_compute_instance_template" "foobar" {
   network_interface {
     network_attachment = "%{network_attachment}"
     service_class_id   = "%{service_class_id}"
+  }
+}
+`, context)
+}
+
+func testAccComputeInstanceTemplate_gracefulShutdown(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+  family  = "debian-13"
+  project = "debian-cloud"
+}
+
+resource "google_compute_instance_template" "foobar" {
+  name           = "%{instance_name}"
+  machine_type   = "e2-medium"
+  can_ip_forward = false
+  tags           = ["foo", "bar"]
+
+  disk {
+    source_image = data.google_compute_image.my_image.self_link
+    auto_delete  = true
+    boot         = true
+  }
+
+  network_interface {
+    network = "default"
+  }
+
+  scheduling {
+	graceful_shutdown {
+	  enabled = %{enabled}
+	  max_duration {
+		seconds = %{seconds}
+		nanos   = %{nanos}
+	  }
+	}
+  }
+
+  metadata = {
+    foo = "bar"
+  }
+
+  service_account {
+    scopes = ["userinfo-email", "compute-ro", "storage-ro"]
+  }
+
+  labels = {
+    my_label = "foobar"
   }
 }
 `, context)

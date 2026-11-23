@@ -4830,6 +4830,193 @@ func TestAccComputeInstance_keyRevocationActionType(t *testing.T) {
 	})
 }
 
+func TestAccComputeInstance_GracefulShutdownWithResetUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acceptableByApi_1 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": true,
+		"enabled":                   true,
+		"seconds":                   1,
+		"nanos":                     nil,
+	}
+	acceptableByApi_2 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": true,
+		"enabled":                   false,
+		"seconds":                   1,
+		"nanos":                     1000,
+	}
+	acceptableByApi_3 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": true,
+		"enabled":                   false,
+		"seconds":                   100,
+		"nanos":                     nil,
+	}
+	ivalid_1 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": true,
+		"enabled":                   true,
+		"seconds":                   86400,
+		"nanos":                     nil,
+	}
+	ivalid_2 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": true,
+		"enabled":                   true,
+		"seconds":                   0,
+		"nanos":                     1000000000,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccComputeInstance_GracefulShutdownUpdate(acceptableByApi_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "allow_stopping_for_update", "true"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.seconds", "1"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_GracefulShutdownUpdate(acceptableByApi_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "allow_stopping_for_update", "true"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.nanos", "1000"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_GracefulShutdownUpdate(acceptableByApi_3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "allow_stopping_for_update", "true"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.seconds", "100"),
+				),
+			},
+			{
+				Config:      testAccComputeInstance_GracefulShutdownUpdate(ivalid_1),
+				ExpectError: regexp.MustCompile("must be more than 1 second in the future and less than 6 hours., invalid"),
+			},
+			{
+				Config:      testAccComputeInstance_GracefulShutdownUpdate(ivalid_2),
+				ExpectError: regexp.MustCompile("Must be less than or equal to 999999999"),
+			},
+		},
+	})
+}
+
+func TestAccComputeInstance_GracefulShutdownWithoutResetUpdate(t *testing.T) {
+	t.Parallel()
+
+	var instance map[string]interface{}
+	instanceName := fmt.Sprintf("tf-test-%s", acctest.RandString(t, 10))
+	acceptableByApi_1 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   true,
+		"seconds":                   1,
+		"nanos":                     nil,
+	}
+	acceptableByApi_2 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   false,
+		"seconds":                   1,
+		"nanos":                     1000,
+	}
+	acceptableByApi_3 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   false,
+		"seconds":                   100,
+		"nanos":                     nil,
+	}
+	ivalid_1 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   true,
+		"seconds":                   nil,
+		"nanos":                     nil,
+	}
+	ivalid_2 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   nil,
+		"seconds":                   nil,
+		"nanos":                     nil,
+	}
+	ivalid_3 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   true,
+		"seconds":                   86400,
+		"nanos":                     nil,
+	}
+	ivalid_4 := map[string]interface{}{
+		"instance_name":             instanceName,
+		"allow_stopping_for_update": nil,
+		"enabled":                   true,
+		"seconds":                   0,
+		"nanos":                     1000000000,
+	}
+
+	acctest.VcrTest(t, resource.TestCase{
+		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
+		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		CheckDestroy:             testAccCheckComputeInstanceDestroyProducer(t),
+		Steps: []resource.TestStep{
+			{
+				Config:      testAccComputeInstance_GracefulShutdownUpdate(ivalid_1),
+				ExpectError: regexp.MustCompile("The argument \"scheduling\\.0\\.graceful_shutdown\\.0\\.max_duration\\.0\\.seconds\" is\\s+required, but no definition was found\\."),
+			},
+			{
+				Config:      testAccComputeInstance_GracefulShutdownUpdate(ivalid_2),
+				ExpectError: regexp.MustCompile("The argument \"scheduling\\.0\\.graceful_shutdown\\.0\\.enabled\" is\\s+required, but no\\s+definition was found\\."),
+			},
+			{
+				Config: testAccComputeInstance_GracefulShutdownUpdate(acceptableByApi_1),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.enabled", "true"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.seconds", "1"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_GracefulShutdownUpdate(acceptableByApi_2),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.enabled", "false"),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.nanos", "1000"),
+				),
+			},
+			{
+				Config: testAccComputeInstance_GracefulShutdownUpdate(acceptableByApi_3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckComputeInstanceExists(t, "google_compute_instance.foobar", &instance),
+					resource.TestCheckResourceAttr("google_compute_instance.foobar", "scheduling.0.graceful_shutdown.0.max_duration.0.seconds", "100"),
+				),
+			},
+			{
+				Config:      testAccComputeInstance_GracefulShutdownUpdate(ivalid_3),
+				ExpectError: regexp.MustCompile("must be more than 1 second in the future and less than 6 hours., invalid"),
+			},
+			{
+				Config:      testAccComputeInstance_GracefulShutdownUpdate(ivalid_4),
+				ExpectError: regexp.MustCompile("Must be less than or equal to 999999999"),
+			},
+		},
+	})
+}
+
 func TestAccComputeInstance_preemptionNoticeDuration(t *testing.T) {
 	t.Parallel()
 
@@ -4852,6 +5039,42 @@ func TestAccComputeInstance_preemptionNoticeDuration(t *testing.T) {
 			computeInstanceImportStep("us-central1-a", instanceName, []string{}),
 		},
 	})
+}
+
+func testAccComputeInstance_GracefulShutdownUpdate(context map[string]interface{}) string {
+	return acctest.Nprintf(`
+data "google_compute_image" "my_image" {
+	family  = "debian-13"
+	project = "debian-cloud"
+}
+resource "google_compute_instance" "foobar" {
+	name                      = "%{instance_name}"
+	machine_type              = "e2-medium"
+	zone                      = "us-central1-a"
+	allow_stopping_for_update = %{allow_stopping_for_update}
+
+	boot_disk {
+		initialize_params {
+			image = data.google_compute_image.my_image.self_link
+		}
+	}
+
+	network_interface {
+		network = "default"
+		access_config {}
+	}
+
+	scheduling {
+		graceful_shutdown {
+			enabled = %{enabled}
+			max_duration {
+				seconds = %{seconds}
+				nanos   = %{nanos}
+			}
+		}
+	}
+}
+`, context)
 }
 
 func testAccComputeInstance_preemptionNoticeDuration(instance string) string {

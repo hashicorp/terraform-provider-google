@@ -729,7 +729,7 @@ specified, then this instance will have no external IPv6 Internet access. Struct
 
 * `local_ssd_recovery_timeout` -  (Optional) (../guides/provider_versions.html.markdown) Specifies the maximum amount of time a Local Ssd Vm should wait while recovery of the Local Ssd state is attempted. Its value should be in between 0 and 168 hours with hour granularity and the default value being 1 hour. Structure is [documented below](#nested_local_ssd_recovery_timeout).
 
-* `graceful_shutdown` -  (Optional) [Beta](../guides/provider_versions.html.markdown) Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
+* `graceful_shutdown` - (Optional) Settings for the instance to perform a graceful shutdown. Structure is [documented below](#nested_graceful_shutdown).
 
 * `skip_guest_os_shutdown` - (Optional) [Beta](../guides/provider_versions.html.markdown) Boolean parameter. Default is false and there will be 120 seconds between GCE ACPI G2 Soft Off and ACPI G3 Mechanical Off for Standard VMs and 30 seconds for Spot VMs.
 

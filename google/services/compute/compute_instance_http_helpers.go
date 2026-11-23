@@ -349,6 +349,23 @@ func FlattenSchedulingHTTP(resp map[string]interface{}) []map[string]interface{}
 		}
 	}
 
+	if gracefulRaw, ok := resp["gracefulShutdown"]; ok && gracefulRaw != nil {
+		graceful := gracefulRaw.(map[string]interface{})
+		graceMap := map[string]interface{}{
+			"enabled": graceful["enabled"],
+		}
+		if maxDurRaw, ok := graceful["maxDuration"]; ok && maxDurRaw != nil {
+			maxDur := maxDurRaw.(map[string]interface{})
+			graceMap["max_duration"] = []map[string]interface{}{
+				{
+					"seconds": ParseIntHTTP(maxDur["seconds"]),
+					"nanos":   ParseIntHTTP(maxDur["nanos"]),
+				},
+			}
+		}
+		schedulingMap["graceful_shutdown"] = []map[string]interface{}{graceMap}
+	}
+
 	if pndRaw, ok := resp["preemptionNoticeDuration"]; ok && pndRaw != nil {
 		pnd := pndRaw.(map[string]interface{})
 		schedulingMap["preemption_notice_duration"] = []map[string]interface{}{
