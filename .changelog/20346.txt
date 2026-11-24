@@ -1,0 +1,6 @@
+```release-note:enhancement
+compute: added `generated_id` output attribute to `google_compute_region_network_endpoint_group` (resource and data source)
+```
+```release-note:enhancement
+compute: added `generated_id` output attribute to `google_compute_global_network_endpoint_group`
+```

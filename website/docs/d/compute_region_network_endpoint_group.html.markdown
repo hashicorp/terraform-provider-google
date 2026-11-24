@@ -60,3 +60,4 @@ In addition the arguments listed above, the following attributes are exported:
 * `psc_target_service` - The target service url used to set up private service connection to a Google API or a PSC Producer Service Attachment.
 * `default_port` - The RNEG default port.
 * `size` - Number of network endpoints in the network endpoint group.
+* `generated_id` - The uniquely generated identifier for the resource. This identifier is defined by the server.

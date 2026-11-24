@@ -9,6 +9,8 @@ api_resource_type_kind: NetworkEndpointGroup
 fields:
     - api_field: defaultPort
     - api_field: description
+    - api_field: id
+      field: generated_id
     - api_field: name
     - api_field: networkEndpointType
     - api_field: selfLink
