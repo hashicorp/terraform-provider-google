@@ -45,7 +45,7 @@ The following arguments are supported:
   Name of the Gateway resource.
 
 * `location` -
-  (Optional)
+  (Required)
   The location of the gateway.
   The default value is `global`.
 
