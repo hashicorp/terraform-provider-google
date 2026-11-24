@@ -1,0 +1,12 @@
+```release-note:new-resource
+`google_discovery_engine_data_store_iam_binding`
+```
+```release-note:new-resource
+`google_discovery_engine_data_store_iam_member`
+```
+```release-note:new-resource
+`google_discovery_engine_data_store_iam_policy`
+```
+```release-note:new-datasource
+`google_discovery_engine_data_store_iam_policy`
+```
