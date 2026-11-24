@@ -52,3 +52,81 @@ func TestBiglakeIcebergIcebergTableSchemaFieldsType(t *testing.T) {
 		t.Error("expand: expected an error for invalid JSON")
 	}
 }
+
+func TestBiglakeIcebergIcebergTablePartitionFieldsWithIds(t *testing.T) {
+	field := func(sourceId interface{}, transform string) map[string]interface{} {
+		return map[string]interface{}{"source-id": sourceId, "name": transform, "transform": transform}
+	}
+	withId := func(f map[string]interface{}, id interface{}) map[string]interface{} {
+		f["field-id"] = id
+		return f
+	}
+	// Specs as returned by the API: numbers decode as float64.
+	specs := []interface{}{
+		map[string]interface{}{"spec-id": float64(0), "fields": []interface{}{
+			withId(field(float64(1), "bucket[8]"), float64(1000)),
+		}},
+		map[string]interface{}{"spec-id": float64(1), "fields": []interface{}{
+			withId(field(float64(3), "day"), float64(1001)),
+		}},
+	}
+
+	cases := map[string]struct {
+		Fields          []interface{}
+		Specs           []interface{}
+		LastPartitionId int
+		Want            []interface{}
+		WantLast        int
+	}{
+		"unpartitioned to partitioned": {
+			Fields:          []interface{}{field(1, "bucket[8]")},
+			LastPartitionId: 999,
+			Want:            []interface{}{withId(field(1, "bucket[8]"), 1000)},
+			WantLast:        1000,
+		},
+		"new fields get the next ids": {
+			Fields:          []interface{}{field(1, "bucket[8]"), field(2, "identity"), field(3, "hour")},
+			Specs:           specs,
+			LastPartitionId: 1001,
+			Want: []interface{}{
+				withId(field(1, "bucket[8]"), 1000),
+				withId(field(2, "identity"), 1002),
+				withId(field(3, "hour"), 1003),
+			},
+			WantLast: 1003,
+		},
+		"a field from an older spec reuses its id": {
+			Fields:          []interface{}{field(3, "day"), field(1, "bucket[8]")},
+			Specs:           specs,
+			LastPartitionId: 1001,
+			Want: []interface{}{
+				withId(field(3, "day"), 1001),
+				withId(field(1, "bucket[8]"), 1000),
+			},
+			WantLast: 1001,
+		},
+		"stale field ids from state are replaced": {
+			Fields:          []interface{}{withId(field(2, "identity"), 1000)},
+			Specs:           specs,
+			LastPartitionId: 1001,
+			Want:            []interface{}{withId(field(2, "identity"), 1002)},
+			WantLast:        1002,
+		},
+		"same source with a different transform is a new field": {
+			Fields:          []interface{}{field(1, "bucket[16]")},
+			Specs:           specs,
+			LastPartitionId: 1001,
+			Want:            []interface{}{withId(field(1, "bucket[16]"), 1002)},
+			WantLast:        1002,
+		},
+	}
+
+	for tn, tc := range cases {
+		t.Run(tn, func(t *testing.T) {
+			got, gotLast := icebergTablePartitionFieldsWithIds(tc.Fields, tc.Specs, tc.LastPartitionId)
+			if !reflect.DeepEqual(got, tc.Want) || gotLast != tc.WantLast {
+				t.Errorf("got %#v (last %d), want %#v (last %d)", got, gotLast, tc.Want, tc.WantLast)
+			}
+		})
+	}
+}
