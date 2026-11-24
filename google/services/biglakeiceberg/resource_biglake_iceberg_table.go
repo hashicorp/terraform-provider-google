@@ -120,6 +120,76 @@ func expandIcebergTableSortOrderForCommit(v interface{}) map[string]interface{} 
 	}
 }
 
+// icebergTableInt converts a numeric value from config (int) or from a JSON
+// response (json.Number or float64) to an int.
+func icebergTableInt(v interface{}) (int, bool) {
+	switch n := v.(type) {
+	case int:
+		return n, true
+	case float64:
+		return int(n), true
+	case json.Number:
+		i, err := n.Int64()
+		return int(i), err == nil
+	}
+	return 0, false
+}
+
+// icebergTablePartitionFieldsWithIds returns a copy of the partition spec
+// fields of an "add-spec" update with a "field-id" set on each one, and the
+// table's new last assigned partition id. The server keeps the ids it is sent,
+// and Iceberg v2 partition field ids must be unique across all of a table's
+// specs. So, as Iceberg's reference implementation does, a field with the same
+// source id and transform as a field in any existing spec reuses that field's
+// id, and any other field gets the next id after lastPartitionId.
+func icebergTablePartitionFieldsWithIds(fields, existingSpecs []interface{}, lastPartitionId int) ([]interface{}, int) {
+	existingIds := map[string]int{}
+	for _, s := range existingSpecs {
+		spec, ok := s.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		specFields, _ := spec["fields"].([]interface{})
+		for _, f := range specFields {
+			field, ok := f.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			sourceId, ok1 := icebergTableInt(field["source-id"])
+			fieldId, ok2 := icebergTableInt(field["field-id"])
+			if !ok1 || !ok2 {
+				continue
+			}
+			key := fmt.Sprintf("%d/%v", sourceId, field["transform"])
+			if _, seen := existingIds[key]; !seen {
+				existingIds[key] = fieldId
+			}
+		}
+	}
+
+	result := make([]interface{}, 0, len(fields))
+	for _, f := range fields {
+		field, ok := f.(map[string]interface{})
+		if !ok {
+			result = append(result, f)
+			continue
+		}
+		withId := make(map[string]interface{}, len(field))
+		for k, v := range field {
+			withId[k] = v
+		}
+		sourceId, _ := icebergTableInt(field["source-id"])
+		if id, ok := existingIds[fmt.Sprintf("%d/%v", sourceId, field["transform"])]; ok {
+			withId["field-id"] = id
+		} else {
+			lastPartitionId++
+			withId["field-id"] = lastPartitionId
+		}
+		result = append(result, withId)
+	}
+	return result, lastPartitionId
+}
+
 // addIcebergTableAccessDelegationHeader sets the X-Iceberg-Access-Delegation
 // header that the Iceberg REST catalog requires for every table operation when
 // the parent catalog uses credential_mode = CREDENTIAL_MODE_VENDED_CREDENTIALS.
@@ -146,6 +216,58 @@ func addIcebergTableAccessDelegationHeader(d *schema.ResourceData, config *trans
 	if mode, ok := catalog["credential-mode"].(string); ok && mode == "CREDENTIAL_MODE_VENDED_CREDENTIALS" {
 		headers.Add("X-Iceberg-Access-Delegation", "vended-credentials")
 	}
+	return nil
+}
+
+// assignIcebergTablePartitionFieldIds sets the partition field ids of the
+// "add-spec" update in a CommitTableRequest from the table's current metadata,
+// and requires that the table's last assigned partition id is unchanged when
+// the commit is applied, so a concurrent spec change can't take the same ids.
+func assignIcebergTablePartitionFieldIds(d *schema.ResourceData, config *transport_tpg.Config, billingProject, userAgent string, headers http.Header, obj map[string]interface{}) error {
+	updates, _ := obj["updates"].([]interface{})
+	var spec map[string]interface{}
+	for _, u := range updates {
+		if update, ok := u.(map[string]interface{}); ok && update["action"] == "add-spec" {
+			spec, _ = update["spec"].(map[string]interface{})
+		}
+	}
+	if spec == nil {
+		return nil
+	}
+
+	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"iceberg/v1/restcatalog/v1/projects/{{project}}/catalogs/{{catalog}}/namespaces/{{namespace}}/tables/{{name}}")
+	if err != nil {
+		return err
+	}
+	table, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
+		Config:    config,
+		Method:    "GET",
+		Project:   billingProject,
+		RawURL:    url,
+		UserAgent: userAgent,
+		Headers:   headers,
+	})
+	if err != nil {
+		return fmt.Errorf("Error reading IcebergTable to assign partition field ids: %s", err)
+	}
+	metadata, ok := table["metadata"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("Error reading IcebergTable to assign partition field ids: response has no metadata")
+	}
+	lastPartitionId, ok := icebergTableInt(metadata["last-partition-id"])
+	if !ok {
+		return fmt.Errorf("Error reading IcebergTable to assign partition field ids: metadata has no last-partition-id")
+	}
+	existingSpecs, _ := metadata["partition-specs"].([]interface{})
+
+	fields, _ := spec["fields"].([]interface{})
+	spec["fields"], _ = icebergTablePartitionFieldsWithIds(fields, existingSpecs, lastPartitionId)
+
+	requirements, _ := obj["requirements"].([]interface{})
+	obj["requirements"] = append(requirements, map[string]interface{}{
+		"type":                       "assert-last-assigned-partition-id",
+		"last-assigned-partition-id": lastPartitionId,
+	})
 	return nil
 }
 
@@ -924,6 +1046,11 @@ func resourceBiglakeIcebergIcebergTableUpdate(d *schema.ResourceData, meta inter
 
 	if err := addIcebergTableAccessDelegationHeader(d, config, billingProject, userAgent, headers); err != nil {
 		return err
+	}
+	if d.HasChange("partition_spec") && obj != nil {
+		if err := assignIcebergTablePartitionFieldIds(d, config, billingProject, userAgent, headers, obj); err != nil {
+			return err
+		}
 	}
 	if parts := regexp.MustCompile(`projects\/([^\/]+)\/`).FindStringSubmatch(url); parts != nil {
 		billingProject = parts[1]
@@ -1708,8 +1835,85 @@ func resourceBiglakeIcebergIcebergTableEncoder(d *schema.ResourceData, meta inte
 }
 
 func resourceBiglakeIcebergIcebergTableUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	// Accumulate the metadata update actions of a CommitTableRequest.
+	// Accumulate the requirements and metadata update actions of a
+	// CommitTableRequest. The server applies updates in order, and partition
+	// specs and sort orders are bound against the current schema, so a schema
+	// change must come before a partition spec or sort order change that
+	// references its new columns.
+	requirements := []interface{}{}
 	updateActions := []interface{}{}
+
+	if d.HasChange("schema") {
+		if schema, ok := obj["schema"].(map[string]interface{}); ok {
+			// After an earlier update, state still holds the previous schema id.
+			// The server assigns the new one, so don't send it.
+			delete(schema, "schema-id")
+			// Fail the commit rather than replace a schema that changed outside
+			// Terraform since the last refresh.
+			oldId, _ := d.GetChange("schema.0.schema_id")
+			requirements = append(requirements, map[string]interface{}{
+				"type":              "assert-current-schema-id",
+				"current-schema-id": oldId,
+			})
+			// The server assigns the new schema id, so "-1" selects the last added.
+			updateActions = append(updateActions,
+				map[string]interface{}{
+					"action": "add-schema",
+					"schema": schema,
+				},
+				map[string]interface{}{
+					"action":    "set-current-schema",
+					"schema-id": -1,
+				},
+			)
+		}
+	}
+
+	if d.HasChange("partition_spec") {
+		if spec, ok := obj["partition-spec"].(map[string]interface{}); ok {
+			delete(spec, "spec-id")
+			oldId, _ := d.GetChange("partition_spec.0.spec_id")
+			requirements = append(requirements, map[string]interface{}{
+				"type":            "assert-default-spec-id",
+				"default-spec-id": oldId,
+			})
+			// The server assigns the spec id, so "-1" selects the last added
+			// spec. Partition field ids are assigned in pre_update, which can
+			// read the table's partition history.
+			updateActions = append(updateActions,
+				map[string]interface{}{
+					"action": "add-spec",
+					"spec":   spec,
+				},
+				map[string]interface{}{
+					"action":  "set-default-spec",
+					"spec-id": -1,
+				},
+			)
+		}
+	}
+
+	if d.HasChange("sort_order") {
+		if sortOrder := expandIcebergTableSortOrderForCommit(d.Get("sort_order")); sortOrder != nil {
+			oldId, _ := d.GetChange("sort_order.0.order_id")
+			requirements = append(requirements, map[string]interface{}{
+				"type":                  "assert-default-sort-order-id",
+				"default-sort-order-id": oldId,
+			})
+			// Add the new sort order, then make it the table's default. The
+			// server assigns the new order id, so "-1" selects the last added.
+			updateActions = append(updateActions,
+				map[string]interface{}{
+					"action":     "add-sort-order",
+					"sort-order": sortOrder,
+				},
+				map[string]interface{}{
+					"action":        "set-default-sort-order",
+					"sort-order-id": -1,
+				},
+			)
+		}
+	}
 
 	if d.HasChange("properties") {
 		oldProp, newProp := d.GetChange("properties")
@@ -1746,27 +1950,10 @@ func resourceBiglakeIcebergIcebergTableUpdateEncoder(d *schema.ResourceData, met
 		)
 	}
 
-	if d.HasChange("sort_order") {
-		if sortOrder := expandIcebergTableSortOrderForCommit(d.Get("sort_order")); sortOrder != nil {
-			// Add the new sort order, then make it the table's default. The
-			// server assigns the new order id, so "-1" selects the last added.
-			updateActions = append(updateActions,
-				map[string]interface{}{
-					"action":     "add-sort-order",
-					"sort-order": sortOrder,
-				},
-				map[string]interface{}{
-					"action":        "set-default-sort-order",
-					"sort-order-id": -1,
-				},
-			)
-		}
-	}
-
 	if len(updateActions) > 0 {
 		// Wrap in 'updates' and 'requirements' as per CommitTableRequest
 		return map[string]interface{}{
-			"requirements": []interface{}{},
+			"requirements": requirements,
 			"updates":      updateActions,
 		}, nil
 	}
