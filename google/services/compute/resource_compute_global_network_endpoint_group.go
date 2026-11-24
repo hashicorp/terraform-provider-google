@@ -168,6 +168,11 @@ network endpoint.`,
 				Description: `An optional description of this resource. Provide this property when
 you create the resource.`,
 			},
+			"generated_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The uniquely generated identifier for the resource. This identifier is defined by the server.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -499,6 +504,23 @@ func flattenComputeGlobalNetworkEndpointGroupDefaultPort(v interface{}, d *schem
 	return v // let terraform core handle it otherwise
 }
 
+func flattenComputeGlobalNetworkEndpointGroupGeneratedId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func expandComputeGlobalNetworkEndpointGroupName(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -528,6 +550,9 @@ func ResourceComputeGlobalNetworkEndpointGroupFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
 	}
 	if err = d.Set("default_port", flattenComputeGlobalNetworkEndpointGroupDefaultPort(res["defaultPort"], d, config)); err != nil {
+		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("generated_id", flattenComputeGlobalNetworkEndpointGroupGeneratedId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading GlobalNetworkEndpointGroup: %s", err)
 	}
 	if selfLink, ok := res["selfLink"].(string); ok && selfLink != "" {

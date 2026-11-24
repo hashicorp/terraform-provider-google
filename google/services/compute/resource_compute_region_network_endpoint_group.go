@@ -366,6 +366,11 @@ a Google API or a PSC Producer Service Attachment.`,
 
 Optional URL of the subnetwork to which all network endpoints in the NEG belong.`,
 			},
+			"generated_id": {
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: `The uniquely generated identifier for the resource. This identifier is defined by the server.`,
+			},
 			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -865,6 +870,23 @@ func flattenComputeRegionNetworkEndpointGroupCloudFunctionUrlMask(v interface{},
 	return v
 }
 
+func flattenComputeRegionNetworkEndpointGroupGeneratedId(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	// Handles the string fixed64 format
+	if strVal, ok := v.(string); ok {
+		if intVal, err := tpgresource.StringToFixed64(strVal); err == nil {
+			return intVal
+		}
+	}
+
+	// number values are represented as float64
+	if floatVal, ok := v.(float64); ok {
+		intVal := int(floatVal)
+		return intVal
+	}
+
+	return v // let terraform core handle it otherwise
+}
+
 func flattenComputeRegionNetworkEndpointGroupRegion(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	if v == nil {
 		return v
@@ -1140,6 +1162,9 @@ func ResourceComputeRegionNetworkEndpointGroupFlatten(d *schema.ResourceData, me
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
 	if err = d.Set("cloud_function", flattenComputeRegionNetworkEndpointGroupCloudFunction(res["cloudFunction"], d, config)); err != nil {
+		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
+	}
+	if err = d.Set("generated_id", flattenComputeRegionNetworkEndpointGroupGeneratedId(res["id"], d, config)); err != nil {
 		return fmt.Errorf("Error reading RegionNetworkEndpointGroup: %s", err)
 	}
 	if err = d.Set("region", flattenComputeRegionNetworkEndpointGroupRegion(res["region"], d, config)); err != nil {
