@@ -276,6 +276,11 @@ resource "google_dataplex_entry" "test_entry_full" {
       data = <<EOF
           {"type": "VIEW"    }
         EOF
+      aspect_source {
+        create_time  = "2023-08-03T19:19:00.094Z"
+        update_time  = "2023-08-03T20:19:00.094Z"
+        data_version = "1"
+      }
     }
   }
 
