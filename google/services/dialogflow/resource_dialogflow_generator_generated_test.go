@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/plancheck"
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 
 	"github.com/hashicorp/terraform-provider-google/google/acctest"
@@ -113,7 +114,21 @@ func TestAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(t *testi
 	randomSuffix := acctest.RandString(t, 10)
 
 	context := map[string]interface{}{
-		"random_suffix": randomSuffix,
+		"enable_deduping":      true,
+		"similarity_threshold": "0.75",
+		"random_suffix":        randomSuffix,
+	}
+
+	context_1 := map[string]interface{}{
+		"enable_deduping":      false,
+		"similarity_threshold": "0.5",
+		"random_suffix":        randomSuffix,
+	}
+
+	context_2 := map[string]interface{}{
+		"enable_deduping":      false,
+		"similarity_threshold": nil,
+		"random_suffix":        randomSuffix,
 	}
 
 	acctest.VcrTest(t, resource.TestCase{
@@ -123,6 +138,46 @@ func TestAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(t *testi
 		Steps: []resource.TestStep{
 			{
 				Config: testAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(context),
+			},
+			{
+				ResourceName:            "google_dialogflow_generator.agent_coaching_generator",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_dialogflow_generator.agent_coaching_generator",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(context_1),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dialogflow_generator.agent_coaching_generator", plancheck.ResourceActionUpdate),
+					},
+				},
+			},
+			{
+				ResourceName:            "google_dialogflow_generator.agent_coaching_generator",
+				ImportState:             true,
+				ImportStateVerify:       true,
+				ImportStateVerifyIgnore: []string{"location"},
+			},
+			{
+				ResourceName:       "google_dialogflow_generator.agent_coaching_generator",
+				ImportState:        true,
+				ExpectNonEmptyPlan: true,
+				ImportStateKind:    resource.ImportBlockWithResourceIdentity,
+			},
+			{
+				Config: testAccDialogflowGenerator_dialogflowGeneratorAgentCoachingExample(context_2),
+				ConfigPlanChecks: resource.ConfigPlanChecks{
+					PreApply: []plancheck.PlanCheck{
+						plancheck.ExpectResourceAction("google_dialogflow_generator.agent_coaching_generator", plancheck.ResourceActionUpdate),
+					},
+				},
 			},
 			{
 				ResourceName:            "google_dialogflow_generator.agent_coaching_generator",
@@ -159,6 +214,10 @@ resource "google_dialogflow_generator" "agent_coaching_generator" {
     }
   }
   trigger_event = "END_OF_UTTERANCE"
+  suggestion_deduping_config {
+    enable_deduping      = %{enable_deduping}
+    similarity_threshold = %{similarity_threshold}
+  }
 }
 `, context)
 }

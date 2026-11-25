@@ -1,0 +1,3 @@
+```release-note:enhancement
+dialogflow: added `suggestion_deduping_config` field to `google_dialogflow_generator` resource
+```

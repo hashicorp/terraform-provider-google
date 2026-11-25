@@ -273,6 +273,26 @@ func ResourceDialogflowGenerator() *schema.Resource {
 				Optional:    true,
 				Description: `Optional. The published Large Language Model name. * To use the latest model version, specify the model name without version number. Example: text-bison * To use a stable model version, specify the version number as well. Example: text-bison@002.`,
 			},
+			"suggestion_deduping_config": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Description: `Optional. Configuration for suggestion deduping. This is only applicable to AI Coach feature.`,
+				MaxItems:    1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"enable_deduping": {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Description: `Optional. Whether to enable suggestion deduping.`,
+						},
+						"similarity_threshold": {
+							Type:        schema.TypeFloat,
+							Optional:    true,
+							Description: `Optional. The threshold for similarity between two suggestions. Acceptable value is [0.0, 1.0], default to 0.8.`,
+						},
+					},
+				},
+			},
 			"summarization_context": {
 				Type:        schema.TypeList,
 				Optional:    true,
@@ -611,6 +631,12 @@ func resourceDialogflowGeneratorCreate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("tools"); !tpgresource.IsEmptyValue(reflect.ValueOf(toolsProp)) && (ok || !reflect.DeepEqual(v, toolsProp)) {
 		obj["tools"] = toolsProp
 	}
+	suggestionDedupingConfigProp, err := expandDialogflowGeneratorSuggestionDedupingConfig(d.Get("suggestion_deduping_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("suggestion_deduping_config"); ok || !reflect.DeepEqual(v, suggestionDedupingConfigProp) {
+		obj["suggestionDedupingConfig"] = suggestionDedupingConfigProp
+	}
 	generatorIdProp, err := expandDialogflowGeneratorGeneratorId(d.Get("generator_id"), d, config)
 	if err != nil {
 		return err
@@ -919,6 +945,12 @@ func resourceDialogflowGeneratorUpdate(d *schema.ResourceData, meta interface{})
 	} else if v, ok := d.GetOkExists("tools"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, toolsProp)) {
 		obj["tools"] = toolsProp
 	}
+	suggestionDedupingConfigProp, err := expandDialogflowGeneratorSuggestionDedupingConfig(d.Get("suggestion_deduping_config"), d, config)
+	if err != nil {
+		return err
+	} else if v, ok := d.GetOkExists("suggestion_deduping_config"); ok || !reflect.DeepEqual(v, suggestionDedupingConfigProp) {
+		obj["suggestionDedupingConfig"] = suggestionDedupingConfigProp
+	}
 	generatorIdProp, err := expandDialogflowGeneratorGeneratorId(d.Get("generator_id"), d, config)
 	if err != nil {
 		return err
@@ -965,6 +997,10 @@ func resourceDialogflowGeneratorUpdate(d *schema.ResourceData, meta interface{})
 
 	if d.HasChange("tools") {
 		updateMask = append(updateMask, "tools")
+	}
+
+	if d.HasChange("suggestion_deduping_config") {
+		updateMask = append(updateMask, "suggestionDedupingConfig")
 	}
 
 	if d.HasChange("generator_id") {
@@ -1621,6 +1657,26 @@ func flattenDialogflowGeneratorPublishedModel(v interface{}, d *schema.ResourceD
 }
 
 func flattenDialogflowGeneratorTools(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSuggestionDedupingConfig(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	transformed := make(map[string]interface{})
+	transformed["enable_deduping"] =
+		flattenDialogflowGeneratorSuggestionDedupingConfigEnableDeduping(original["enableDeduping"], d, config)
+	transformed["similarity_threshold"] =
+		flattenDialogflowGeneratorSuggestionDedupingConfigSimilarityThreshold(original["similarityThreshold"], d, config)
+	return []interface{}{transformed}
+}
+func flattenDialogflowGeneratorSuggestionDedupingConfigEnableDeduping(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenDialogflowGeneratorSuggestionDedupingConfigSimilarityThreshold(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
 
@@ -2415,6 +2471,48 @@ func expandDialogflowGeneratorTools(v interface{}, d tpgresource.TerraformResour
 	return v, nil
 }
 
+func expandDialogflowGeneratorSuggestionDedupingConfig(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 {
+		return nil, nil
+	}
+
+	if l[0] == nil {
+		transformed := make(map[string]interface{})
+		return transformed, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEnableDeduping, err := expandDialogflowGeneratorSuggestionDedupingConfigEnableDeduping(original["enable_deduping"], d, config)
+	if err != nil {
+		return nil, err
+	} else {
+		transformed["enableDeduping"] = transformedEnableDeduping
+	}
+
+	transformedSimilarityThreshold, err := expandDialogflowGeneratorSuggestionDedupingConfigSimilarityThreshold(original["similarity_threshold"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedSimilarityThreshold); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["similarityThreshold"] = transformedSimilarityThreshold
+	}
+
+	return transformed, nil
+}
+
+func expandDialogflowGeneratorSuggestionDedupingConfigEnableDeduping(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandDialogflowGeneratorSuggestionDedupingConfigSimilarityThreshold(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
 func expandDialogflowGeneratorGeneratorId(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -2455,6 +2553,9 @@ func ResourceDialogflowGeneratorFlatten(d *schema.ResourceData, meta interface{}
 		return fmt.Errorf("Error reading Generator: %s", err)
 	}
 	if err = d.Set("tools", flattenDialogflowGeneratorTools(res["tools"], d, config)); err != nil {
+		return fmt.Errorf("Error reading Generator: %s", err)
+	}
+	if err = d.Set("suggestion_deduping_config", flattenDialogflowGeneratorSuggestionDedupingConfig(res["suggestionDedupingConfig"], d, config)); err != nil {
 		return fmt.Errorf("Error reading Generator: %s", err)
 	}
 	if err = d.Set("generator_id", flattenDialogflowGeneratorGeneratorId(res["generatorId"], d, config)); err != nil {

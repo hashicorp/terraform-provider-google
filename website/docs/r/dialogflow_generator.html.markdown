@@ -83,6 +83,10 @@ resource "google_dialogflow_generator" "agent_coaching_generator" {
     }
   }
   trigger_event = "END_OF_UTTERANCE"
+  suggestion_deduping_config {
+    enable_deduping      = true
+    similarity_threshold = 0.75
+  }
 }
 ```
 <div class="oics-button" style="padding-top: 1px; margin-top: -1px;">
@@ -175,6 +179,11 @@ The following arguments are supported:
 * `tools` -
   (Optional)
   Optional. Resource names of the tools that the generator can choose from. Format: `projects/<Project ID>/locations/<Location ID>/tools/<tool ID>`.
+
+* `suggestion_deduping_config` -
+  (Optional)
+  Optional. Configuration for suggestion deduping. This is only applicable to AI Coach feature.
+  Structure is [documented below](#nested_suggestion_deduping_config).
 
 * `generator_id` -
   (Optional)
@@ -445,6 +454,16 @@ The following arguments are supported:
 * `top_p` -
   (Optional)
   Optional. Top-p changes how the model selects tokens for output. Tokens are selected from most K (see topK parameter) probable to least until the sum of their probabilities equals the top-p value. For example, if tokens A, B, and C have a probability of 0.3, 0.2, and 0.1 and the top-p value is 0.5, then the model will select either A or B as the next token (using temperature) and doesn't consider C. The default top-p value is 0.95. Specify a lower value for less random responses and a higher value for more random responses. Acceptable value is [0.0, 1.0], default to 0.95.
+
+<a name="nested_suggestion_deduping_config"></a>The `suggestion_deduping_config` block supports:
+
+* `enable_deduping` -
+  (Optional)
+  Optional. Whether to enable suggestion deduping.
+
+* `similarity_threshold` -
+  (Optional)
+  Optional. The threshold for similarity between two suggestions. Acceptable value is [0.0, 1.0], default to 0.8.
 
 ## Attributes Reference
 
