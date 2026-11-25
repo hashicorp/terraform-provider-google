@@ -1,0 +1,3 @@
+```release-note:bug
+compute: fixed `google_compute_reservation` updates to use `?paths=` query routing and isolated per-property requests when modifying multiple fields in a single apply
+```

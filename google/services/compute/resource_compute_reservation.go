@@ -54,13 +54,10 @@ import (
 )
 
 import (
-	"net/url"
-
 	rmClient "github.com/hashicorp/terraform-provider-google/google/services/resourcemanager/client"
 )
 
 var (
-	_ = url.Parse
 	_ = rmClient.NewClient
 )
 
@@ -881,164 +878,257 @@ func resourceComputeReservationUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	billingProject := ""
-
 	project, err := tpgresource.GetProject(d, config)
 	if err != nil {
 		return fmt.Errorf("Error fetching project for Reservation: %s", err)
 	}
 	billingProject = project
-
-	obj := make(map[string]interface{})
-	shareSettingsProp, err := expandComputeReservationShareSettings(d.Get("share_settings"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("share_settings"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, shareSettingsProp)) {
-		obj["shareSettings"] = shareSettingsProp
-	}
-	deleteAfterDurationProp, err := expandComputeReservationDeleteAfterDuration(d.Get("delete_after_duration"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("delete_after_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deleteAfterDurationProp)) {
-		obj["deleteAfterDuration"] = deleteAfterDurationProp
-	}
-	reservationSharingPolicyProp, err := expandComputeReservationReservationSharingPolicy(d.Get("reservation_sharing_policy"), d, config)
-	if err != nil {
-		return err
-	} else if v, ok := d.GetOkExists("reservation_sharing_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationSharingPolicyProp)) {
-		obj["reservationSharingPolicy"] = reservationSharingPolicyProp
-	}
-
-	obj, err = resourceComputeReservationUpdateEncoder(d, meta, obj)
-	if err != nil {
-		return err
-	}
-
-	url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
-	if err != nil {
-		return err
-	}
-
-	log.Printf("[DEBUG] Updating Reservation %q: %#v", d.Id(), obj)
-	headers := make(http.Header)
-	updateMask := []string{}
-
-	if d.HasChange("share_settings") {
-		updateMask = append(updateMask, "shareSettings")
-	}
-
-	if d.HasChange("delete_after_duration") {
-		updateMask = append(updateMask, "deleteAfterDuration")
-	}
-
-	if d.HasChange("reservation_sharing_policy") {
-		updateMask = append(updateMask, "reservationSharingPolicy")
-	}
-	// updateMask is a URL parameter but not present in the schema, so ReplaceVars
-	// won't set it
-	url, err = transport_tpg.AddQueryParams(url, map[string]string{"updateMask": strings.Join(updateMask, ",")})
-	if err != nil {
-		return err
-	}
-
-	if d.HasChange("share_settings") {
-		url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
-		if err != nil {
-			return err
-		}
-		urlUpdateMask := obj["urlUpdateMask"]
-		if urlUpdateMask != nil {
-			url = url + urlUpdateMask.(string)
-			delete(obj, "urlUpdateMask")
-		}
-	}
-
-	// err == nil indicates that the billing_project value was found
 	if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
 		billingProject = bp
 	}
 
-	// if updateMask is empty we are not updating anything so skip the post
-	if len(updateMask) > 0 {
+	basePatchURL, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
+	if err != nil {
+		return err
+	}
+
+	nameProp, err := expandComputeReservationName(d.Get("name"), d, config)
+	if err != nil {
+		return fmt.Errorf("Invalid value for name: %s", err)
+	}
+	zoneProp, err := expandComputeReservationZone(d.Get("zone"), d, config)
+	if err != nil {
+		return fmt.Errorf("Invalid value for zone: %s", err)
+	}
+
+	// Compute Reservations PATCH requires ?paths=<camelCase> (not ?updateMask=, which
+	// converts camelCase to snake_case and is rejected by GCE), requires resource.name
+	// in every PATCH body, and only permits updating one property group per PATCH call.
+	sendPatch := func(body map[string]interface{}, paths []string) error {
+		if len(paths) == 0 {
+			return nil
+		}
+		reqBody := make(map[string]interface{}, len(body)+2)
+		if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
+			reqBody["name"] = nameProp
+		}
+		if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
+			reqBody["zone"] = zoneProp
+		}
+		for k, v := range body {
+			reqBody[k] = v
+		}
+
+		rawPaths := make([]interface{}, len(paths))
+		for i, p := range paths {
+			rawPaths[i] = p
+		}
+		patchURL, err := transport_tpg.AddArrayQueryParams(basePatchURL, "paths", rawPaths)
+		if err != nil {
+			return err
+		}
+
+		log.Printf("[DEBUG] Updating Reservation %q (paths=%v): %#v", d.Id(), paths, reqBody)
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "PATCH",
 			Project:   billingProject,
-			RawURL:    url,
+			RawURL:    patchURL,
 			UserAgent: userAgent,
-			Body:      obj,
+			Body:      reqBody,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
+			Headers:   make(http.Header),
 		})
-
 		if err != nil {
 			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
 		}
+		log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
 
-		err = ComputeOperationWaitTime(
+		return ComputeOperationWaitTime(
 			config, res, project, "Updating Reservation", userAgent,
 			d.Timeout(schema.TimeoutUpdate))
+	}
 
+	d.Partial(true)
+
+	// 1. Share settings (PATCH ?paths=shareSettings...).
+	shareTypeVal := "SPECIFIC_PROJECTS"
+	if st, ok := d.Get("share_settings.0.share_type").(string); ok && st != "" {
+		shareTypeVal = st
+	}
+	shareTypeChanged := d.HasChange("share_settings.0.share_type")
+	if d.HasChange("share_settings") {
+		oldShare, newShare := d.GetChange("share_settings")
+
+		before := schema.NewSet(schema.HashString, []interface{}{})
+		if oldSlice, ok := oldShare.([]interface{}); ok && len(oldSlice) > 0 && oldSlice[0] != nil {
+			if oldMap, ok := oldSlice[0].(map[string]interface{})["project_map"].(*schema.Set); ok {
+				before = oldMap
+			}
+		}
+		after := schema.NewSet(schema.HashString, []interface{}{})
+		if newSlice, ok := newShare.([]interface{}); ok && len(newSlice) > 0 && newSlice[0] != nil {
+			if newMap, ok := newSlice[0].(map[string]interface{})["project_map"].(*schema.Set); ok {
+				after = newMap
+			}
+		}
+
+		// GCE rejects simultaneous project additions and removals in a single PATCH;
+		// process removals first, then additions.
+		var removedPaths []string
+		for _, raw := range before.Difference(after).List() {
+			original := raw.(map[string]interface{})
+			projectId, _ := original["project_id"].(string)
+			if projectId == "" {
+				projectId, _ = original["id"].(string)
+			}
+			projectIdOrNum := projectId
+			if _, err := strconv.Atoi(projectId); err != nil {
+				rmProj, err := rmClient.NewClient(config, userAgent).Projects.Get(projectId).Do()
+				if err != nil {
+					return fmt.Errorf("Invalid value for projectId: %s", err)
+				}
+				projectIdOrNum = fmt.Sprintf("%d", rmProj.ProjectNumber)
+			}
+			removedPaths = append(removedPaths, "shareSettings.projectMap."+projectIdOrNum)
+		}
+
+		addedProjectMap := make(map[string]interface{})
+		var addedPaths []string
+		for _, raw := range after.Difference(before).List() {
+			original := raw.(map[string]interface{})
+			singleProject := make(map[string]interface{})
+			transformedProjectId := original["project_id"]
+			if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+				singleProject["projectId"] = transformedProjectId
+			}
+			transformedId, err := tpgresource.ExpandString(original["id"], d, config)
+			if err != nil {
+				return fmt.Errorf("Invalid value for id: %s", err)
+			}
+			addedProjectMap[transformedId] = singleProject
+			addedPaths = append(addedPaths, fmt.Sprintf("shareSettings.projectMap.%v", original["id"]))
+		}
+
+		if len(removedPaths) > 0 {
+			removedShareType := "SPECIFIC_PROJECTS"
+			if shareTypeChanged && len(addedPaths) == 0 {
+				removedShareType = shareTypeVal
+				removedPaths = append(removedPaths, "shareSettings.shareType")
+			}
+			removedShare := map[string]interface{}{
+				"shareType":  removedShareType,
+				"projectMap": map[string]interface{}{},
+			}
+			if err := sendPatch(map[string]interface{}{"shareSettings": removedShare}, removedPaths); err != nil {
+				return err
+			}
+		}
+		if len(addedPaths) > 0 {
+			if shareTypeChanged {
+				addedPaths = append(addedPaths, "shareSettings.shareType")
+			}
+			addedShare := map[string]interface{}{
+				"shareType":  shareTypeVal,
+				"projectMap": addedProjectMap,
+			}
+			if err := sendPatch(map[string]interface{}{"shareSettings": addedShare}, addedPaths); err != nil {
+				return err
+			}
+		}
+		if shareTypeChanged && len(removedPaths) == 0 && len(addedPaths) == 0 {
+			if err := sendPatch(
+				map[string]interface{}{"shareSettings": map[string]interface{}{"shareType": shareTypeVal}},
+				[]string{"shareSettings.shareType"},
+			); err != nil {
+				return err
+			}
+		}
+	}
+
+	// 2. All other updatable reservation properties (isolated PATCH ?paths=... per property).
+	type reservationPatch struct {
+		paths []string
+		body  map[string]interface{}
+	}
+	var clearPatches []reservationPatch
+	var setPatches []reservationPatch
+
+	if d.HasChange("delete_after_duration") {
+		patchObj := make(map[string]interface{})
+		deleteAfterDurationProp, err := expandComputeReservationDeleteAfterDuration(d.Get("delete_after_duration"), d, config)
 		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("delete_after_duration"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, deleteAfterDurationProp)) {
+			patchObj["deleteAfterDuration"] = deleteAfterDurationProp
+		}
+		p := reservationPatch{
+			paths: []string{"deleteAfterDuration"},
+			body:  patchObj,
+		}
+		if len(patchObj) == 0 {
+			clearPatches = append(clearPatches, p)
+		} else {
+			setPatches = append(setPatches, p)
+		}
+	}
+
+	if d.HasChange("reservation_sharing_policy") {
+		patchObj := make(map[string]interface{})
+		reservationSharingPolicyProp, err := expandComputeReservationReservationSharingPolicy(d.Get("reservation_sharing_policy"), d, config)
+		if err != nil {
+			return err
+		} else if v, ok := d.GetOkExists("reservation_sharing_policy"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, reservationSharingPolicyProp)) {
+			patchObj["reservationSharingPolicy"] = reservationSharingPolicyProp
+		}
+		p := reservationPatch{
+			paths: []string{"reservationSharingPolicy.serviceShareType"},
+			body:  patchObj,
+		}
+		if len(patchObj) == 0 {
+			clearPatches = append(clearPatches, p)
+		} else {
+			setPatches = append(setPatches, p)
+		}
+	}
+
+	for _, p := range append(clearPatches, setPatches...) {
+		if err := sendPatch(p.body, p.paths); err != nil {
 			return err
 		}
 	}
-	d.Partial(true)
 
-	if d.HasChange("specific_reservation") {
-		obj := make(map[string]interface{})
-
+	// 3. Resize (POST .../reservations/{{name}}/resize).
+	if d.HasChange("specific_reservation.0.count") {
 		specificReservationProp, err := expandComputeReservationSpecificReservation(d.Get("specific_reservation"), d, config)
 		if err != nil {
 			return err
-		} else if v, ok := d.GetOkExists("specific_reservation"); !tpgresource.IsEmptyValue(reflect.ValueOf(v)) && (ok || !reflect.DeepEqual(v, specificReservationProp)) {
-			obj["specificReservation"] = specificReservationProp
+		}
+		resizeObj := make(map[string]interface{})
+		if srMap, ok := specificReservationProp.(map[string]interface{}); ok && srMap["count"] != nil {
+			resizeObj["specificSkuCount"] = srMap["count"]
 		}
 
-		obj, err = resourceComputeReservationUpdateEncoder(d, meta, obj)
+		resizeURL, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}/resize")
 		if err != nil {
 			return err
 		}
 
-		url, err := tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}/resize")
-		if err != nil {
-			return err
-		}
-
-		headers := make(http.Header)
-		if d.HasChange("share_settings") {
-			url, err = tpgresource.ReplaceVars(d, config, transport_tpg.BaseUrl(Product, config)+"projects/{{project}}/zones/{{zone}}/reservations/{{name}}")
-			if err != nil {
-				return err
-			}
-			urlUpdateMask := obj["urlUpdateMask"]
-			if urlUpdateMask != nil {
-				url = url + urlUpdateMask.(string)
-				delete(obj, "urlUpdateMask")
-			}
-		}
-
-		// err == nil indicates that the billing_project value was found
-		if bp, err := tpgresource.GetBillingProject(d, config); err == nil {
-			billingProject = bp
-		}
-
+		log.Printf("[DEBUG] Resizing Reservation %q: %#v", d.Id(), resizeObj)
 		res, err := transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 			Config:    config,
 			Method:    "POST",
 			Project:   billingProject,
-			RawURL:    url,
+			RawURL:    resizeURL,
 			UserAgent: userAgent,
-			Body:      obj,
+			Body:      resizeObj,
 			Timeout:   d.Timeout(schema.TimeoutUpdate),
-			Headers:   headers,
+			Headers:   make(http.Header),
 		})
 		if err != nil {
 			return fmt.Errorf("Error updating Reservation %q: %s", d.Id(), err)
-		} else {
-			log.Printf("[DEBUG] Finished updating Reservation %q: %#v", d.Id(), res)
 		}
+		log.Printf("[DEBUG] Finished resizing Reservation %q: %#v", d.Id(), res)
 
 		err = ComputeOperationWaitTime(
 			config, res, project, "Updating Reservation", userAgent,
@@ -2129,123 +2219,6 @@ func expandComputeReservationZone(v interface{}, d tpgresource.TerraformResource
 		return nil, fmt.Errorf("Invalid value for zone: %s", err)
 	}
 	return f.RelativeLink(), nil
-}
-
-func resourceComputeReservationUpdateEncoder(d *schema.ResourceData, meta interface{}, obj map[string]interface{}) (map[string]interface{}, error) {
-	newObj := make(map[string]interface{})
-	config := meta.(*transport_tpg.Config)
-	maskId := ""
-	firstProject := true
-	urlUpdateMask := ""
-
-	if d.HasChange("share_settings") {
-		// Get name.
-		nameProp, err := expandComputeReservationName(d.Get("name"), d, config)
-		if err != nil {
-			return nil, fmt.Errorf("Invalid value for name: %s", err)
-		} else if v, ok := d.GetOkExists("name"); !tpgresource.IsEmptyValue(reflect.ValueOf(nameProp)) && (ok || !reflect.DeepEqual(v, nameProp)) {
-			newObj["name"] = nameProp
-		}
-		// 	Get zone.
-		zoneProp, err := expandComputeReservationZone(d.Get("zone"), d, config)
-		if err != nil {
-			return nil, fmt.Errorf("Invalid value for zone: %s", err)
-		} else if v, ok := d.GetOkExists("zone"); !tpgresource.IsEmptyValue(reflect.ValueOf(zoneProp)) && (ok || !reflect.DeepEqual(v, zoneProp)) {
-			newObj["zone"] = zoneProp
-		}
-		transformed := make(map[string]interface{})
-		// Set shareType.
-		transformed["shareType"] = "SPECIFIC_PROJECTS"
-		// Set project_map.
-		projectMap := make(map[string]interface{})
-		old, new := d.GetChange("share_settings")
-
-		var before *schema.Set
-		if oldSlice, ok := old.([]interface{}); ok && len(oldSlice) > 0 {
-			if oldMap, ok := oldSlice[0].(map[string]interface{})["project_map"]; ok {
-				before = oldMap.(*schema.Set)
-			} else {
-				before = schema.NewSet(schema.HashString, []interface{}{})
-			}
-		} else {
-			before = schema.NewSet(schema.HashString, []interface{}{})
-		}
-		var after *schema.Set
-		if newSlice, ok := new.([]interface{}); ok && len(newSlice) > 0 {
-			if newMap, ok := newSlice[0].(map[string]interface{})["project_map"]; ok {
-				after = newMap.(*schema.Set)
-			} else {
-				after = schema.NewSet(schema.HashString, []interface{}{})
-			}
-		} else {
-			after = schema.NewSet(schema.HashString, []interface{}{})
-		}
-
-		for _, raw := range after.Difference(before).List() {
-			original := raw.(map[string]interface{})
-			singleProject := make(map[string]interface{})
-			// set up project_map.
-			transformedProjectId := original["project_id"]
-			if val := reflect.ValueOf(transformedProjectId); val.IsValid() && !tpgresource.IsEmptyValue(val) {
-				singleProject["projectId"] = transformedProjectId
-			}
-			transformedId, err := tpgresource.ExpandString(original["id"], d, config)
-			if err != nil {
-				return nil, fmt.Errorf("Invalid value for id: %s", err)
-			}
-			projectMap[transformedId] = singleProject
-			// add added projects to updateMask
-			if !firstProject {
-				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", original["id"])
-			} else {
-				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", original["id"])
-				firstProject = false
-			}
-			decodedPath, _ := url.QueryUnescape(maskId)
-			urlUpdateMask = urlUpdateMask + decodedPath
-		}
-		transformed["projectMap"] = projectMap
-		newObj["shareSettings"] = transformed
-
-		// add removed projects to updateMask
-		firstProject = true
-		for _, raw := range before.Difference(after).List() {
-			original := raw.(map[string]interface{})
-			// To remove a project we need project number.
-			projectId := fmt.Sprintf("%s", original["project_id"])
-			projectIdOrNum := projectId
-			_, err := strconv.Atoi(projectId)
-			// convert id to number.
-			if err != nil {
-				config := meta.(*transport_tpg.Config)
-				project, err := rmClient.NewClient(config, config.UserAgent).Projects.Get(projectId).Do()
-				if err != nil {
-					return nil, fmt.Errorf("Invalid value for projectId: %s", err)
-				}
-				projectNum := project.ProjectNumber
-				projectIdOrNum = fmt.Sprintf("%d", projectNum)
-			}
-			if !firstProject {
-				maskId = fmt.Sprintf("%s%s", "&paths=shareSettings.projectMap.", projectIdOrNum)
-			} else {
-				maskId = fmt.Sprintf("%s%s", "?paths=shareSettings.projectMap.", projectIdOrNum)
-				firstProject = false
-			}
-			decodedPath, _ := url.QueryUnescape(maskId)
-			urlUpdateMask = urlUpdateMask + decodedPath
-		}
-		newObj["urlUpdateMask"] = urlUpdateMask
-	}
-
-	// Resize.
-	if obj["specificReservation"] != nil {
-		count := obj["specificReservation"].(map[string]interface{})["count"]
-		if count != nil {
-			newObj["specificSkuCount"] = obj["specificReservation"].(map[string]interface{})["count"]
-		}
-	}
-
-	return newObj, nil
 }
 
 func resourceComputeReservationDecoder(d *schema.ResourceData, meta interface{}, res map[string]interface{}) (map[string]interface{}, error) {
