@@ -31,6 +31,7 @@ package tpgiamresource
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/list"
@@ -44,17 +45,6 @@ import (
 	"github.com/hashicorp/terraform-provider-google/google/tpgresource"
 	transport_tpg "github.com/hashicorp/terraform-provider-google/google/transport"
 )
-
-// suportedScopeFields are the scope dimensions added to a list config
-// automatically when the member resource's schema declares them.
-// All are optional: when ommited, the value is resolved downstream from the provider
-// config(GetProject/GetRegion/GetZone/GetLocation) or environment variables.
-var supportedScopeFields = []tpgresource.ListConfigField{
-	{Name: "project", Kind: tpgresource.ListConfigKindString, Optional: true},
-	{Name: "region", Kind: tpgresource.ListConfigKindString, Optional: true},
-	{Name: "zone", Kind: tpgresource.ListConfigKindString, Optional: true},
-	{Name: "location", Kind: tpgresource.ListConfigKindString, Optional: true},
-}
 
 // IamListCallConfig holds resource-specific pieces shared by all IAM list types.
 // (Renamed conceptually from IAmMemberListCallConfig; see alias below for
@@ -83,26 +73,42 @@ type IamListCore struct {
 }
 
 func buildIamListCore(typeName string, iamResource *schema.Resource, newUpdater NewResourceIamUpdaterFunc, listCallConfig IamListCallConfig) IamListCore {
-	if iamResource.Identity == nil {
+	if iamResource.Identity == nil || iamResource.Identity.SchemaFunc == nil {
 		panic("tpgiamresource: IAM List resource requires a iamResource with identity (use IamWithResourceIdentity)")
 	}
 
-	listConfigFields := []tpgresource.ListConfigField{
-		{
-			Name: listCallConfig.ParentResourceField,
-			Kind: tpgresource.ListConfigKindString,
-		},
+	// Derive list config fields from the resource identity (all parent fields
+	// in the IAm URL e.g. project, dataset_id, table_id), not ParentResourceField alone.
+
+	identitySchema := iamResource.Identity.SchemaFunc()
+	parentKeys := make([]string, 0, len(identitySchema))
+	for k := range identitySchema {
+		if isIAmBaseIdentityKey(k) {
+			continue
+		}
+		if _, ok := iamResource.Schema[k]; !ok {
+			continue
+		}
+		parentKeys = append(parentKeys, k)
+	}
+	sort.Strings(parentKeys)
+
+	listConfigFields := make([]tpgresource.ListConfigField, 0, len(parentKeys)+3)
+	seen := map[string]bool{}
+	for _, k := range parentKeys {
+		listConfigFields = append(listConfigFields, tpgresource.ListConfigField{
+			Name:     k,
+			Kind:     tpgresource.ListConfigKindString,
+			Optional: !identitySchema[k].RequiredForImport,
+		})
+		seen[k] = true
 	}
 
-	// Auto-expose target-scope dimensions (project/region/zone/location) when the
-	// member resource declares them and they are not  already the parent field.
-	for _, sf := range supportedScopeFields {
-		if sf.Name == listCallConfig.ParentResourceField {
-			continue // scope dimension is itself the parent (e.g. project-iam-member)
-		}
-		if _, ok := iamResource.Schema[sf.Name]; ok {
-			listConfigFields = append(listConfigFields, sf)
-		}
+	if !seen[listCallConfig.ParentResourceField] {
+		listConfigFields = append(listConfigFields, tpgresource.ListConfigField{
+			Name: listCallConfig.ParentResourceField,
+			Kind: tpgresource.ListConfigKindString,
+		})
 	}
 
 	if listCallConfig.EnableRoleFilter {
@@ -143,6 +149,14 @@ func buildIamListCore(typeName string, iamResource *schema.Resource, newUpdater 
 		listCallConfig:    listCallConfig,
 		newUpdater:        newUpdater,
 	}
+}
+
+// isIamBaseIdentityKey reports whether k is a non -parent identity attribute
+// (role, member, condition_title) from the member/binding base identity schema.
+func isIAmBaseIdentityKey(k string) bool {
+	_, inMember := IamMemberBaseIdentitySchema[k]
+	_, inBinding := IamBindingBaseIdentitySchema[k]
+	return inMember || inBinding
 }
 
 func (r *IamListCore) Metadata(_ context.Context, _ resource.MetadataRequest, resp *resource.MetadataResponse) {

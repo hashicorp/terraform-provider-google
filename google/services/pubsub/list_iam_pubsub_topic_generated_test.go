@@ -106,15 +106,15 @@ resource "google_pubsub_topic_iam_member" "member" {
 
 func testAccPubsubTopicIamMemberListQuery_list(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-
+variable "project" { type = string }
 variable "topic" { type = string }
-
 
 list "google_pubsub_topic_iam_member" "members" {
     provider = google
 	limit = 1000
     config {
-        topic =  var.topic
+        project = var.project
+        topic = var.topic
 		role = "roles/viewer"
 		member = "%{iam_member}"
     }
