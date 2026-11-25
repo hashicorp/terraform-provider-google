@@ -1,0 +1,3 @@
+```release-note:enhancement
+hypercomputecluster: added `orchestrator.slurm.login_nodes.service_account` and `orchestrator.slurm.node_sets.service_account` fields to `google_hypercomputecluster_cluster` resource
+```

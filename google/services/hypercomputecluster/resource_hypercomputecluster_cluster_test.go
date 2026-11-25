@@ -44,6 +44,9 @@ func TestAccHypercomputeclusterCluster_update(t *testing.T) {
 	acctest.VcrTest(t, resource.TestCase{
 		PreCheck:                 func() { acctest.AccTestPreCheck(t) },
 		ProtoV5ProviderFactories: acctest.ProtoV5ProviderFactories(t),
+		ExternalProviders: map[string]resource.ExternalProvider{
+			"time": {},
+		},
 		Steps: []resource.TestStep{
 			{
 				Config: testAccHypercomputeclusterCluster_full(context),
@@ -133,10 +136,45 @@ data "google_project" "project" {
 }
 
 locals {
-  project_id = data.google_project.project.name
+  project_id     = data.google_project.project.name
+  slurm_sa_roles = ["roles/logging.logWriter", "roles/monitoring.metricWriter", "roles/storage.objectViewer"]
+}
+
+resource "google_service_account" "slurm_sa" {
+  account_id   = "tf-test-slurm-%{random_suffix}"
+  display_name = "Slurm service account"
+}
+
+resource "google_service_account" "slurm_login_sa" {
+  account_id   = "tf-test-login-%{random_suffix}"
+  display_name = "Slurm login service account"
+}
+
+resource "google_project_iam_member" "slurm_sa_roles" {
+  count   = length(local.slurm_sa_roles)
+  project = local.project_id
+  role    = local.slurm_sa_roles[count.index]
+  member  = "serviceAccount:${google_service_account.slurm_sa.email}"
+}
+
+resource "google_project_iam_member" "slurm_login_sa_roles" {
+  count   = length(local.slurm_sa_roles)
+  project = local.project_id
+  role    = local.slurm_sa_roles[count.index]
+  member  = "serviceAccount:${google_service_account.slurm_login_sa.email}"
+}
+
+resource "time_sleep" "wait_for_sa_roles" {
+  depends_on = [
+    google_project_iam_member.slurm_sa_roles,
+    google_project_iam_member.slurm_login_sa_roles,
+  ]
+  create_duration = "60s"
 }
 
 resource "google_hypercomputecluster_cluster" "cluster" {
+  depends_on = [time_sleep.wait_for_sa_roles]
+
   cluster_id                  = "tfgen%{cluster_suffix}"
   location                    = "us-central1"
   description                 = "Cluster Director instance created through Terraform"
@@ -176,6 +214,10 @@ resource "google_hypercomputecluster_cluster" "cluster" {
         machine_type = "n2-standard-2"        
         count = 1
         zone = "us-central1-a"
+        service_account {
+          email  = google_service_account.slurm_login_sa.email
+          scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        }
         boot_disk {
           size_gb = "100"
           type = "pd-balanced"
@@ -194,6 +236,10 @@ resource "google_hypercomputecluster_cluster" "cluster" {
       node_sets {
         id = "nodeset"
         compute_id = "compute-spot"
+        service_account {
+          email  = google_service_account.slurm_sa.email
+          scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+        }
         static_node_count = 1
         max_dynamic_node_count = 1
         compute_instance {
@@ -230,10 +276,30 @@ data "google_project" "project" {
 }
 
 locals {
-  project_id = data.google_project.project.name
+  project_id     = data.google_project.project.name
+  slurm_sa_roles = ["roles/logging.logWriter", "roles/monitoring.metricWriter", "roles/storage.objectViewer"]
+}
+
+resource "google_service_account" "slurm_sa" {
+  account_id   = "tf-test-slurm-%{random_suffix}"
+  display_name = "Slurm service account"
+}
+
+resource "google_project_iam_member" "slurm_sa_roles" {
+  count   = length(local.slurm_sa_roles)
+  project = local.project_id
+  role    = local.slurm_sa_roles[count.index]
+  member  = "serviceAccount:${google_service_account.slurm_sa.email}"
+}
+
+resource "time_sleep" "wait_for_sa_roles" {
+  depends_on      = [google_project_iam_member.slurm_sa_roles]
+  create_duration = "60s"
 }
 
 resource "google_hypercomputecluster_cluster" "cluster" {
+  depends_on = [time_sleep.wait_for_sa_roles]
+
   cluster_id                  = "tfgen%{cluster_suffix}"
   location                    = "us-central1"
   description                 = "Cluster Director instance created through Terraform (updated)"
@@ -273,6 +339,9 @@ resource "google_hypercomputecluster_cluster" "cluster" {
         machine_type = "n2-standard-4"        
         count = 2
         zone = "us-central1-a"
+        service_account {
+          email = google_service_account.slurm_sa.email
+        }
         boot_disk {
           size_gb = "100"
           type = "pd-balanced"
