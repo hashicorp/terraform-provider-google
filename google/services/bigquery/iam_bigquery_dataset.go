@@ -19,6 +19,7 @@ package bigquery
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/hashicorp/terraform-provider-google/google/registry"
@@ -138,6 +139,12 @@ func (u *BigqueryDatasetIamUpdater) GetResourceIamPolicy() (*cloudresourcemanage
 	if err != nil {
 		return nil, err
 	}
+	if policy == nil {
+		policy = &cloudresourcemanager.Policy{}
+	}
+	if etag, ok := res["etag"].(string); ok {
+		policy.Etag = etag
+	}
 	return policy, nil
 }
 
@@ -157,6 +164,8 @@ func (u *BigqueryDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		return err
 	}
 
+	headers := make(http.Header)
+	setBigQueryDatasetEtagHeader(headers, policy.Etag)
 	_, err = transport_tpg.SendRequest(transport_tpg.SendRequestOptions{
 		Config:    u.Config,
 		Method:    "PATCH",
@@ -164,12 +173,19 @@ func (u *BigqueryDatasetIamUpdater) SetResourceIamPolicy(policy *cloudresourcema
 		RawURL:    url,
 		UserAgent: userAgent,
 		Body:      obj,
+		Headers:   headers,
 	})
 	if err != nil {
-		return fmt.Errorf("Error creating DatasetAccess: %s", err)
+		return fmt.Errorf("Error setting BigQuery Dataset IAM policy: %w", err)
 	}
 
 	return nil
+}
+
+func setBigQueryDatasetEtagHeader(headers http.Header, etag string) {
+	if etag != "" {
+		headers.Set("If-Match", etag)
+	}
 }
 
 func accessToPolicy(access interface{}) (*cloudresourcemanager.Policy, error) {
