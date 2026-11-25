@@ -63,6 +63,8 @@ fields:
     - api_field: orchestrator.slurm.loginNodes.instances.instance
     - api_field: orchestrator.slurm.loginNodes.labels
     - api_field: orchestrator.slurm.loginNodes.machineType
+    - api_field: orchestrator.slurm.loginNodes.serviceAccount.email
+    - api_field: orchestrator.slurm.loginNodes.serviceAccount.scopes
     - api_field: orchestrator.slurm.loginNodes.startupScript
     - api_field: orchestrator.slurm.loginNodes.storageConfigs.id
     - api_field: orchestrator.slurm.loginNodes.storageConfigs.localMount
@@ -74,6 +76,8 @@ fields:
     - api_field: orchestrator.slurm.nodeSets.computeInstance.startupScript
     - api_field: orchestrator.slurm.nodeSets.id
     - api_field: orchestrator.slurm.nodeSets.maxDynamicNodeCount
+    - api_field: orchestrator.slurm.nodeSets.serviceAccount.email
+    - api_field: orchestrator.slurm.nodeSets.serviceAccount.scopes
     - api_field: orchestrator.slurm.nodeSets.staticNodeCount
     - api_field: orchestrator.slurm.nodeSets.storageConfigs.id
     - api_field: orchestrator.slurm.nodeSets.storageConfigs.localMount

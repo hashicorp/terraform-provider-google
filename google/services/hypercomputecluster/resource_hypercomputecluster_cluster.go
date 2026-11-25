@@ -502,6 +502,35 @@ addresses](https://cloud.google.com/compute/docs/ip-addresses#externaladdresses)
 should be applied to each login node instance.`,
 													Elem: &schema.Schema{Type: schema.TypeString},
 												},
+												"service_account": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Service account to attach to login node instances. If not set, the
+[Compute Engine default service
+account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account)
+is used. Changing this restarts the login node instances, which interrupts
+active SSH sessions.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"email": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Email address of the service account.`,
+															},
+															"scopes": {
+																Type:     schema.TypeSet,
+																Optional: true,
+																Description: `OAuth scopes to grant to the service account. Defaults to
+'https://www.googleapis.com/auth/cloud-platform'.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Set: schema.HashString,
+															},
+														},
+													},
+												},
 												"startup_script": {
 													Type:     schema.TypeString,
 													Optional: true,
@@ -632,6 +661,34 @@ workloads. Set this value to enable dynamic node creation and limit the
 number of additional nodes the cluster can bring online. Leave empty if you
 do not want the cluster to create nodes dynamically, and instead rely only
 on static nodes.`,
+												},
+												"service_account": {
+													Type:     schema.TypeList,
+													Optional: true,
+													Description: `Service account to attach to VM instances in the nodeset. If not set, the
+[Compute Engine default service
+account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account)
+is used. Cannot be changed after the nodeset is created.`,
+													MaxItems: 1,
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"email": {
+																Type:        schema.TypeString,
+																Optional:    true,
+																Description: `Email address of the service account.`,
+															},
+															"scopes": {
+																Type:     schema.TypeSet,
+																Optional: true,
+																Description: `OAuth scopes to grant to the service account. Defaults to
+'https://www.googleapis.com/auth/cloud-platform'.`,
+																Elem: &schema.Schema{
+																	Type: schema.TypeString,
+																},
+																Set: schema.HashString,
+															},
+														},
+													},
 												},
 												"static_node_count": {
 													Type:             schema.TypeString,
@@ -1865,6 +1922,8 @@ func flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodes(v interface{},
 		flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesLabels(original["labels"], d, config)
 	transformed["machine_type"] =
 		flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesMachineType(original["machineType"], d, config)
+	transformed["service_account"] =
+		flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccount(original["serviceAccount"], d, config)
 	transformed["startup_script"] =
 		flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesStartupScript(original["startupScript"], d, config)
 	transformed["storage_configs"] =
@@ -1939,6 +1998,32 @@ func flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesMachineType(v i
 	return v
 }
 
+func flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["email"] =
+		flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountEmail(original["email"], d, config)
+	transformed["scopes"] =
+		flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountScopes(original["scopes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
+}
+
 func flattenHypercomputeclusterClusterOrchestratorSlurmLoginNodesStartupScript(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
 }
@@ -1993,6 +2078,7 @@ func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSets(v interface{}, d
 			"compute_instance":       flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsComputeInstance(original["computeInstance"], d, config),
 			"id":                     flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsId(original["id"], d, config),
 			"max_dynamic_node_count": flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsMaxDynamicNodeCount(original["maxDynamicNodeCount"], d, config),
+			"service_account":        flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccount(original["serviceAccount"], d, config),
 			"static_node_count":      flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsStaticNodeCount(original["staticNodeCount"], d, config),
 			"storage_configs":        flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsStorageConfigs(original["storageConfigs"], d, config),
 		})
@@ -2057,6 +2143,32 @@ func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsId(v interface{},
 
 func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsMaxDynamicNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
 	return v
+}
+
+func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return nil
+	}
+	original := v.(map[string]interface{})
+	if len(original) == 0 {
+		return nil
+	}
+	transformed := make(map[string]interface{})
+	transformed["email"] =
+		flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountEmail(original["email"], d, config)
+	transformed["scopes"] =
+		flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountScopes(original["scopes"], d, config)
+	return []interface{}{transformed}
+}
+func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountEmail(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	return v
+}
+
+func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountScopes(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
+	if v == nil {
+		return v
+	}
+	return schema.NewSet(schema.HashString, v.([]interface{}))
 }
 
 func flattenHypercomputeclusterClusterOrchestratorSlurmNodeSetsStaticNodeCount(v interface{}, d *schema.ResourceData, config *transport_tpg.Config) interface{} {
@@ -3017,6 +3129,13 @@ func expandHypercomputeclusterClusterOrchestratorSlurmLoginNodes(v interface{}, 
 		transformed["machineType"] = transformedMachineType
 	}
 
+	transformedServiceAccount, err := expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccount(original["service_account"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["serviceAccount"] = transformedServiceAccount
+	}
+
 	transformedStartupScript, err := expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesStartupScript(original["startup_script"], d, config)
 	if err != nil {
 		return nil, err
@@ -3134,6 +3253,44 @@ func expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesMachineType(v in
 	return v, nil
 }
 
+func expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEmail, err := expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountEmail(original["email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["email"] = transformedEmail
+	}
+
+	transformedScopes, err := expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
+
+	return transformed, nil
+}
+
+func expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesServiceAccountScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
+	return v, nil
+}
+
 func expandHypercomputeclusterClusterOrchestratorSlurmLoginNodesStartupScript(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
 	return v, nil
 }
@@ -3221,6 +3378,13 @@ func expandHypercomputeclusterClusterOrchestratorSlurmNodeSets(v interface{}, d 
 			return nil, err
 		} else if val := reflect.ValueOf(transformedMaxDynamicNodeCount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
 			transformed["maxDynamicNodeCount"] = transformedMaxDynamicNodeCount
+		}
+
+		transformedServiceAccount, err := expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccount(original["service_account"], d, config)
+		if err != nil {
+			return nil, err
+		} else if val := reflect.ValueOf(transformedServiceAccount); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+			transformed["serviceAccount"] = transformedServiceAccount
 		}
 
 		transformedStaticNodeCount, err := expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsStaticNodeCount(original["static_node_count"], d, config)
@@ -3339,6 +3503,44 @@ func expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsId(v interface{}, 
 }
 
 func expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsMaxDynamicNodeCount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccount(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	if v == nil {
+		return nil, nil
+	}
+	l := v.([]interface{})
+	if len(l) == 0 || l[0] == nil {
+		return nil, nil
+	}
+	raw := l[0]
+	original := raw.(map[string]interface{})
+	transformed := make(map[string]interface{})
+
+	transformedEmail, err := expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountEmail(original["email"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedEmail); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["email"] = transformedEmail
+	}
+
+	transformedScopes, err := expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountScopes(original["scopes"], d, config)
+	if err != nil {
+		return nil, err
+	} else if val := reflect.ValueOf(transformedScopes); val.IsValid() && !tpgresource.IsEmptyValue(val) {
+		transformed["scopes"] = transformedScopes
+	}
+
+	return transformed, nil
+}
+
+func expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountEmail(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	return v, nil
+}
+
+func expandHypercomputeclusterClusterOrchestratorSlurmNodeSetsServiceAccountScopes(v interface{}, d tpgresource.TerraformResourceData, config *transport_tpg.Config) (interface{}, error) {
+	v = v.(*schema.Set).List()
 	return v, nil
 }
 

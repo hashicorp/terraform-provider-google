@@ -450,6 +450,15 @@ The following arguments are supported:
   A list of network tags to attach to the VM instances.
   A maximum of 64 network tags are allowed.
 
+* `service_account` -
+  (Optional)
+  Service account to attach to login node instances. If not set, the
+  [Compute Engine default service
+  account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account)
+  is used. Changing this restarts the login node instances, which interrupts
+  active SSH sessions.
+  Structure is [documented below](#nested_orchestrator_slurm_login_nodes_service_account).
+
 * `startup_script` -
   (Optional)
   [Startup
@@ -491,6 +500,17 @@ The following arguments are supported:
   Name of the VM instance, in the format
   `projects/{project}/zones/{zone}/instances/{instance}`.
 
+<a name="nested_orchestrator_slurm_login_nodes_service_account"></a>The `service_account` block supports:
+
+* `email` -
+  (Optional)
+  Email address of the service account.
+
+* `scopes` -
+  (Optional)
+  OAuth scopes to grant to the service account. Defaults to
+  `https://www.googleapis.com/auth/cloud-platform`.
+
 <a name="nested_orchestrator_slurm_login_nodes_storage_configs"></a>The `storage_configs` block supports:
 
 * `id` -
@@ -530,6 +550,14 @@ The following arguments are supported:
   number of additional nodes the cluster can bring online. Leave empty if you
   do not want the cluster to create nodes dynamically, and instead rely only
   on static nodes.
+
+* `service_account` -
+  (Optional)
+  Service account to attach to VM instances in the nodeset. If not set, the
+  [Compute Engine default service
+  account](https://cloud.google.com/compute/docs/access/service-accounts#default_service_account)
+  is used. Cannot be changed after the nodeset is created.
+  Structure is [documented below](#nested_orchestrator_slurm_node_sets_service_account).
 
 * `static_node_count` -
   (Optional)
@@ -574,6 +602,17 @@ The following arguments are supported:
   [Persistent disk
   type](https://cloud.google.com/compute/docs/disks#disk-types), in the
   format `projects/{project}/zones/{zone}/diskTypes/{disk_type}`.
+
+<a name="nested_orchestrator_slurm_node_sets_service_account"></a>The `service_account` block supports:
+
+* `email` -
+  (Optional)
+  Email address of the service account.
+
+* `scopes` -
+  (Optional)
+  OAuth scopes to grant to the service account. Defaults to
+  `https://www.googleapis.com/auth/cloud-platform`.
 
 <a name="nested_orchestrator_slurm_node_sets_storage_configs"></a>The `storage_configs` block supports:
 
