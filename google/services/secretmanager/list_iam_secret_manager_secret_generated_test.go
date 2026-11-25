@@ -116,15 +116,15 @@ resource "google_secret_manager_secret_iam_member" "member" {
 
 func testAccSecretManagerSecretIamMemberListQuery_list(context map[string]interface{}) string {
 	return acctest.Nprintf(`
-
+variable "project" { type = string }
 variable "secret_id" { type = string }
-
 
 list "google_secret_manager_secret_iam_member" "members" {
     provider = google
 	limit = 1000
     config {
-        secret_id =  var.secret_id
+        project = var.project
+        secret_id = var.secret_id
 		role = "roles/secretmanager.secretAccessor"
 		member = "%{iam_member}"
     }
