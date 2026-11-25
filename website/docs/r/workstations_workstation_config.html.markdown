@@ -442,7 +442,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "europe-west4"
+  region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
@@ -450,7 +450,7 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "europe-west4"
+  location               = "us-central1"
   
   labels = {
     "label" = "key"
@@ -464,7 +464,7 @@ resource "google_workstations_workstation_cluster" "default" {
 resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "europe-west4"
+  location               = "us-central1"
 
   host {
     gce_instance {
@@ -508,7 +508,7 @@ resource "google_compute_network" "default" {
 resource "google_compute_subnetwork" "default" {
   name          = "workstation-cluster"
   ip_cidr_range = "10.0.0.0/24"
-  region        = "europe-west4"
+  region        = "us-central1"
   network       = google_compute_network.default.name
 }
 
@@ -516,7 +516,7 @@ resource "google_workstations_workstation_cluster" "default" {
   workstation_cluster_id = "workstation-cluster"
   network                = google_compute_network.default.id
   subnetwork             = google_compute_subnetwork.default.id
-  location               = "europe-west4"
+  location               = "us-central1"
 
   labels = {
     "label" = "key"
@@ -530,7 +530,7 @@ resource "google_workstations_workstation_cluster" "default" {
 resource "google_workstations_workstation_config" "default" {
   workstation_config_id  = "workstation-config"
   workstation_cluster_id = google_workstations_workstation_cluster.default.workstation_cluster_id
-  location               = "europe-west4"
+  location               = "us-central1"
 
   host {
     gce_instance {
@@ -1373,7 +1373,7 @@ The following arguments are supported:
   Number of instances to pool for faster workstation boosting.
 
 * `enable_automatic_failover` -
-  (Optional, [Beta](../guides/provider_versions.html.markdown))
+  (Optional)
   Indicates if this boost config is eligible for automatic failover when the service cannot provision the default VM type. Defaults to false.
 
 * `accelerators` -

@@ -41,6 +41,7 @@ fields:
     - api_field: host.gceInstance.boostConfigs.accelerators.count
     - api_field: host.gceInstance.boostConfigs.accelerators.type
     - api_field: host.gceInstance.boostConfigs.bootDiskSizeGb
+    - api_field: host.gceInstance.boostConfigs.enableAutomaticFailover
     - api_field: host.gceInstance.boostConfigs.enableNestedVirtualization
     - api_field: host.gceInstance.boostConfigs.id
     - api_field: host.gceInstance.boostConfigs.machineType
