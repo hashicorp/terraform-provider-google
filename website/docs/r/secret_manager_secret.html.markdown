@@ -383,7 +383,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 ```tf
 import {
   identity = {
-    secretId = "<-required value->"
+    secret_id = "<-required value->"
     project = "<-optional value->"
   }
   to = google_secret_manager_secret.default
