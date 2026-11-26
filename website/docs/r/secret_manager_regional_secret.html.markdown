@@ -443,7 +443,7 @@ In Terraform v1.12.0 and later, use an [`identity` block](https://developer.hash
 import {
   identity = {
     location = "<-required value->"
-    secretId = "<-required value->"
+    secret_id = "<-required value->"
     project = "<-optional value->"
   }
   to = google_secret_manager_regional_secret.default
